@@ -1,57 +1,55 @@
 package com.khs.visionboard
 
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.databinding.library.baseAdapters.BR
+import androidx.recyclerview.widget.DiffUtil
 
 
 data class Board(
-    private var _name: String?,
-    private var _description: String?,
-    private var _imageUrl: Int
-) : BaseObservable(), Parcelable {
-    var name: String?
-        @Bindable get() = _name
+    private var _boardId: Long,
+    private var _boardTitle: String?,
+    private var _boardDescription: String?,
+    private var _boardImageUrl: Int
+) : BaseObservable(){
+    var boardId: Long
+        @Bindable get() = _boardId
         set(value) {
-            _name = value
-            notifyPropertyChanged(BR.name)
+            _boardId = value
+            notifyPropertyChanged(BR.boardId)
         }
 
-    var description: String?
-        @Bindable get() = _description
+    var boardTitle: String?
+        @Bindable get() = _boardTitle
         set(value) {
-            _description = value
-            notifyPropertyChanged(BR.description)
+            _boardTitle = value
+            notifyPropertyChanged(BR.boardTitle)
         }
 
-    var imageUrl: Int
-        @Bindable get() = _imageUrl
+    var boardDescription: String?
+        @Bindable get() = _boardDescription
         set(value) {
-            _imageUrl = value
-            notifyPropertyChanged(BR.imageUrl)
+            _boardDescription = value
+            notifyPropertyChanged(BR.boardDescription)
         }
 
-    constructor(source: Parcel) : this(
-        source.readString(),
-        source.readString(),
-        source.readInt()
-    )
-
-    override fun describeContents() = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
-        writeString(_name)
-        writeString(_description)
-        writeInt(_imageUrl)
-    }
+    var boardImageUrl: Int
+        @Bindable get() = _boardImageUrl
+        set(value) {
+            _boardImageUrl = value
+            notifyPropertyChanged(BR.boardImageUrl)
+        }
 
     companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<Board> = object : Parcelable.Creator<Board> {
-            override fun createFromParcel(source: Parcel): Board = Board(source)
-            override fun newArray(size: Int): Array<Board?> = arrayOfNulls(size)
+        val itemCallback: DiffUtil.ItemCallback<Board> = object : DiffUtil.ItemCallback<Board>() {
+            override fun areItemsTheSame(oldItem: Board, newItem: Board): Boolean {
+                return oldItem.boardId == newItem.boardId
+            }
+
+            override fun areContentsTheSame(oldItem: Board, newItem: Board): Boolean {
+                return oldItem.boardDescription.equals(newItem.boardDescription)
+            }
         }
     }
+
 }

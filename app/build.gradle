@@ -49,6 +49,7 @@ dependencies {
 
     // RecyclerView
     implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "androidx.cardview:cardview:1.0.0"
 
     // Multidex
     implementation 'androidx.multidex:multidex:multidex_version'
