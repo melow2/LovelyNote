@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -84,11 +85,27 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         boardListVM = ViewModelProvider(this, FactoryBoardListVM(requireActivity().application, 100)).get(BoardListVM::class.java)
         boardListVM.getBoardList().observe(viewLifecycleOwner,observer)
         this.lifecycle.addObserver(boardListVM)
-
         mBinding?.btnAdd?.setOnClickListener {
-            var testBoard = Board(UUID.randomUUID().toString(),"제목","설명",123)
+            val temp = UUID.randomUUID().toString()
+            var testBoard = Board(temp,temp,"설명",123)
             boardListVM.addBoard(testBoard)
         }
+        setAdapterListener()
+    }
+
+    private fun setAdapterListener() {
+        listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {
+
+            override fun onClick(position: Int) {
+                val item = boardListVM.getBoardItem(position)
+                Toast.makeText(context,item?.boardId,Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onDelete(position: Int) {
+                boardListVM.deleteBoardItem(position)
+            }
+
+        })
     }
 
 }

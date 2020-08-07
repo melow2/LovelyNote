@@ -33,6 +33,7 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/image_description"
                     android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_launcher"
                     tools:src="@mipmap/ic_launcher"/>
 
                 <TextView
@@ -42,6 +43,11 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     tools:text="제목이다."/>
+                <Button
+                    android:text="삭제"
+                    android:id="@+id/btn_delete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
