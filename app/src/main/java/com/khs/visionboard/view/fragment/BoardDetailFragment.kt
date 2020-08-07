@@ -5,15 +5,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardDetailBinding
 import com.khs.visionboard.model.Board
 import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.viewmodel.BoardDetailVM
+import com.khs.visionboard.viewmodel.BoardListVM
+import com.khs.visionboard.viewmodel.factory.FactoryBoardDetailVM
+import com.khs.visionboard.viewmodel.factory.FactoryBoardListVM
 import timber.log.Timber
 
 class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
 
     private var board: Board? = null
+    private lateinit var boardDetailVM:BoardDetailVM
+
+    private val observer: Observer<Board?> =
+        Observer { board: Board? ->
+            board?.let{
+                mBinding?.board = board
+            }
+        }
 
     companion object {
         @JvmStatic
@@ -45,12 +59,17 @@ class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mBinding?.board = board
         super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        boardDetailVM = ViewModelProvider(this, FactoryBoardDetailVM(requireActivity().application, 100)).get(BoardDetailVM::class.java)
+        board?.let {
+            boardDetailVM.setBoardItem(it)
+            boardDetailVM.getBoardItem().observe(viewLifecycleOwner,observer)
+            this.lifecycle.addObserver(boardDetailVM)
+        }
     }
 
     override fun onDestroyView() {

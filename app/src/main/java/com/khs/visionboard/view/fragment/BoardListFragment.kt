@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
 import com.khs.visionboard.model.Board
@@ -31,9 +31,10 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     private var listAdapter: BoardListAdapter? = null
     private lateinit var boardListVM: BoardListVM
 
+
     private val observer: Observer<List<Board>?> =
         Observer { boards: List<Board>? ->
-            boards?.let{
+            boards?.let {
                 listAdapter?.submitList(boards)
             }
         }
@@ -41,6 +42,7 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
+
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             BoardListFragment().apply {
@@ -76,20 +78,38 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         val context = view.context
         listAdapter = BoardListAdapter(context)
-        recyclerView?.layoutManager = LinearLayoutManager(context)
-        // recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+        recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         recyclerView?.adapter = listAdapter
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        boardListVM = ViewModelProvider(this, FactoryBoardListVM(requireActivity().application, 100)).get(BoardListVM::class.java)
-        boardListVM.getBoardList().observe(viewLifecycleOwner,observer)
+        boardListVM =
+            ViewModelProvider(this, FactoryBoardListVM(requireActivity().application, 100)).get(
+                BoardListVM::class.java
+            )
+        boardListVM.getBoardList().observe(viewLifecycleOwner, observer)
         this.lifecycle.addObserver(boardListVM)
         mBinding?.btnAdd?.setOnClickListener {
             boardListVM.setBoard()
         }
         setAdapterListener()
+    }
+
+    private fun setAdapterListener() {
+        listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {
+            override fun onClick(position: Int) {
+                val board = boardListVM.getBoardItem(position)
+                val intent = Intent(context, BoardDetailActivity::class.java).apply {
+                    putExtra(TAG_PARCELABLE_BOARD, board)
+                }
+                startActivity(intent)
+            }
+
+            override fun onDelete(position: Int) {
+                boardListVM.deleteBoardItem(position)
+            }
+        })
     }
 
     override fun onDestroyView() {
@@ -100,22 +120,6 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     override fun onDetach() {
         Timber.d("onDetach()")
         super.onDetach()
-    }
-
-    private fun setAdapterListener() {
-        listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {
-            override fun onClick(position: Int) {
-                val board = boardListVM.getBoardItem(position)
-                val intent = Intent(context,BoardDetailActivity::class.java).apply {
-                    putExtra(TAG_PARCELABLE_BOARD,board)
-                }
-                startActivity(intent)
-            }
-
-            override fun onDelete(position: Int) {
-                boardListVM.deleteBoardItem(position)
-            }
-        })
     }
 
     override fun onBackPressed(): Boolean {

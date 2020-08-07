@@ -41,6 +41,11 @@ class BoardListVM(application: Application, private val param1: Int) :
         Timber.d("onPause()")
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy() {
+        Timber.d("onDestroy()")
+    }
+
     fun deleteBoardItem(position: Int) {
         val list = (boardList.value as MutableList).toMutableList()
         list.removeAt(position)
@@ -49,11 +54,16 @@ class BoardListVM(application: Application, private val param1: Int) :
 
     fun setBoard() {
         var list = mutableListOf<Board>()
-        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명",R.drawable.image_01))
-        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.image_02))
-        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.image_03))
-        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.image_04))
-        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.image_05))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명",R.drawable.maldivas))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.maldives))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.ontario))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.senegal))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.utah))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명",R.drawable.maldivas))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.maldives))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.ontario))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.senegal))
+        list.add(Board(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "설명", R.drawable.utah))
         boardList.value = list
     }
 

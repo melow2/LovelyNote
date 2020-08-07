@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import timber.log.Timber
 
 abstract class BaseFragment<B : ViewDataBinding?> : Fragment() {
     var mBinding: B? = null
@@ -24,7 +25,7 @@ abstract class BaseFragment<B : ViewDataBinding?> : Fragment() {
 
     companion object {
         fun printLog(tag: String, msg: String) {
-            Log.d(tag, msg)
+            Timber.d(msg)
         }
 
         fun showToast(context: Context, msg: String) {
