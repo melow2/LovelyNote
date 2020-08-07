@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
 import com.khs.visionboard.model.Board
@@ -75,8 +76,7 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         val context = view.context
         listAdapter = BoardListAdapter(context)
-        recyclerView?.layoutManager = LinearLayoutManager(context)
-        // recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+        recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         recyclerView?.adapter = listAdapter
     }
 
@@ -86,9 +86,10 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         boardListVM.getBoardList().observe(viewLifecycleOwner,observer)
         this.lifecycle.addObserver(boardListVM)
         mBinding?.btnAdd?.setOnClickListener {
-            val temp = UUID.randomUUID().toString()
+/*            val temp = UUID.randomUUID().toString()
             var testBoard = Board(temp,temp,"설명",123)
-            boardListVM.addBoard(testBoard)
+            boardListVM.addBoard(testBoard)*/
+            boardListVM.setBoard()
         }
         setAdapterListener()
     }

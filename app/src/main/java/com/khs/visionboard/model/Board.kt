@@ -1,9 +1,13 @@
 package com.khs.visionboard.model
 
+import android.widget.ImageView
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
-import androidx.databinding.library.baseAdapters.BR
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
+import com.bumptech.glide.Glide
+import com.khs.visionboard.R
+import com.khs.visionboard.BR
 
 
 data class Board(
@@ -50,6 +54,15 @@ data class Board(
             override fun areContentsTheSame(oldItem: Board, newItem: Board): Boolean {
                 return oldItem.boardDescription.equals(newItem.boardDescription)
             }
+        }
+
+        @JvmStatic
+        @BindingAdapter(value = ["thumbnail"], requireAll = false) // 속성이 하나라도 선택될 때.
+        fun loadImage(imageView: ImageView, imageNumber: Int) {
+            Glide.with(imageView.context)
+                .load(imageNumber)
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(imageView)
         }
     }
 
