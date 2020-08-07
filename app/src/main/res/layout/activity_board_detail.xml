@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
-        android:id="@+id/fragment_main_container"
+        android:id="@+id/fragment_detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.activity.MainActivity" />
+        tools:context=".view.activity.BoardDetailActivity" />
 </layout>

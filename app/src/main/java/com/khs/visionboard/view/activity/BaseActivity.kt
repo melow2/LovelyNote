@@ -12,6 +12,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.google.android.material.snackbar.Snackbar
 import com.khs.visionboard.R
+import com.khs.visionboard.view.fragment.BaseFragment
+
+
+
 
 abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
     var mBinding: B?=null
@@ -39,9 +43,20 @@ abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        // 슬라이드 애니메이션.
-        overridePendingTransition(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
+        val fragmentList: List<*> = supportFragmentManager.fragments
+        var handled = false
+        for (f in fragmentList) {
+            if (f is BaseFragment<*>) {
+                handled = f.onBackPressed()
+                if (handled) {
+                    break
+                }
+            }
+        }
+        if (!handled) {
+            super.onBackPressed()
+        }
+        // overridePendingTransition(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
     }
 
     companion object {

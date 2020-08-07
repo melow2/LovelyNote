@@ -20,6 +20,8 @@ abstract class BaseFragment<B : ViewDataBinding?> : Fragment() {
         mBinding = DataBindingUtil.inflate<B>(inflater, layout, container, false)
     }
 
+    abstract fun onBackPressed(): Boolean
+
     companion object {
         fun printLog(tag: String, msg: String) {
             Log.d(tag, msg)

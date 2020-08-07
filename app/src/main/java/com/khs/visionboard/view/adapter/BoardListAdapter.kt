@@ -16,7 +16,7 @@ class BoardListAdapter(
 ) : ListAdapter<Board, BoardListAdapter.BoardViewHolder>(Board.itemCallback) {
 
     private lateinit var mBinding: BoardItemBinding
-    private lateinit var listener:BoardListEvent
+    private var listener:BoardListEvent? = null
 
     interface BoardListEvent{
         fun onClick(position: Int)
@@ -44,8 +44,20 @@ class BoardListAdapter(
         RecyclerView.ViewHolder(mBinding.root) {
 
         init {
-            mBinding.tvTitle.setOnClickListener { listener.onClick(adapterPosition) }
-            mBinding.btnDelete.setOnClickListener { listener.onDelete(adapterPosition) }
+            mBinding.rootCvBoard.setOnClickListener {
+                listener?.let {
+                    if(adapterPosition!=RecyclerView.NO_POSITION) {
+                        listener?.onClick(adapterPosition)
+                    }
+                }
+            }
+            mBinding.btnDelete.setOnClickListener {
+                listener?.let{
+                    if(adapterPosition!=RecyclerView.NO_POSITION){
+                        listener?.onDelete(adapterPosition)
+                    }
+                }
+            }
         }
 
         fun bind(board: Board) {

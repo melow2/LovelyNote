@@ -1,5 +1,7 @@
 package com.khs.visionboard.model
 
+import android.os.Parcel
+import android.os.Parcelable
 import android.widget.ImageView
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
@@ -9,13 +11,16 @@ import com.bumptech.glide.Glide
 import com.khs.visionboard.R
 import com.khs.visionboard.BR
 
-
+/**
+ * todo boardId값 auto generate 해야 함.
+ *
+ * */
 data class Board(
     private var _boardId: String?,
     private var _boardTitle: String?,
     private var _boardDescription: String?,
     private var _boardImageUrl: Int
-) : BaseObservable(){
+) : BaseObservable(), Parcelable {
 
     var boardId: String?
         @Bindable get() = _boardId
@@ -45,10 +50,26 @@ data class Board(
             notifyPropertyChanged(BR.boardImageUrl)
         }
 
+    constructor(source: Parcel) : this(
+        source.readString(),
+        source.readString(),
+        source.readString(),
+        source.readInt()
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(_boardId)
+        writeString(_boardTitle)
+        writeString(_boardDescription)
+        writeInt(_boardImageUrl)
+    }
+
     companion object {
         val itemCallback: DiffUtil.ItemCallback<Board> = object : DiffUtil.ItemCallback<Board>() {
             override fun areItemsTheSame(oldItem: Board, newItem: Board): Boolean {
-                return oldItem._boardId.equals(newItem._boardId)
+                return oldItem.boardId.equals(newItem.boardId)
             }
 
             override fun areContentsTheSame(oldItem: Board, newItem: Board): Boolean {
@@ -64,6 +85,11 @@ data class Board(
                 .placeholder(R.drawable.ic_launcher_background)
                 .into(imageView)
         }
-    }
 
+        @JvmField
+        val CREATOR: Parcelable.Creator<Board> = object : Parcelable.Creator<Board> {
+            override fun createFromParcel(source: Parcel): Board = Board(source)
+            override fun newArray(size: Int): Array<Board?> = arrayOfNulls(size)
+        }
+    }
 }

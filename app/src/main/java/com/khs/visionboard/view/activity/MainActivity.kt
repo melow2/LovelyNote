@@ -3,17 +3,13 @@ package com.khs.visionboard.view.activity
 import android.os.Bundle
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityMainBinding
+import com.khs.visionboard.model.Constants.TAG_LIST_FRAGMENT
 import com.khs.visionboard.view.fragment.BoardListFragment
-import com.khs.visionboard.model.Board
+import timber.log.Timber
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
-    lateinit var boardListFragment:BoardListFragment
-    lateinit var dummyBoards:List<Board>
-
-    companion object{
-        const val TAG_LIST_FRAGMENT = "TAG_LIST_FRAGMENT"
-    }
+    lateinit var boardListFragment: BoardListFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,12 +19,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun init(savedInstanceState: Bundle?) {
         val fm = supportFragmentManager
-        if(savedInstanceState==null){
+        if (savedInstanceState == null) {
             val ft = fm.beginTransaction()
-            boardListFragment = BoardListFragment.newInstance("param1","param2")
-            ft.add(mBinding?.fltContainer?.id!!,boardListFragment,TAG_LIST_FRAGMENT)
-            ft.commit()
-        }else{
+            boardListFragment = BoardListFragment.newInstance("param1", "param2")
+            ft.add(mBinding?.fragmentMainContainer?.id!!, boardListFragment, TAG_LIST_FRAGMENT).commit()
+        } else {
             boardListFragment = fm.findFragmentByTag(TAG_LIST_FRAGMENT) as BoardListFragment
         }
     }

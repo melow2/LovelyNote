@@ -1,6 +1,7 @@
 package com.khs.visionboard.view.fragment
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,17 +15,18 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
 import com.khs.visionboard.model.Board
+import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.view.activity.BoardDetailActivity
 import com.khs.visionboard.view.adapter.BoardListAdapter
 import com.khs.visionboard.viewmodel.BoardListVM
 import com.khs.visionboard.viewmodel.factory.FactoryBoardListVM
 import timber.log.Timber
-import java.util.*
-import kotlin.collections.ArrayList
 
 class BoardListFragment : BaseFragment<FragmentListBinding>() {
 
     private var param1: String? = null
     private var param2: String? = null
+
     private var recyclerView: RecyclerView? = null
     private var listAdapter: BoardListAdapter? = null
     private lateinit var boardListVM: BoardListVM
@@ -32,7 +34,6 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     private val observer: Observer<List<Board>?> =
         Observer { boards: List<Board>? ->
             boards?.let{
-                Timber.d(boards.size.toString())
                 listAdapter?.submitList(boards)
             }
         }
@@ -40,7 +41,6 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
-
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             BoardListFragment().apply {
@@ -76,7 +76,8 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         val context = view.context
         listAdapter = BoardListAdapter(context)
-        recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        // recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         recyclerView?.adapter = listAdapter
     }
 
@@ -86,27 +87,39 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         boardListVM.getBoardList().observe(viewLifecycleOwner,observer)
         this.lifecycle.addObserver(boardListVM)
         mBinding?.btnAdd?.setOnClickListener {
-/*            val temp = UUID.randomUUID().toString()
-            var testBoard = Board(temp,temp,"설명",123)
-            boardListVM.addBoard(testBoard)*/
             boardListVM.setBoard()
         }
         setAdapterListener()
     }
 
+    override fun onDestroyView() {
+        Timber.d("onDestroyView()")
+        super.onDestroyView()
+    }
+
+    override fun onDetach() {
+        Timber.d("onDetach()")
+        super.onDetach()
+    }
+
     private fun setAdapterListener() {
         listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {
-
             override fun onClick(position: Int) {
-                val item = boardListVM.getBoardItem(position)
-                Toast.makeText(context,item?.boardId,Toast.LENGTH_SHORT).show()
+                val board = boardListVM.getBoardItem(position)
+                val intent = Intent(context,BoardDetailActivity::class.java).apply {
+                    putExtra(TAG_PARCELABLE_BOARD,board)
+                }
+                startActivity(intent)
             }
 
             override fun onDelete(position: Int) {
                 boardListVM.deleteBoardItem(position)
             }
-
         })
+    }
+
+    override fun onBackPressed(): Boolean {
+        return false
     }
 
 }

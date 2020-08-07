@@ -1,6 +1,4 @@
 <resources>
     <string name="app_name">VisionBoard</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="image_description">사진설명.</string>
+    <string name="image_description">사진 설명</string>
 </resources>
