@@ -1,4 +1,4 @@
-package com.khs.visionboard
+package com.khs.visionboard.model
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
@@ -7,12 +7,13 @@ import androidx.recyclerview.widget.DiffUtil
 
 
 data class Board(
-    private var _boardId: Long,
+    private var _boardId: String?,
     private var _boardTitle: String?,
     private var _boardDescription: String?,
     private var _boardImageUrl: Int
 ) : BaseObservable(){
-    var boardId: Long
+
+    var boardId: String?
         @Bindable get() = _boardId
         set(value) {
             _boardId = value
@@ -43,7 +44,7 @@ data class Board(
     companion object {
         val itemCallback: DiffUtil.ItemCallback<Board> = object : DiffUtil.ItemCallback<Board>() {
             override fun areItemsTheSame(oldItem: Board, newItem: Board): Boolean {
-                return oldItem.boardId == newItem.boardId
+                return oldItem._boardId.equals(newItem._boardId)
             }
 
             override fun areContentsTheSame(oldItem: Board, newItem: Board): Boolean {

@@ -1,4 +1,4 @@
-package com.khs.visionboard.fragment
+package com.khs.visionboard.view.fragment
 
 import android.content.Context
 import android.util.Log
