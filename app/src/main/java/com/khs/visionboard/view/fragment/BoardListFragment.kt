@@ -16,6 +16,7 @@ import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
 import com.khs.visionboard.model.Board
 import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.view.activity.AddBoardActivity
 import com.khs.visionboard.view.activity.BoardDetailActivity
 import com.khs.visionboard.view.adapter.BoardListAdapter
 import com.khs.visionboard.viewmodel.BoardListVM
@@ -80,23 +81,22 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         listAdapter = BoardListAdapter(context)
         recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         recyclerView?.adapter = listAdapter
+        setUpListener()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        boardListVM =
-            ViewModelProvider(this, FactoryBoardListVM(requireActivity().application, 100)).get(
-                BoardListVM::class.java
-            )
+        boardListVM = ViewModelProvider(this, FactoryBoardListVM(requireActivity().application, 100)).get(BoardListVM::class.java)
         boardListVM.getBoardList().observe(viewLifecycleOwner, observer)
         this.lifecycle.addObserver(boardListVM)
-        mBinding?.btnAdd?.setOnClickListener {
-            boardListVM.setBoard()
-        }
-        setAdapterListener()
     }
 
-    private fun setAdapterListener() {
+    private fun setUpListener() {
+        // FloatingButton
+        mBinding?.btnAdd?.setOnClickListener {
+            startActivity(Intent(context,AddBoardActivity::class.java).apply {})
+        }
+
         listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {
             override fun onClick(position: Int) {
                 val board = boardListVM.getBoardItem(position)

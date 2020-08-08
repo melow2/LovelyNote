@@ -36,7 +36,6 @@ abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
         toolbar.setContentInsetsAbsolute(0, 0) // 좌우 여백 제거.
         tvToolbarTitle.text = toolbarTitle
         if (backBtnVisible) { // 뒤로가기 버튼 보이기.
-            toolbar.setNavigationIcon(R.drawable.ic_launcher_foreground)
             toolbar.setNavigationOnClickListener { v: View? -> onBackPressed() }
         }
         setSupportActionBar(toolbar)

@@ -11,7 +11,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class ScrollAwareFABBehavior : CoordinatorLayout.Behavior<FloatingActionButton> {
-    var mHandler: Handler? = null
+    private var mHandler: Handler? = null
 
     constructor(context: Context?, attrs: AttributeSet?) : super() {}
     constructor() : super() {}

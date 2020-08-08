@@ -1,12 +1,18 @@
 package com.khs.visionboard.view.activity
 
 import android.os.Bundle
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityMainBinding
 import com.khs.visionboard.model.Constants.TAG_LIST_FRAGMENT
 import com.khs.visionboard.view.fragment.BoardListFragment
-import timber.log.Timber
+import java.util.jar.Manifest
 
+
+/*
+* todo 권한 splash activity로 옮겨야 함.
+* */
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     lateinit var boardListFragment: BoardListFragment
@@ -14,7 +20,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bindView(R.layout.activity_main)
-        init(savedInstanceState)
+        TedPermission.with(this)
+            .setPermissionListener(object:PermissionListener{
+                override fun onPermissionGranted() {
+                    init(savedInstanceState)
+                }
+
+                override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                    finish()
+                }
+            })
+            .setDeniedMessage("앱을 실행하려면 권한이 필요합니다.")
+            .setPermissions(android.Manifest.permission.WRITE_EXTERNAL_STORAGE,android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            .check()
     }
 
     private fun init(savedInstanceState: Bundle?) {

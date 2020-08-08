@@ -12,7 +12,7 @@
             android:id="@+id/rcv_board_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/board_item" />
+            tools:listitem="@layout/board_iist_item" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_add"

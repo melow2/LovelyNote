@@ -2,7 +2,6 @@ package com.khs.visionboard.view.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -30,7 +29,7 @@ class BoardListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BoardViewHolder {
         mBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
-            R.layout.board_item, parent, false
+            R.layout.board_iist_item, parent, false
         )
         return BoardViewHolder(mBinding)
     }
