@@ -10,6 +10,7 @@ import java.util.*
 class BoardListVM(application: Application, private val param1: Int) :
     AndroidViewModel(application),
     LifecycleObserver {
+    private val mContext = application.applicationContext
     private var boardList: MutableLiveData<List<Board>> = MutableLiveData()
 
     fun getBoardList(): MutableLiveData<List<Board>> {

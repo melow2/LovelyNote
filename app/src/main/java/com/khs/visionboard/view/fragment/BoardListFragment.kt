@@ -8,10 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
 import com.khs.visionboard.model.Board
@@ -20,21 +17,19 @@ import com.khs.visionboard.view.activity.AddBoardActivity
 import com.khs.visionboard.view.activity.BoardDetailActivity
 import com.khs.visionboard.view.adapter.BoardListAdapter
 import com.khs.visionboard.viewmodel.BoardListVM
-import com.khs.visionboard.viewmodel.factory.FactoryBoardListVM
+import com.khs.visionboard.viewmodel.factory.BoardListVMFactory
 import timber.log.Timber
 
 class BoardListFragment : BaseFragment<FragmentListBinding>() {
 
     private var param1: String? = null
     private var param2: String? = null
-
-    private var recyclerView: RecyclerView? = null
     private var listAdapter: BoardListAdapter? = null
     private lateinit var boardListVM: BoardListVM
 
-
     private val observer: Observer<List<Board>?> =
         Observer { boards: List<Board>? ->
+            Timber.d(boards.toString())
             boards?.let {
                 listAdapter?.submitList(boards)
             }
@@ -43,7 +38,6 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
-
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             BoardListFragment().apply {
@@ -71,7 +65,6 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         savedInstanceState: Bundle?
     ): View? {
         bindView(inflater, container!!, R.layout.fragment_list)
-        recyclerView = mBinding?.rcvBoardList
         return mBinding?.root
     }
 
@@ -79,14 +72,16 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         val context = view.context
         listAdapter = BoardListAdapter(context)
-        recyclerView?.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
-        recyclerView?.adapter = listAdapter
+        mBinding?.rcvBoardList?.run{
+            layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+            adapter = listAdapter
+        }
         setUpListener()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        boardListVM = ViewModelProvider(this, FactoryBoardListVM(requireActivity().application, 100)).get(BoardListVM::class.java)
+        boardListVM = ViewModelProvider(this, BoardListVMFactory(requireActivity().application, 100)).get(BoardListVM::class.java)
         boardListVM.getBoardList().observe(viewLifecycleOwner, observer)
         this.lifecycle.addObserver(boardListVM)
     }

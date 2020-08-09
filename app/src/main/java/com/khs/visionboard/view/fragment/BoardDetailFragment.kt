@@ -12,9 +12,7 @@ import com.khs.visionboard.databinding.BoardDetailBinding
 import com.khs.visionboard.model.Board
 import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
 import com.khs.visionboard.viewmodel.BoardDetailVM
-import com.khs.visionboard.viewmodel.BoardListVM
-import com.khs.visionboard.viewmodel.factory.FactoryBoardDetailVM
-import com.khs.visionboard.viewmodel.factory.FactoryBoardListVM
+import com.khs.visionboard.viewmodel.factory.BoardDetailVMFactory
 import timber.log.Timber
 
 class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
@@ -64,7 +62,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        boardDetailVM = ViewModelProvider(this, FactoryBoardDetailVM(requireActivity().application, 100)).get(BoardDetailVM::class.java)
+        boardDetailVM = ViewModelProvider(this, BoardDetailVMFactory(requireActivity().application, 100)).get(BoardDetailVM::class.java)
         board?.let {
             boardDetailVM.setBoardItem(it)
             boardDetailVM.getBoardItem().observe(viewLifecycleOwner,observer)

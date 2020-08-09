@@ -7,18 +7,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/root_image_list"
+        <LinearLayout
+            android:id="@+id/root_image_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="250dp"
+            android:orientation="horizontal"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
+                android:id="@+id/root_image_list"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/iv_thumbnail"
                     android:layout_width="0dp"
@@ -26,6 +27,7 @@
                     android:layout_weight="1"
                     android:contentDescription="photo"
                     android:scaleType="centerCrop"
+                    android:src="@drawable/senegal"
                     tools:src="@drawable/senegal" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -33,20 +35,54 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    tools:listitem="@layout/board_image_item" />
+                    tools:listitem="@layout/board_gallery_item" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/root_gallery_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:visibility="gone">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rcv_gallery_list"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    tools:listitem="@layout/board_gallery_item" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/root_image_layout">
+
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btn_image_add"
+                android:id="@+id/btn_camera"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:src="@drawable/tag_plus"
+                android:scaleType="centerCrop"
+                android:src="@drawable/camera"
                 app:borderWidth="0dp"
-                app:fabSize="normal"
-                app:layout_anchor="@id/rcv_image_list"
+                app:fabSize="mini"
+                app:layout_anchor="@id/rcv_gallery_list"
                 app:layout_anchorGravity="bottom|right|end"
                 app:layout_behavior="com.khs.visionboard.view.behavior.ScrollAwareFABBehavior" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/camera_image"
+                app:borderWidth="0dp"
+                app:fabSize="mini" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

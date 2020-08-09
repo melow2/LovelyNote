@@ -7,7 +7,7 @@ import timber.log.Timber
 
 class BoardDetailVM(application: Application, private val param1: Int) :
     AndroidViewModel(application), LifecycleObserver{
-
+    private val mContext = application.applicationContext
     private var board: MutableLiveData<Board> = MutableLiveData()
 
     fun setBoardItem(item:Board){

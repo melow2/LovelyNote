@@ -31,7 +31,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 }
             })
             .setDeniedMessage("앱을 실행하려면 권한이 필요합니다.")
-            .setPermissions(android.Manifest.permission.WRITE_EXTERNAL_STORAGE,android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            .setPermissions(android.Manifest.permission.READ_EXTERNAL_STORAGE)
             .check()
     }
 
