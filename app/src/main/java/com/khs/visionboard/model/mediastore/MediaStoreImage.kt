@@ -14,7 +14,7 @@ data class MediaStoreImage(
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<MediaStoreImage>() {
             override fun areItemsTheSame(oldItem: MediaStoreImage, newItem: MediaStoreImage): Boolean =
-                oldItem.id == newItem.id
+                oldItem.contentUri == newItem.contentUri
 
             override fun areContentsTheSame(oldItem: MediaStoreImage, newItem: MediaStoreImage): Boolean =
                 oldItem.contentUri == newItem.contentUri

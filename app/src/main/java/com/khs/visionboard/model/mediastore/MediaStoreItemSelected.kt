@@ -1,24 +1,25 @@
 package com.khs.visionboard.model.mediastore
 
 import android.net.Uri
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
-import com.khs.visionboard.databinding.BoardMediaItemBinding
+import com.khs.visionboard.databinding.BoardItemMediaSelectedBinding
 
 data class MediaStoreItemSelected(
-    val itemBinding: BoardMediaItemBinding,
+    val itemBinding: ViewDataBinding,
     val position: Int,
     val contentUri:Uri,
-    val type: MediaStoreFileType,
-    val item:Any?
+    val type: MediaStoreFileType?,
+    val item:MediaStoreItem?
 ){
     companion object {
         val diffCallback: DiffUtil.ItemCallback<MediaStoreItemSelected> = object : DiffUtil.ItemCallback<MediaStoreItemSelected>() {
             override fun areItemsTheSame(oldItem: MediaStoreItemSelected, newItem: MediaStoreItemSelected): Boolean {
-                return oldItem.itemBinding == newItem.itemBinding
+                return oldItem.contentUri == newItem.contentUri
             }
 
             override fun areContentsTheSame(oldItem: MediaStoreItemSelected, newItem: MediaStoreItemSelected): Boolean {
-                return oldItem.itemBinding == newItem.itemBinding
+                return oldItem.contentUri == newItem.contentUri
             }
         }
 

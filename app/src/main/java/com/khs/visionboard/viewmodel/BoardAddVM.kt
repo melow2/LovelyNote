@@ -5,9 +5,14 @@ import android.view.View
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.khs.visionboard.model.mediastore.MediaStoreItemSelected
-import com.khs.visionboard.model.mediastore.MediaStoreImage
+import com.khs.visionboard.databinding.BoardItemMediaAudioBinding
+import com.khs.visionboard.databinding.BoardItemMediaImageBinding
 import com.khs.visionboard.extension.complexOnAnimation
+import com.khs.visionboard.model.mediastore.MediaStoreAudio
+import com.khs.visionboard.model.mediastore.MediaStoreFileType
+import com.khs.visionboard.model.mediastore.MediaStoreImage
+import com.khs.visionboard.model.mediastore.MediaStoreItemSelected
+import com.khs.visionboard.viewmodel.factory.MediaAudioSourceFactory
 import com.khs.visionboard.viewmodel.factory.MediaImageSourceFactory
 import timber.log.Timber
 
@@ -42,14 +47,18 @@ class BoardAddVM(application: Application, private val param1: Int) :
     AndroidViewModel(application), LifecycleObserver {
 
     private lateinit var mImageList: LiveData<PagedList<MediaStoreImage>>
+    private lateinit var mAudioList: LiveData<PagedList<MediaStoreAudio>>
     private val mContext = application.applicationContext
     private val mImageSourceFactory: MediaImageSourceFactory
+    private val mAudioSourceFactory: MediaAudioSourceFactory
 
     private val mPagedListConfig: PagedList.Config
-    private val mSelectedMediaStoreItemList: MutableLiveData<List<MediaStoreItemSelected>> = MutableLiveData()
+    private val mSelectedMediaStoreItemList: MutableLiveData<List<MediaStoreItemSelected>> =
+        MutableLiveData()
 
     init {
         mImageSourceFactory = MediaImageSourceFactory(mContext.contentResolver)
+        mAudioSourceFactory = MediaAudioSourceFactory(mContext.contentResolver)
         mPagedListConfig = PagedList.Config.Builder()
             .setPageSize(20)
             .setInitialLoadSizeHint(60)     // default : page size * 3
@@ -63,6 +72,12 @@ class BoardAddVM(application: Application, private val param1: Int) :
         mImageList = LivePagedListBuilder(mImageSourceFactory, mPagedListConfig).build()
         return mImageList
     }
+
+    fun getAudios(): LiveData<PagedList<MediaStoreAudio>> {
+        mAudioList = LivePagedListBuilder(mAudioSourceFactory, mPagedListConfig).build()
+        return mAudioList
+    }
+
 
     fun getSelectedImages(): LiveData<List<MediaStoreItemSelected>> {
         return mSelectedMediaStoreItemList
@@ -105,9 +120,20 @@ class BoardAddVM(application: Application, private val param1: Int) :
      * */
     fun removeAllSelectedImages() {
         for (item in mSelectedMediaStoreItemList.value!!) {
-            item.itemBinding.run {
-                ivGallery.complexOnAnimation()
-                ivSelected.visibility = View.GONE
+            when (item.type) {
+                MediaStoreFileType.IMAGE -> {
+                    (item.itemBinding as BoardItemMediaImageBinding).apply {
+                        ivGallery.complexOnAnimation()
+                        ivSelected.visibility = View.GONE
+
+                    }
+                }
+                MediaStoreFileType.AUDIO -> {
+                    (item.itemBinding as BoardItemMediaAudioBinding).apply {
+                        ivAudio.complexOnAnimation()
+                        ivSelected.visibility = View.GONE
+                    }
+                }
             }
         }
         mSelectedMediaStoreItemList.value = mutableListOf()

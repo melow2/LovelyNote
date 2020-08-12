@@ -7,8 +7,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.visionboard.R
-import com.khs.visionboard.databinding.BoardMediaItemBinding
+import com.khs.visionboard.databinding.BoardItemMediaSelectedBinding
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
+import com.khs.visionboard.model.mediastore.MediaStoreImage
 import com.khs.visionboard.model.mediastore.MediaStoreItemSelected
 import com.khs.visionboard.model.mediastore.MediaStoreItemSelected.Companion.diffCallback
 import com.khs.visionboard.module.glide.GlideImageLoader
@@ -16,9 +17,11 @@ import com.khs.visionboard.module.glide.ProgressAppGlideModule
 
 class SelectedMediaFileListAdapter(
     val mContext: Context
-) : ListAdapter<MediaStoreItemSelected, SelectedMediaFileListAdapter.SelectedImageViewHolder>(diffCallback) {
+) : ListAdapter<MediaStoreItemSelected, SelectedMediaFileListAdapter.SelectedImageViewHolder>(
+    diffCallback
+) {
 
-    private lateinit var mBinding: BoardMediaItemBinding
+    private lateinit var mBinding: BoardItemMediaSelectedBinding
     private var listener: SelectedImageListEvent? = null
 
     interface SelectedImageListEvent {
@@ -37,7 +40,7 @@ class SelectedMediaFileListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedImageViewHolder {
         mBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
-            R.layout.board_media_item, parent, false
+            R.layout.board_item_media_selected, parent, false
         )
         return SelectedImageViewHolder(mBinding)
     }
@@ -47,11 +50,11 @@ class SelectedMediaFileListAdapter(
         holder.bind(board)              // bind item
     }
 
-    inner class SelectedImageViewHolder(private val mBinding: BoardMediaItemBinding) :
+    inner class SelectedImageViewHolder(private val mBinding: BoardItemMediaSelectedBinding) :
         RecyclerView.ViewHolder(mBinding.root) {
 
         init {
-            mBinding.ivGallery.setOnClickListener {
+            mBinding.ivMediaItem.setOnClickListener {
                 listener?.apply {
                     if (adapterPosition != RecyclerView.NO_POSITION) {
                         onClick(adapterPosition)
@@ -61,12 +64,20 @@ class SelectedMediaFileListAdapter(
         }
 
         fun bind(selected: MediaStoreItemSelected) {
-            when(selected.type){
-                MediaStoreFileType.IMAGE ->{
-                    GlideImageLoader(mBinding.ivGallery, mBinding.pgbLoading)
-                        .load(selected.contentUri.toString(), ProgressAppGlideModule.requestOptions(mContext))
+            selected.apply {
+                when (item?.type) {
+                    MediaStoreFileType.IMAGE -> {
+                        var temp = item as MediaStoreImage
+                        GlideImageLoader(
+                            mBinding.ivMediaItem, null
+                        ).load(
+                            (contentUri).toString(),
+                            ProgressAppGlideModule.requestOptions(mContext)
+                        )
+                    }
                 }
             }
         }
     }
 }
+

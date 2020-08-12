@@ -10,35 +10,35 @@ import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.visionboard.R
-import com.khs.visionboard.databinding.BoardItemMediaImageBinding
+import com.khs.visionboard.databinding.BoardItemMediaAudioBinding
 import com.khs.visionboard.extension.complexOffAnimation
 import com.khs.visionboard.extension.complexOnAnimation
 import com.khs.visionboard.extension.startDrawableAnimation
+import com.khs.visionboard.model.mediastore.MediaStoreAudio
+import com.khs.visionboard.model.mediastore.MediaStoreAudio.Companion.diffCallback
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import com.khs.visionboard.model.mediastore.MediaStoreImage
-import com.khs.visionboard.model.mediastore.MediaStoreImage.Companion.diffCallback
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule.Companion.requestOptions
 
-class MediaImagePagedAdapter(var mContext: Context) :
-    PagedListAdapter<MediaStoreImage, MediaImagePagedAdapter.GalleryViewHolder>(diffCallback) {
+class MediaAudioPagedAdapter(var mContext: Context) :
+    PagedListAdapter<MediaStoreAudio, MediaAudioPagedAdapter.GalleryViewHolder>(diffCallback) {
 
-    lateinit var mBinding: BoardItemMediaImageBinding
-    private var mListener: MediaPagedImageListener? = null
+    lateinit var mBinding: BoardItemMediaAudioBinding
+    private var mListener: MediaPagedAudioListener? = null
     private var mSelectedItems: SparseBooleanArray = SparseBooleanArray(0)
-    private val mImageList = arrayListOf<MediaStoreImage>()
+    private val mImageList = arrayListOf<MediaStoreAudio>()
 
-    interface MediaPagedImageListener {
-        fun onMediaImageClickEvent(
-            binding: BoardItemMediaImageBinding,
+    interface MediaPagedAudioListener {
+        fun onMediaAudioClickEvent(
+            binding: BoardItemMediaAudioBinding,
             adapterPosition: Int,
-            item: MediaStoreImage,
+            item: MediaStoreAudio,
             type: MediaStoreFileType,
             checked: Boolean
         )
     }
 
-    fun addListener(listener: MediaPagedImageListener) {
+    fun addListener(listener: MediaPagedAudioListener) {
         this.mListener = listener
     }
 
@@ -49,7 +49,7 @@ class MediaImagePagedAdapter(var mContext: Context) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GalleryViewHolder {
         mBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
-            R.layout.board_item_media_image,
+            R.layout.board_item_media_audio,
             parent,
             false
         )
@@ -70,7 +70,7 @@ class MediaImagePagedAdapter(var mContext: Context) :
         return mImageList.size
     }
 
-    override fun submitList(pagedList: PagedList<MediaStoreImage>?) {
+    override fun submitList(pagedList: PagedList<MediaStoreAudio>?) {
         pagedList?.addWeakCallback(listOf(), object : PagedList.Callback() {
             override fun onChanged(position: Int, count: Int) {
                 mImageList.clear()
@@ -90,38 +90,35 @@ class MediaImagePagedAdapter(var mContext: Context) :
         super.submitList(pagedList)
     }
 
-    inner class GalleryViewHolder(val mBinding: BoardItemMediaImageBinding) :
+    inner class GalleryViewHolder(val mBinding: BoardItemMediaAudioBinding) :
         RecyclerView.ViewHolder(mBinding.root) {
 
         init {
             mBinding.run {
-                ivGallery.setOnClickListener {
+                ivAudio.setOnClickListener {
                     when (mSelectedItems.get(adapterPosition, false)) {
                         false -> {
                             mSelectedItems.put(adapterPosition, true)
-                            ivGallery.complexOffAnimation()
+                            ivAudio.complexOffAnimation()
                             ivSelected.startDrawableAnimation()
                         }
                         else -> {
                             mSelectedItems.put(adapterPosition, false)
-                            ivGallery.complexOnAnimation()
+                            ivAudio.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
                     val mediaFile = getItem(adapterPosition)
                     val checked = mSelectedItems.get(adapterPosition, false)
                     mediaFile?.let {
-                        mListener?.onMediaImageClickEvent(mBinding, adapterPosition, it, it.type, checked)
+                        mListener?.onMediaAudioClickEvent(mBinding, adapterPosition, it, it.type, checked)
                     }
                 }
             }
         }
 
-        fun bind(item: MediaStoreImage) {
-            GlideImageLoader(
-                mBinding.ivGallery,
-                mBinding.pgbLoading
-            ).load((item.contentUri).toString(), requestOptions(mContext))
+        fun bind(item: MediaStoreAudio) {
+            GlideImageLoader(mBinding.ivAudio,null).load((item.contentUri).toString(), requestOptions(mContext))
         }
     }
 }
