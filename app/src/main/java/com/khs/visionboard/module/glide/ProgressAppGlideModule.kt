@@ -122,8 +122,7 @@ class ProgressAppGlideModule : AppGlideModule() {
             }
             val percent = 100f * current / total
             val currentProgress = (percent / granularity).toLong()
-            val lastProgress =
-                PROGRESSES[key]
+            val lastProgress = PROGRESSES[key]
             return if (lastProgress == null || currentProgress != lastProgress) {
                 PROGRESSES[key] = currentProgress
                 true

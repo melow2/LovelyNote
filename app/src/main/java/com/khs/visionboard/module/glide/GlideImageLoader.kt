@@ -1,6 +1,8 @@
 package com.khs.visionboard.module.glide
 
+import android.R
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -11,6 +13,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+
 
 class GlideImageLoader(imageView: ImageView?, progressBar: ProgressBar?) {
 
@@ -76,5 +79,4 @@ class GlideImageLoader(imageView: ImageView?, progressBar: ProgressBar?) {
             mImageView.visibility = View.VISIBLE
         }
     }
-
 }

@@ -4,10 +4,9 @@ import android.os.Bundle
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityBoardDetailBinding
 import com.khs.visionboard.model.Board
-import com.khs.visionboard.model.Constants.TAG_DETAIL_FRAGMENT
-import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.extension.Constants.TAG_DETAIL_FRAGMENT
+import com.khs.visionboard.extension.Constants.TAG_PARCELABLE_BOARD
 import com.khs.visionboard.view.fragment.BoardDetailFragment
-import com.khs.visionboard.view.fragment.BoardListFragment
 
 class BoardDetailActivity : BaseActivity<ActivityBoardDetailBinding>() {
 

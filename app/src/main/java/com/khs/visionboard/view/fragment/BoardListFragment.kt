@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
 import com.khs.visionboard.model.Board
-import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.extension.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.extension.observeOnce
 import com.khs.visionboard.view.activity.AddBoardActivity
 import com.khs.visionboard.view.activity.BoardDetailActivity
 import com.khs.visionboard.view.adapter.BoardListAdapter

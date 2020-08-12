@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardDetailBinding
 import com.khs.visionboard.model.Board
-import com.khs.visionboard.model.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.extension.Constants.TAG_PARCELABLE_BOARD
 import com.khs.visionboard.viewmodel.BoardDetailVM
 import com.khs.visionboard.viewmodel.factory.BoardDetailVMFactory
 import timber.log.Timber

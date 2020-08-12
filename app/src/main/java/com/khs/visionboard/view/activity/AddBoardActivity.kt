@@ -5,7 +5,7 @@ import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityAddBoardBinding
-import com.khs.visionboard.model.Constants.TAG_ADD_FRAGMENT
+import com.khs.visionboard.extension.Constants.TAG_ADD_FRAGMENT
 import com.khs.visionboard.view.fragment.AddBoardFragment
 
 class AddBoardActivity : BaseActivity<ActivityAddBoardBinding>() {

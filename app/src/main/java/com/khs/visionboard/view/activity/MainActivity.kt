@@ -5,9 +5,8 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityMainBinding
-import com.khs.visionboard.model.Constants.TAG_LIST_FRAGMENT
+import com.khs.visionboard.extension.Constants.TAG_LIST_FRAGMENT
 import com.khs.visionboard.view.fragment.BoardListFragment
-import java.util.jar.Manifest
 
 
 /*
@@ -31,7 +30,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 }
             })
             .setDeniedMessage("앱을 실행하려면 권한이 필요합니다.")
-            .setPermissions(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            .setPermissions(android.Manifest.permission.READ_EXTERNAL_STORAGE,android.Manifest.permission.RECORD_AUDIO)
             .check()
     }
 
