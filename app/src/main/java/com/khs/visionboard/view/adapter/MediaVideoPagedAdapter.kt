@@ -5,6 +5,7 @@ import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.util.remove
 import androidx.databinding.DataBindingUtil
 import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
@@ -44,6 +45,10 @@ class MediaVideoPagedAdapter(var mContext: Context) :
 
     fun initSelectedItems() {
         mSelectedItems.clear()
+    }
+
+    fun removeSelectedItem(position:Int){
+        mSelectedItems.remove(position,true)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {

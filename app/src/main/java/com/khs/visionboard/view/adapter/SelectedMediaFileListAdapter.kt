@@ -25,8 +25,8 @@ class SelectedMediaFileListAdapter(
     private var listener: SelectedImageListEvent? = null
 
     interface SelectedImageListEvent {
-        fun onClick(position: Int)
-        fun onDelete(position: Int)
+        fun onClickSelectedItem(item: SelectedMediaStoreItem)
+        fun onDeleteSelectedItem(item: SelectedMediaStoreItem)
     }
 
     fun addEventListener(listener: SelectedImageListEvent) {
@@ -54,11 +54,21 @@ class SelectedMediaFileListAdapter(
         RecyclerView.ViewHolder(mBinding.root) {
 
         init {
-            mBinding.ivMediaItem.setOnClickListener {
-                listener?.apply {
-                    if (adapterPosition != RecyclerView.NO_POSITION) {
-                        onClick(adapterPosition)
+            mBinding.ivMediaItem.run {
+                setOnClickListener {
+                    listener?.run {
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            onClickSelectedItem(getItem(adapterPosition))
+                        }
                     }
+                }
+                setOnLongClickListener {
+                    listener?.run {
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            onDeleteSelectedItem(getItem(adapterPosition))
+                        }
+                    }
+                    true
                 }
             }
         }
@@ -74,7 +84,7 @@ class SelectedMediaFileListAdapter(
                             ProgressAppGlideModule.requestOptions(mContext)
                         )
                     }
-                    MediaStoreFileType.AUDIO ->{
+                    MediaStoreFileType.AUDIO -> {
                         GlideImageLoader(
                             mBinding.ivMediaItem, null
                         ).load(
@@ -82,7 +92,7 @@ class SelectedMediaFileListAdapter(
                             ProgressAppGlideModule.requestOptions(mContext)
                         )
                     }
-                    MediaStoreFileType.VIDEO ->{
+                    MediaStoreFileType.VIDEO -> {
                         Glide.with(mBinding.root)
                             .load(R.drawable.ic_baseline_videocam)
                             .into(mBinding.ivMediaItem)
@@ -92,4 +102,6 @@ class SelectedMediaFileListAdapter(
         }
     }
 }
+
+
 

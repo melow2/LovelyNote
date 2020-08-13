@@ -87,7 +87,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
         return mVideoList
     }
 
-    fun getSelectedImages(): LiveData<List<SelectedMediaStoreItem>> {
+    fun getSelectedItems(): LiveData<List<SelectedMediaStoreItem>> {
         return mSelectedMediaStoreItemList
     }
 
@@ -126,7 +126,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
      * 1) 데이터 바인딩된 이미지에서 애니메이션을 모두 제거한다.
      * 2) 선택된 이미지 데이터를 초기화 한다.
      * */
-    fun removeAllSelectedImages() {
+    fun removeAllSelectedItemAnimation() {
         for (item in mSelectedMediaStoreItemList.value!!) {
             when (item.type) {
                 MediaStoreFileType.IMAGE -> {
@@ -153,6 +153,35 @@ class BoardAddVM(application: Application, private val param1: Int) :
             }
         }
         mSelectedMediaStoreItemList.value = mutableListOf()
+    }
+
+    fun removelSelectedItemAnimation(target: SelectedMediaStoreItem) {
+        for (item in mSelectedMediaStoreItemList.value!!) {
+            if(item.contentUri == target.contentUri) {
+                when (target.type) {
+                    MediaStoreFileType.IMAGE -> {
+                        (item.itemBinding as BoardItemMediaImageBinding).run {
+                            ivGallery.complexOnAnimation()
+                            ivSelected.visibility = View.GONE
+                        }
+                    }
+                    MediaStoreFileType.AUDIO -> {
+                        (item.itemBinding as BoardItemMediaAudioBinding).run {
+                            ivAudio.complexOnAnimation()
+                            btnAudioPlay.complexOnAnimation()
+                            tvDuration.complexOnAnimation()
+                            ivSelected.visibility = View.GONE
+                        }
+                    }
+                    MediaStoreFileType.VIDEO -> {
+                        (item.itemBinding as BoardItemMediaVideoBinding).run {
+                            ivVideo.complexOnAnimation()
+                            ivSelected.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)

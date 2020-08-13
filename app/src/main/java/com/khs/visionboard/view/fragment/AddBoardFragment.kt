@@ -32,7 +32,8 @@ import timber.log.Timber
 
 class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     MediaImagePagedAdapter.MediaPagedImageListener, MediaAudioPagedAdapter.MediaPagedAudioListener,
-    MediaVideoPagedAdapter.MediaPagedViedoListener {
+    MediaVideoPagedAdapter.MediaPagedViedoListener,
+    SelectedMediaFileListAdapter.SelectedImageListEvent {
 
     private var param1: String? = null
     private var param2: String? = null
@@ -103,6 +104,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             mBinding?.apply {
                 if (selectedMediaStoreItems.isNotEmpty() && btnRefresh.visibility == View.GONE) {
                     btnRefresh.fadeInAnimation()
+                    ivThumbnail.fadeInAnimation()
                 } else if (selectedMediaStoreItems.isEmpty() && btnRefresh.visibility == View.VISIBLE) {
                     btnRefresh.fadeOutAnimation()
                 }
@@ -112,6 +114,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         (selectedMediaStoreItems[0].contentUri.toString()),
                         ProgressAppGlideModule.requestOptions(requireActivity())
                     )
+                } else {
+                    ivThumbnail.fadeOutAnimation()
                 }
                 selectedListAdapter.submitList(selectedMediaStoreItems)
             }
@@ -177,7 +181,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
 
             rcvMediaAdded.apply {
-                selectedListAdapter = SelectedMediaFileListAdapter(context).apply {}
+                selectedListAdapter =
+                    SelectedMediaFileListAdapter(context).apply { addEventListener(this@AddBoardFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), SELECTED_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = selectedListAdapter
@@ -199,7 +204,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         boardAddVM.apply {
             getImages().observeOnce(viewLifecycleOwner, observerMediaStoreImage)
             getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
-            getSelectedImages().observe(viewLifecycleOwner, observerSelectedMediaStoreItem)
+            getSelectedItems().observe(viewLifecycleOwner, observerSelectedMediaStoreItem)
         }
         this.lifecycle.addObserver(boardAddVM)
     }
@@ -241,29 +246,35 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             btnMediaVideo.setOnClickListener {
                 if (rcvMediaVideoList.visibility == View.GONE) rcvMediaVideoList.fadeInAnimation()
-                if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility = View.GONE
-                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility = View.GONE
+                if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility =
+                    View.GONE
+                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility =
+                    View.GONE
                 boardAddVM.getVedios().observeOnce(viewLifecycleOwner, observerMediaStoreVideo)
             }
 
             btnMediaImage.setOnClickListener {
                 if (rcvMediaImageList.visibility == View.GONE) rcvMediaImageList.fadeInAnimation()
-                if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility = View.GONE
-                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility = View.GONE
+                if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility =
+                    View.GONE
+                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility =
+                    View.GONE
                 boardAddVM.getImages().observeOnce(viewLifecycleOwner, observerMediaStoreImage)
             }
 
             btnMediaRecord.setOnClickListener {
                 if (rcvMediaAudioList.visibility == View.GONE) rcvMediaAudioList.fadeInAnimation()
-                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility = View.GONE
-                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility = View.GONE
+                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility =
+                    View.GONE
+                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility =
+                    View.GONE
                 boardAddVM.getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
             }
 
             // 새로고침 버튼.
             btnRefresh.setOnClickListener {
                 boardAddVM.apply {
-                    removeAllSelectedImages()
+                    removeAllSelectedItemAnimation()
                     mediaAudioPagedAdapter.initSelectedItems()
                     mediaImagePagedAdapter.initSelectedItems()
                     mediaVideoPagedAdapter.initSelectedItems()
@@ -279,7 +290,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 rcvMediaVideoList.visibility = View.GONE
                 rcvMediaImageList.visibility = View.VISIBLE
                 boardAddVM.run {
-                    getSelectedImages().value.run {
+                    getSelectedItems().value.run {
                         if (this.isNullOrEmpty()) rootMediaLayout.collapseAnimation(
                             DURATION_FADE_OUT,
                             0
@@ -392,6 +403,23 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             false -> {
                 boardAddVM.removeSelectedItem(selectedItem)
             }
+        }
+    }
+
+    override fun onClickSelectedItem(item: SelectedMediaStoreItem) {
+
+    }
+
+    // 클릭했을 때 뭘 하나 덜지우면, 깜빡거린다.
+    override fun onDeleteSelectedItem(item: SelectedMediaStoreItem) {
+        boardAddVM.run {
+            when (item.type) {
+                MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(item.position)
+                MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(item.position)
+                MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(item.position)
+            }
+            removelSelectedItemAnimation(item)
+            removeSelectedItem(item)
         }
     }
 

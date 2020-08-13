@@ -18,7 +18,7 @@ data class SelectedMediaStoreItem(
                     oldItem: SelectedMediaStoreItem,
                     newItem: SelectedMediaStoreItem
                 ): Boolean {
-                    return oldItem.contentUri == newItem.contentUri
+                    return oldItem.itemBinding == newItem.itemBinding
                 }
 
                 override fun areContentsTheSame(
