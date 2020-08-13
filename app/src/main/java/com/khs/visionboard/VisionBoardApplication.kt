@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.multidex.MultiDexApplication
 import timber.log.Timber
 
-class VisionBoardApplication: MultiDexApplication() {
+class VisionBoardApplication : MultiDexApplication() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)

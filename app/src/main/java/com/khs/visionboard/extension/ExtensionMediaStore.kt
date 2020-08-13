@@ -1,15 +1,12 @@
 package com.khs.visionboard.extension
 
 import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
-import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import com.khs.visionboard.model.mediastore.MediaStoreAudio
+import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import com.khs.visionboard.model.mediastore.MediaStoreImage
-import java.io.FileOutputStream
+import com.khs.visionboard.model.mediastore.MediaStoreVideo
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,12 +16,14 @@ import java.util.*
  * video allowed directories are [DCIM, Movies]
  *
  * @SuppressLint("InlinedApi"): 이전플랫폼에서 작동하거나 작동하지 않을 수 있음.
+ * LIMIT 10: 10개의 로우를 출력.
+ * LIMIT 3 OFFSET 2: 2개의 로우를 건너 뛰고 3개를 출력하라는 의미.
  * */
 
 
 fun ContentResolver.getMediaStoreImageFiles(
-    limit: Int,
-    offset: Int,
+    limit: Int?,
+    offset: Int?,
     type: MediaStoreFileType
 ): MutableList<MediaStoreImage> {
     val contentResolver = this
@@ -39,7 +38,8 @@ fun ContentResolver.getMediaStoreImageFiles(
 
     val selection = "$orderBy>= ?"
     val selectionArgs = arrayOf(dateToTimestamp(day = 1, month = 1, year = 1970).toString())
-    val sortOrder = "$orderBy DESC LIMIT $limit OFFSET $offset"
+    val sortOrder = if (limit == null) "$orderBy DESC"
+    else "$orderBy DESC LIMIT $limit OFFSET $offset"
 
     val query = contentResolver.query(
         type.externalContentUri,
@@ -49,7 +49,7 @@ fun ContentResolver.getMediaStoreImageFiles(
         sortOrder
     )
 
-    query?.use { cursor->
+    query?.use { cursor ->
         val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
         val dateTakenColumn = cursor.getColumnIndexOrThrow(orderBy)
         val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
@@ -117,7 +117,8 @@ fun ContentResolver.getMediaStoreAudioFiles(
             val album = cursor.getString(albumColumn)
             val title = cursor.getString(titleColumn)
             val duration = cursor.getString(durationColumn)
-            val contentUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
+            val contentUri =
+                Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id.toString())
             fileList.add(
                 MediaStoreAudio(
                     id = id,
@@ -125,7 +126,7 @@ fun ContentResolver.getMediaStoreAudioFiles(
                     displayName = displayName,
                     album = album,
                     title = title,
-                    duration = duration,
+                    _duration = duration,
                     contentUri = contentUri,
                     type = MediaStoreFileType.AUDIO
                 )
@@ -135,55 +136,94 @@ fun ContentResolver.getMediaStoreAudioFiles(
     return fileList
 }
 
-fun createFile(
-    context: Context,
-    fileName: String,
-    fileType: MediaStoreFileType,
-    fileContents: ByteArray
-) {
-    val contentValues = ContentValues()
-
-    when (fileType) {
-        MediaStoreFileType.IMAGE -> {
-            contentValues.put(
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
-                Environment.DIRECTORY_PICTURES + fileType.pathByDCIM
-            )
-        }
-        MediaStoreFileType.AUDIO -> {
-            contentValues.put(
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
-                Environment.DIRECTORY_MUSIC + fileType.pathByDCIM
-            )
-        }
-        MediaStoreFileType.VIDEO -> {
-            contentValues.put(
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
-                Environment.DIRECTORY_MOVIES + fileType.pathByDCIM
-            )
-        }
-    }
-    contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName)
-    contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, fileType.mimeType)
-    contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
-
-    val uri = context.contentResolver.insert(
-        fileType.externalContentUri,
-        contentValues
+fun ContentResolver.getMediaStoreVideoFiles(
+    limit: Int?,
+    offset: Int?,
+    type: MediaStoreFileType
+): MutableList<MediaStoreVideo> {
+    val fileList = mutableListOf<MediaStoreVideo>()
+    val contentResolver = this
+    val orderBy = MediaStore.Video.Media.DATE_TAKEN
+    val projection = arrayOf(
+        MediaStore.Video.Media._ID,
+        MediaStore.Video.Media.DISPLAY_NAME,
+        orderBy
+    )
+    val selection = "$orderBy >= ?"
+    val selectionArgs = arrayOf(
+        dateToTimestamp(day = 1, month = 1, year = 1970).toString()
     )
 
-    val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri!!, "w", null)
+    val sortOrder = if (limit == null) "$orderBy DESC"
+    else "$orderBy DESC LIMIT $limit OFFSET $offset"
 
-    val fileOutputStream = FileOutputStream(parcelFileDescriptor!!.fileDescriptor)
-    fileOutputStream.write(fileContents)
-    fileOutputStream.close()
-
-    contentValues.clear()
-    contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
-    context.contentResolver.update(uri, contentValues, null, null)
+    val query = contentResolver.query(
+        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+        projection,
+        null, // selection
+        null, //selectionArgs
+        sortOrder
+    )
+    query?.use { cursor ->
+        val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+        val dateTakenColumn = cursor.getColumnIndexOrThrow(orderBy)
+        val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+        while (cursor.moveToNext()) {
+            val id = cursor.getLong(idColumn)
+            val dateTaken = Date(cursor.getLong(dateTakenColumn))
+            val displayName = cursor.getString(displayNameColumn)
+            val contentUri = Uri.withAppendedPath(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                id.toString()
+            )
+            fileList.add(MediaStoreVideo(id, dateTaken, displayName, contentUri, type))
+        }
+    }
+    return fileList
 }
 
 fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
     SimpleDateFormat("dd.MM.yyyy").let { formatter ->
         formatter.parse("$day.$month.$year")?.time ?: 0
     }
+
+
+fun Long.formateMilliSeccond(): String? {
+    val milliseconds = this
+    var finalTimeHour = ""
+    var secondsString = ""
+    var minuteString = ""
+
+    // Convert total duration into time
+    val hours = (milliseconds / (1000 * 60 * 60)).toInt()
+    val minutes = (milliseconds % (1000 * 60 * 60)).toInt() / (1000 * 60)
+    val seconds = (milliseconds % (1000 * 60 * 60) % (1000 * 60) / 1000).toInt()
+
+    // Add hours if there
+    if (hours > 0) {
+        finalTimeHour = "0$hours:"
+    }
+
+    // Prepending 0 to seconds if it is one digit
+    secondsString = if (seconds < 10) {
+        "0$seconds"
+    } else {
+        "" + seconds
+    }
+
+    minuteString = if (minutes < 10) {
+        "0$minutes:"
+    } else {
+        "$minutes:"
+    }
+
+    val formatResult = "$finalTimeHour$minuteString$secondsString"
+
+    //      return  String.format("%02d Min, %02d Sec",
+    //                TimeUnit.MILLISECONDS.toMinutes(milliseconds),
+    //                TimeUnit.MILLISECONDS.toSeconds(milliseconds) -
+    //                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
+
+    // return timer string
+    return formatResult
+}

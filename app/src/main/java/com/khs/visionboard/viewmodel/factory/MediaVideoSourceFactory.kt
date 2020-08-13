@@ -5,9 +5,11 @@ import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.khs.visionboard.extension.getMediaStoreAudioFiles
 import com.khs.visionboard.extension.getMediaStoreImageFiles
+import com.khs.visionboard.extension.getMediaStoreVideoFiles
 import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import com.khs.visionboard.model.mediastore.MediaStoreImage
+import com.khs.visionboard.model.mediastore.MediaStoreVideo
 
 /**
  * DataSource.Factory:
@@ -38,42 +40,42 @@ import com.khs.visionboard.model.mediastore.MediaStoreImage
  */
 
 
-class MediaAudioSourceFactory(
+class MediaVideoSourceFactory(
     private val contentResolver: ContentResolver
 ) :
-    DataSource.Factory<Int, MediaStoreAudio>() {
+    DataSource.Factory<Int, MediaStoreVideo>() {
 
-    override fun create(): DataSource<Int, MediaStoreAudio> {
-        return AudioDataSource(contentResolver)
+    override fun create(): DataSource<Int, MediaStoreVideo> {
+        return GalleryDataSource(contentResolver)
     }
 
-    inner class AudioDataSource(private val contentResolver: ContentResolver) :
-        PositionalDataSource<MediaStoreAudio>() {
+    inner class GalleryDataSource(private val contentResolver: ContentResolver) :
+        PositionalDataSource<MediaStoreVideo>() {
 
         override fun loadInitial(
             params: LoadInitialParams,
-            callback: LoadInitialCallback<MediaStoreAudio>
+            callback: LoadInitialCallback<MediaStoreVideo>
         ) {
             // Timber.d("loadInitial start: ${params.requestedStartPosition}, size: ${params.requestedLoadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreAudioFiles(
+                contentResolver.getMediaStoreVideoFiles(
                     params.requestedLoadSize,
                     params.requestedStartPosition,
-                    MediaStoreFileType.AUDIO
+                    MediaStoreFileType.VIDEO
                 ), 0
             )
         }
 
         override fun loadRange(
             params: LoadRangeParams,
-            callback: LoadRangeCallback<MediaStoreAudio>
+            callback: LoadRangeCallback<MediaStoreVideo>
         ) {
             // Timber.d("loadRange start: ${params.startPosition}, size: ${params.loadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreAudioFiles(
+                contentResolver.getMediaStoreVideoFiles(
                     params.loadSize,
                     params.startPosition,
-                    MediaStoreFileType.AUDIO
+                    MediaStoreFileType.VIDEO
                 )
             )
         }

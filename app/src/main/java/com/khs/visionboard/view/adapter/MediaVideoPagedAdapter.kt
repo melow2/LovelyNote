@@ -10,34 +10,35 @@ import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.visionboard.R
-import com.khs.visionboard.databinding.BoardItemMediaAudioBinding
+import com.khs.visionboard.databinding.BoardItemMediaVideoBinding
 import com.khs.visionboard.extension.complexOffAnimation
 import com.khs.visionboard.extension.complexOnAnimation
 import com.khs.visionboard.extension.startDrawableAnimation
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
-import com.khs.visionboard.model.mediastore.MediaStoreAudio.Companion.diffCallback
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import timber.log.Timber
+import com.khs.visionboard.model.mediastore.MediaStoreVideo
+import com.khs.visionboard.model.mediastore.MediaStoreVideo.Companion.diffCallback
+import com.khs.visionboard.module.glide.GlideImageLoader
+import com.khs.visionboard.module.glide.ProgressAppGlideModule.Companion.requestOptions
 
-class MediaAudioPagedAdapter(var mContext: Context) :
-    PagedListAdapter<MediaStoreAudio, MediaAudioPagedAdapter.GalleryViewHolder>(diffCallback) {
+class MediaVideoPagedAdapter(var mContext: Context) :
+    PagedListAdapter<MediaStoreVideo, MediaVideoPagedAdapter.VideoViewHolder>(diffCallback) {
 
-    lateinit var mBinding: BoardItemMediaAudioBinding
-    private var mListener: MediaPagedAudioListener? = null
+    lateinit var mBinding: BoardItemMediaVideoBinding
+    private var mListener: MediaPagedViedoListener? = null
     private var mSelectedItems: SparseBooleanArray = SparseBooleanArray(0)
-    private val mImageList = arrayListOf<MediaStoreAudio>()
+    private val mImageList = arrayListOf<MediaStoreVideo>()
 
-    interface MediaPagedAudioListener {
-        fun onMediaAudioClickEvent(
-            binding: BoardItemMediaAudioBinding,
+    interface MediaPagedViedoListener {
+        fun onMediaVideoClickEvent(
+            binding: BoardItemMediaVideoBinding,
             adapterPosition: Int,
-            item: MediaStoreAudio,
+            item: MediaStoreVideo,
             type: MediaStoreFileType,
             checked: Boolean
         )
     }
 
-    fun addListener(listener: MediaPagedAudioListener) {
+    fun addListener(listener: MediaPagedViedoListener) {
         this.mListener = listener
     }
 
@@ -45,17 +46,17 @@ class MediaAudioPagedAdapter(var mContext: Context) :
         mSelectedItems.clear()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GalleryViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
         mBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
-            R.layout.board_item_media_audio,
+            R.layout.board_item_media_video,
             parent,
             false
         )
-        return GalleryViewHolder(mBinding)
+        return VideoViewHolder(mBinding)
     }
 
-    override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
         getItem(position)?.let { item ->
             holder.bind(item)
         }
@@ -69,7 +70,7 @@ class MediaAudioPagedAdapter(var mContext: Context) :
         return mImageList.size
     }
 
-    override fun submitList(pagedList: PagedList<MediaStoreAudio>?) {
+    override fun submitList(pagedList: PagedList<MediaStoreVideo>?) {
         pagedList?.addWeakCallback(listOf(), object : PagedList.Callback() {
             override fun onChanged(position: Int, count: Int) {
                 mImageList.clear()
@@ -89,32 +90,28 @@ class MediaAudioPagedAdapter(var mContext: Context) :
         super.submitList(pagedList)
     }
 
-    inner class GalleryViewHolder(val mBinding: BoardItemMediaAudioBinding) :
+    inner class VideoViewHolder(val mBinding: BoardItemMediaVideoBinding) :
         RecyclerView.ViewHolder(mBinding.root) {
 
         init {
             mBinding.run {
-                ivAudio.setOnClickListener {
+                ivVideo.setOnClickListener {
                     when (mSelectedItems.get(adapterPosition, false)) {
                         false -> {
                             mSelectedItems.put(adapterPosition, true)
-                            ivAudio.complexOffAnimation()
-                            tvDuration.complexOffAnimation()
-                            btnAudioPlay.complexOffAnimation()
+                            ivVideo.complexOffAnimation()
                             ivSelected.startDrawableAnimation()
                         }
                         else -> {
                             mSelectedItems.put(adapterPosition, false)
-                            ivAudio.complexOnAnimation()
-                            tvDuration.complexOnAnimation()
-                            btnAudioPlay.complexOnAnimation()
+                            ivVideo.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
                     val mediaFile = getItem(adapterPosition)
                     val checked = mSelectedItems.get(adapterPosition, false)
                     mediaFile?.let {
-                        mListener?.onMediaAudioClickEvent(
+                        mListener?.onMediaVideoClickEvent(
                             mBinding,
                             adapterPosition,
                             it,
@@ -123,16 +120,14 @@ class MediaAudioPagedAdapter(var mContext: Context) :
                         )
                     }
                 }
-                // todo 오디오 플레이 버튼 구현해야 함.
-                btnAudioPlay.setOnClickListener {
-
-                }
             }
         }
 
-        fun bind(item: MediaStoreAudio) {
-            Timber.d(item.toString())
-            mBinding.audio = item
+        fun bind(item: MediaStoreVideo) {
+            GlideImageLoader(mBinding.ivVideo, null).load(
+                (item.contentUri).toString(),
+                requestOptions(mContext)
+            )
         }
     }
 }

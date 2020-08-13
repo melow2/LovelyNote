@@ -6,6 +6,7 @@ import androidx.paging.PositionalDataSource
 import com.khs.visionboard.extension.getMediaStoreImageFiles
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import com.khs.visionboard.model.mediastore.MediaStoreImage
+import timber.log.Timber
 
 /**
  * DataSource.Factory:
@@ -42,17 +43,18 @@ class MediaImageSourceFactory(
     DataSource.Factory<Int, MediaStoreImage>() {
 
     override fun create(): DataSource<Int, MediaStoreImage> {
-        return GalleryDataSource(contentResolver)
+        return ImageDataSource(contentResolver)
     }
 
-    inner class GalleryDataSource(private val contentResolver: ContentResolver) :
+    inner class ImageDataSource(private val contentResolver: ContentResolver) :
         PositionalDataSource<MediaStoreImage>() {
 
         override fun loadInitial(
             params: LoadInitialParams,
             callback: LoadInitialCallback<MediaStoreImage>
         ) {
-            // Timber.d("loadInitial start: ${params.requestedStartPosition}, size: ${params.requestedLoadSize}")
+            // 한번만 호출
+            Timber.d("loadInitial start: ${params.requestedStartPosition}, size: ${params.requestedLoadSize}")
             callback.onResult(
                 contentResolver.getMediaStoreImageFiles(
                     params.requestedLoadSize,
@@ -66,7 +68,7 @@ class MediaImageSourceFactory(
             params: LoadRangeParams,
             callback: LoadRangeCallback<MediaStoreImage>
         ) {
-            // Timber.d("loadRange start: ${params.startPosition}, size: ${params.loadSize}")
+            Timber.d("loadRange start: ${params.startPosition}, size: ${params.loadSize}")
             callback.onResult(
                 contentResolver.getMediaStoreImageFiles(
                     params.loadSize,

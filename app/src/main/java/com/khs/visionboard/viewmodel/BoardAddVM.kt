@@ -7,13 +7,15 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.khs.visionboard.databinding.BoardItemMediaAudioBinding
 import com.khs.visionboard.databinding.BoardItemMediaImageBinding
+import com.khs.visionboard.databinding.BoardItemMediaVideoBinding
+import com.khs.visionboard.extension.Constants.INITIAL_LOAD_SIZE_HINT
+import com.khs.visionboard.extension.Constants.PAGE_SIZE
+import com.khs.visionboard.extension.Constants.PREFETCH_DISTANCE
 import com.khs.visionboard.extension.complexOnAnimation
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
-import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import com.khs.visionboard.model.mediastore.MediaStoreImage
-import com.khs.visionboard.model.mediastore.MediaStoreItemSelected
+import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.viewmodel.factory.MediaAudioSourceFactory
 import com.khs.visionboard.viewmodel.factory.MediaImageSourceFactory
+import com.khs.visionboard.viewmodel.factory.MediaVideoSourceFactory
 import timber.log.Timber
 
 /**
@@ -48,38 +50,44 @@ class BoardAddVM(application: Application, private val param1: Int) :
 
     private lateinit var mImageList: LiveData<PagedList<MediaStoreImage>>
     private lateinit var mAudioList: LiveData<PagedList<MediaStoreAudio>>
+    private lateinit var mVideoList: LiveData<PagedList<MediaStoreVideo>>
     private val mContext = application.applicationContext
     private val mImageSourceFactory: MediaImageSourceFactory
     private val mAudioSourceFactory: MediaAudioSourceFactory
-
+    private val mVideoSourceFactory: MediaVideoSourceFactory
     private val mPagedListConfig: PagedList.Config
-    private val mSelectedMediaStoreItemList: MutableLiveData<List<MediaStoreItemSelected>> =
+    private val mSelectedMediaStoreItemList: MutableLiveData<List<SelectedMediaStoreItem>> =
         MutableLiveData()
 
     init {
         mImageSourceFactory = MediaImageSourceFactory(mContext.contentResolver)
         mAudioSourceFactory = MediaAudioSourceFactory(mContext.contentResolver)
-        mPagedListConfig = PagedList.Config.Builder()
-            .setPageSize(20)
-            .setInitialLoadSizeHint(60)     // default : page size * 3
-            // .setPrefetchDistance(20)        // default : page size
-            .setEnablePlaceholders(false)   // default : true
-            .build()
+        mVideoSourceFactory = MediaVideoSourceFactory(mContext.contentResolver)
 
+        mPagedListConfig = PagedList.Config.Builder()
+            .setPageSize(PAGE_SIZE)
+            .setInitialLoadSizeHint(INITIAL_LOAD_SIZE_HINT)
+            .setPrefetchDistance(PREFETCH_DISTANCE)
+            .setEnablePlaceholders(false)
+            .build()
+        mImageList = LivePagedListBuilder(mImageSourceFactory, mPagedListConfig).build()
+        mAudioList = LivePagedListBuilder(mAudioSourceFactory, mPagedListConfig).build()
+        mVideoList = LivePagedListBuilder(mVideoSourceFactory, mPagedListConfig).build()
     }
 
     fun getImages(): LiveData<PagedList<MediaStoreImage>> {
-        mImageList = LivePagedListBuilder(mImageSourceFactory, mPagedListConfig).build()
         return mImageList
     }
 
     fun getAudios(): LiveData<PagedList<MediaStoreAudio>> {
-        mAudioList = LivePagedListBuilder(mAudioSourceFactory, mPagedListConfig).build()
         return mAudioList
     }
 
+    fun getVedios(): LiveData<PagedList<MediaStoreVideo>> {
+        return mVideoList
+    }
 
-    fun getSelectedImages(): LiveData<List<MediaStoreItemSelected>> {
+    fun getSelectedImages(): LiveData<List<SelectedMediaStoreItem>> {
         return mSelectedMediaStoreItemList
     }
 
@@ -89,8 +97,8 @@ class BoardAddVM(application: Application, private val param1: Int) :
      * 1) Diff를 위해 기존의 리스트가 있다면, 기존의 리스트 데이터를 그대로 사용하여 새로운 리스트 생성.
      * 2) 선택된 이미지를 추가.
      * */
-    fun addSelectedItem(selectedMediaStoreItem: MediaStoreItemSelected?) {
-        var list = mutableListOf<MediaStoreItemSelected>()
+    fun addSelectedItem(selectedMediaStoreItem: SelectedMediaStoreItem?) {
+        var list = mutableListOf<SelectedMediaStoreItem>()
         mSelectedMediaStoreItemList.run {
             value?.let {
                 list = (it as MutableList).toMutableList()
@@ -106,7 +114,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
      * 1) Diff를 위해 기존의 선택된 리스트를 새롭게 초기화.
      * 2) 선택된 이미지를 제거.
      * */
-    fun removeSelectedItem(selectedImageMediaStoreItem: MediaStoreItemSelected?) {
+    fun removeSelectedItem(selectedImageMediaStoreItem: SelectedMediaStoreItem?) {
         val list = (mSelectedMediaStoreItemList.value as MutableList).toMutableList()
         list.remove(selectedImageMediaStoreItem)
         mSelectedMediaStoreItemList.value = list
@@ -122,15 +130,23 @@ class BoardAddVM(application: Application, private val param1: Int) :
         for (item in mSelectedMediaStoreItemList.value!!) {
             when (item.type) {
                 MediaStoreFileType.IMAGE -> {
-                    (item.itemBinding as BoardItemMediaImageBinding).apply {
+                    (item.itemBinding as BoardItemMediaImageBinding).run {
                         ivGallery.complexOnAnimation()
                         ivSelected.visibility = View.GONE
 
                     }
                 }
                 MediaStoreFileType.AUDIO -> {
-                    (item.itemBinding as BoardItemMediaAudioBinding).apply {
+                    (item.itemBinding as BoardItemMediaAudioBinding).run {
                         ivAudio.complexOnAnimation()
+                        btnAudioPlay.complexOnAnimation()
+                        tvDuration.complexOnAnimation()
+                        ivSelected.visibility = View.GONE
+                    }
+                }
+                MediaStoreFileType.VIDEO -> {
+                    (item.itemBinding as BoardItemMediaVideoBinding).run {
+                        ivVideo.complexOnAnimation()
                         ivSelected.visibility = View.GONE
                     }
                 }

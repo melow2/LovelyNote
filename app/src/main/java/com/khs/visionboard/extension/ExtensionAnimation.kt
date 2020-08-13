@@ -79,49 +79,50 @@ fun View.complexOnAnimation() {
     complexOn.start()
 }
 
-fun ImageView.startDrawableAnimation(){
+fun ImageView.startDrawableAnimation() {
     val viewToAnimation = this
-    viewToAnimation.visibility  = View.VISIBLE
+    viewToAnimation.visibility = View.VISIBLE
 
-    val avd:AnimatedVectorDrawableCompat
-    val avd2:AnimatedVectorDrawable
+    val avd: AnimatedVectorDrawableCompat
+    val avd2: AnimatedVectorDrawable
 
     val drawable = viewToAnimation.drawable
-    if(drawable is AnimatedVectorDrawableCompat){
+    if (drawable is AnimatedVectorDrawableCompat) {
         avd = drawable as AnimatedVectorDrawableCompat
         avd.start()
-    }else if(drawable is AnimatedVectorDrawable ){
+    } else if (drawable is AnimatedVectorDrawable) {
         avd2 = drawable as AnimatedVectorDrawable
         avd2.start()
     }
 }
 
 // 펼치기
-fun View.expandAnimation(duration: Int, targetHeight: Int){
+// 접기
+fun View.expandAnimation(duration: Long, targetHeight: Int) {
     val v = this
     val prevHeight = v.height
     v.visibility = View.VISIBLE
     val valueAnimator = ValueAnimator.ofInt(prevHeight, targetHeight)
+    valueAnimator.interpolator = DecelerateInterpolator()
+    valueAnimator.duration = duration
     valueAnimator.addUpdateListener { animation ->
         v.layoutParams.height = animation.animatedValue as Int
         v.requestLayout()
     }
-    valueAnimator.interpolator = DecelerateInterpolator()
-    valueAnimator.duration = duration.toLong()
     valueAnimator.start()
 }
 
+
 // 접기
-fun View.collapseAnimation(duration: Int, targetHeight: Int) {
+fun View.collapseAnimation(duration: Long, targetHeight: Int) {
     val v = this
     val prevHeight = v.height
     val valueAnimator = ValueAnimator.ofInt(prevHeight, targetHeight)
     valueAnimator.interpolator = DecelerateInterpolator()
+    valueAnimator.duration = duration
     valueAnimator.addUpdateListener { animation ->
         v.layoutParams.height = animation.animatedValue as Int
         v.requestLayout()
     }
-    valueAnimator.interpolator = DecelerateInterpolator()
-    valueAnimator.duration = duration.toLong()
     valueAnimator.start()
 }

@@ -16,24 +16,27 @@ class AddBoardActivity : BaseActivity<ActivityAddBoardBinding>() {
         super.onCreate(savedInstanceState)
         bindView(R.layout.activity_add_board)
         init(savedInstanceState)
-        setToolbar(mBinding?.toolbar as Toolbar,true,"AddVision",findViewById(R.id.tv_title))
+        setToolbar(mBinding?.toolbar as Toolbar, true, "AddVision", findViewById(R.id.tv_title))
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun init(savedInstanceState: Bundle?) {
         val fm = supportFragmentManager
-        if(savedInstanceState==null){
+        if (savedInstanceState == null) {
             val ft = fm.beginTransaction()
-            addBoardFragment = AddBoardFragment.newInstance("param1","param2")
-            ft.add(mBinding?.fragmentAddContainer?.id!!,addBoardFragment,TAG_ADD_FRAGMENT).commit()
-        }else{
+            addBoardFragment = AddBoardFragment.newInstance("param1", "param2")
+            ft.add(mBinding?.fragmentAddContainer?.id!!, addBoardFragment, TAG_ADD_FRAGMENT)
+                .commit()
+        } else {
             addBoardFragment = fm.findFragmentByTag(TAG_ADD_FRAGMENT) as AddBoardFragment
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> { onBackPressed() }
+            android.R.id.home -> {
+                onBackPressed()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

@@ -3,9 +3,9 @@ package com.khs.visionboard.view.activity
 import android.os.Bundle
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityBoardDetailBinding
-import com.khs.visionboard.model.Board
 import com.khs.visionboard.extension.Constants.TAG_DETAIL_FRAGMENT
 import com.khs.visionboard.extension.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.model.Board
 import com.khs.visionboard.view.fragment.BoardDetailFragment
 
 class BoardDetailActivity : BaseActivity<ActivityBoardDetailBinding>() {
@@ -21,11 +21,15 @@ class BoardDetailActivity : BaseActivity<ActivityBoardDetailBinding>() {
     private fun init(savedInstanceState: Bundle?) {
         val fm = supportFragmentManager
         val board = intent.getParcelableExtra<Board>(TAG_PARCELABLE_BOARD)
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             val ft = fm.beginTransaction()
             boardDetailFragment = BoardDetailFragment.newInstance(board)
-            ft.add(mBinding?.fragmentDetailContainer?.id!!,boardDetailFragment,TAG_DETAIL_FRAGMENT).commit()
-        }else{
+            ft.add(
+                mBinding?.fragmentDetailContainer?.id!!,
+                boardDetailFragment,
+                TAG_DETAIL_FRAGMENT
+            ).commit()
+        } else {
             boardDetailFragment = fm.findFragmentByTag(TAG_DETAIL_FRAGMENT) as BoardDetailFragment
         }
     }

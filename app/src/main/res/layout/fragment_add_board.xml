@@ -43,7 +43,6 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:src="@drawable/maldivas" />
-
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rcv_media_added"
                     android:layout_width="0dp"
@@ -58,7 +57,6 @@
                 android:layout_height="match_parent"
                 android:animateLayoutChanges="true"
                 android:visibility="gone">
-
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rcv_media_image_list"
                     android:layout_width="match_parent"
@@ -71,14 +69,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="gone"
-                    tools:listitem="@layout/board_item_media_image" />
+                    tools:listitem="@layout/board_item_media_audio" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rcv_media_video_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    tools:listitem="@layout/board_item_media_video" />
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/btn_table_plus"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:background="?android:selectableItemBackground"
+                    android:background="?android:selectableItemBackgroundBorderless"
                     android:src="@drawable/table_plus"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -115,14 +120,8 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_file"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/ic_baseline_file"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toLeftOf="@id/btn_video"
@@ -130,14 +129,8 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_video"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/ic_baseline_videocam"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_file"
                     app:layout_constraintRight_toLeftOf="@id/btn_record"
@@ -145,14 +138,8 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_record"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/ic_baseline_voice"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_video"
                     app:layout_constraintRight_toLeftOf="@id/btn_camera"
@@ -160,14 +147,8 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_camera"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/camera"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_record"
                     app:layout_constraintRight_toLeftOf="@id/btn_media_store"
@@ -175,14 +156,8 @@
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_media_store"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/ic_baseline_perm_media"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_camera"
                     app:layout_constraintRight_toRightOf="parent"
@@ -200,89 +175,56 @@
                 app:layout_constraintTop_toBottomOf="@id/root_media_layout">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_media_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorBlue"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/camera_image"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
+                    android:id="@+id/btn_media_video"
+                    style="@style/default_floating_button_style"
+                    android:src="@drawable/ic_baseline_videocam"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@+id/btn_media_video"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_media_video"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorBlue"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_baseline_videocam"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_media_image"
                     app:layout_constraintRight_toLeftOf="@id/btn_media_record"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_media_record"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorBlue"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/ic_baseline_voice"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_media_video"
-                    app:layout_constraintRight_toLeftOf="@id/btn_temp"
+                    app:layout_constraintRight_toLeftOf="@id/btn_media_image"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_temp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:visibility="invisible"
-                    app:fabSize="mini"
+                    android:id="@+id/btn_media_image"
+                    style="@style/default_floating_button_style"
+                    android:src="@drawable/camera_image"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_media_record"
+                    app:layout_constraintRight_toLeftOf="@+id/btn_temp"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btn_temp"
+                    style="@style/default_floating_button_style"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/btn_media_image"
                     app:layout_constraintRight_toLeftOf="@id/btn_item_add"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_refresh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/ic_baseline_refresh"
                     android:visibility="gone"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_media_record"
+                    app:layout_constraintLeft_toRightOf="@id/btn_media_image"
                     app:layout_constraintRight_toLeftOf="@id/btn_item_add"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_item_add"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="@color/colorHotPink"
-                    android:scaleType="centerCrop"
+                    style="@style/default_floating_button_style"
                     android:src="@drawable/playlist_check"
-                    app:borderWidth="0dp"
-                    app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_temp"
                     app:layout_constraintRight_toRightOf="parent"

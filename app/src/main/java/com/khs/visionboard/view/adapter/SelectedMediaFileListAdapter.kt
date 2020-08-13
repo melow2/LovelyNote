@@ -6,18 +6,18 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardItemMediaSelectedBinding
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import com.khs.visionboard.model.mediastore.MediaStoreImage
-import com.khs.visionboard.model.mediastore.MediaStoreItemSelected
-import com.khs.visionboard.model.mediastore.MediaStoreItemSelected.Companion.diffCallback
+import com.khs.visionboard.model.mediastore.SelectedMediaStoreItem
+import com.khs.visionboard.model.mediastore.SelectedMediaStoreItem.Companion.diffCallback
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
 
 class SelectedMediaFileListAdapter(
     val mContext: Context
-) : ListAdapter<MediaStoreItemSelected, SelectedMediaFileListAdapter.SelectedImageViewHolder>(
+) : ListAdapter<SelectedMediaStoreItem, SelectedMediaFileListAdapter.SelectedImageViewHolder>(
     diffCallback
 ) {
 
@@ -63,17 +63,29 @@ class SelectedMediaFileListAdapter(
             }
         }
 
-        fun bind(selected: MediaStoreItemSelected) {
+        fun bind(selected: SelectedMediaStoreItem) {
             selected.apply {
                 when (item?.type) {
                     MediaStoreFileType.IMAGE -> {
-                        var temp = item as MediaStoreImage
                         GlideImageLoader(
                             mBinding.ivMediaItem, null
                         ).load(
                             (contentUri).toString(),
                             ProgressAppGlideModule.requestOptions(mContext)
                         )
+                    }
+                    MediaStoreFileType.AUDIO ->{
+                        GlideImageLoader(
+                            mBinding.ivMediaItem, null
+                        ).load(
+                            (contentUri).toString(),
+                            ProgressAppGlideModule.requestOptions(mContext)
+                        )
+                    }
+                    MediaStoreFileType.VIDEO ->{
+                        Glide.with(mBinding.root)
+                            .load(R.drawable.ic_baseline_videocam)
+                            .into(mBinding.ivMediaItem)
                     }
                 }
             }

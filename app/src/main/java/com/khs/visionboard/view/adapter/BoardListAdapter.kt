@@ -6,23 +6,23 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.khs.visionboard.model.Board
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardItemBinding
+import com.khs.visionboard.model.Board
 
 class BoardListAdapter(
     val mContext: Context
 ) : ListAdapter<Board, BoardListAdapter.BoardViewHolder>(Board.itemCallback) {
 
     private lateinit var mBinding: BoardItemBinding
-    private var listener:BoardListEvent? = null
+    private var listener: BoardListEvent? = null
 
-    interface BoardListEvent{
+    interface BoardListEvent {
         fun onClick(position: Int)
         fun onDelete(position: Int)
     }
 
-    fun addEventListener(listener:BoardListEvent){
+    fun addEventListener(listener: BoardListEvent) {
         this.listener = listener
     }
 
@@ -45,14 +45,14 @@ class BoardListAdapter(
         init {
             mBinding.rootCvBoard.setOnClickListener {
                 listener?.let {
-                    if(adapterPosition!=RecyclerView.NO_POSITION) {
+                    if (adapterPosition != RecyclerView.NO_POSITION) {
                         listener?.onClick(adapterPosition)
                     }
                 }
             }
             mBinding.btnDelete.setOnClickListener {
-                listener?.let{
-                    if(adapterPosition!=RecyclerView.NO_POSITION){
+                listener?.let {
+                    if (adapterPosition != RecyclerView.NO_POSITION) {
                         listener?.onDelete(adapterPosition)
                     }
                 }

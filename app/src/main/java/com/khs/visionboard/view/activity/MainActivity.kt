@@ -20,7 +20,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         super.onCreate(savedInstanceState)
         bindView(R.layout.activity_main)
         TedPermission.with(this)
-            .setPermissionListener(object:PermissionListener{
+            .setPermissionListener(object : PermissionListener {
                 override fun onPermissionGranted() {
                     init(savedInstanceState)
                 }
@@ -30,7 +30,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 }
             })
             .setDeniedMessage("앱을 실행하려면 권한이 필요합니다.")
-            .setPermissions(android.Manifest.permission.READ_EXTERNAL_STORAGE,android.Manifest.permission.RECORD_AUDIO)
+            .setPermissions(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.RECORD_AUDIO
+            )
             .check()
     }
 
@@ -39,7 +42,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         if (savedInstanceState == null) {
             val ft = fm.beginTransaction()
             boardListFragment = BoardListFragment.newInstance("param1", "param2")
-            ft.add(mBinding?.fragmentMainContainer?.id!!, boardListFragment, TAG_LIST_FRAGMENT).commit()
+            ft.add(mBinding?.fragmentMainContainer?.id!!, boardListFragment, TAG_LIST_FRAGMENT)
+                .commit()
         } else {
             boardListFragment = fm.findFragmentByTag(TAG_LIST_FRAGMENT) as BoardListFragment
         }

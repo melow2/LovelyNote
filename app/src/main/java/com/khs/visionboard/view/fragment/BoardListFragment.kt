@@ -11,9 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.FragmentListBinding
-import com.khs.visionboard.model.Board
 import com.khs.visionboard.extension.Constants.TAG_PARCELABLE_BOARD
-import com.khs.visionboard.extension.observeOnce
+import com.khs.visionboard.model.Board
 import com.khs.visionboard.view.activity.AddBoardActivity
 import com.khs.visionboard.view.activity.BoardDetailActivity
 import com.khs.visionboard.view.adapter.BoardListAdapter
@@ -39,6 +38,7 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
+
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             BoardListFragment().apply {
@@ -73,8 +73,8 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         val context = view.context
         listAdapter = BoardListAdapter(context)
-        mBinding?.rcvBoardList?.run{
-            layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+        mBinding?.rcvBoardList?.run {
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             adapter = listAdapter
         }
         setUpListener()
@@ -82,7 +82,10 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        boardListVM = ViewModelProvider(this, BoardListVMFactory(requireActivity().application, 100)).get(BoardListVM::class.java)
+        boardListVM =
+            ViewModelProvider(this, BoardListVMFactory(requireActivity().application, 100)).get(
+                BoardListVM::class.java
+            )
         boardListVM.getBoardList().observe(viewLifecycleOwner, observer)
         this.lifecycle.addObserver(boardListVM)
     }
@@ -90,7 +93,7 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     private fun setUpListener() {
         // FloatingButton
         mBinding?.btnAdd?.setOnClickListener {
-            startActivity(Intent(context,AddBoardActivity::class.java).apply {})
+            startActivity(Intent(context, AddBoardActivity::class.java).apply {})
         }
 
         listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {

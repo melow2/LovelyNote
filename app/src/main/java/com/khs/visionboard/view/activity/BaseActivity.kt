@@ -11,14 +11,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.google.android.material.snackbar.Snackbar
-import com.khs.visionboard.R
 import com.khs.visionboard.view.fragment.BaseFragment
 
 
-
-
 abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
-    var mBinding: B?=null
+    var mBinding: B? = null
     lateinit var toolbar: Toolbar
 
     protected fun bindView(layout: Int) {

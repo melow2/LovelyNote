@@ -9,8 +9,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardDetailBinding
-import com.khs.visionboard.model.Board
 import com.khs.visionboard.extension.Constants.TAG_PARCELABLE_BOARD
+import com.khs.visionboard.model.Board
 import com.khs.visionboard.viewmodel.BoardDetailVM
 import com.khs.visionboard.viewmodel.factory.BoardDetailVMFactory
 import timber.log.Timber
@@ -18,11 +18,11 @@ import timber.log.Timber
 class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
 
     private var board: Board? = null
-    private lateinit var boardDetailVM:BoardDetailVM
+    private lateinit var boardDetailVM: BoardDetailVM
 
     private val observer: Observer<Board?> =
         Observer { board: Board? ->
-            board?.let{
+            board?.let {
                 mBinding?.board = board
             }
         }
@@ -62,10 +62,13 @@ class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        boardDetailVM = ViewModelProvider(this, BoardDetailVMFactory(requireActivity().application, 100)).get(BoardDetailVM::class.java)
+        boardDetailVM =
+            ViewModelProvider(this, BoardDetailVMFactory(requireActivity().application, 100)).get(
+                BoardDetailVM::class.java
+            )
         board?.let {
             boardDetailVM.setBoardItem(it)
-            boardDetailVM.getBoardItem().observe(viewLifecycleOwner,observer)
+            boardDetailVM.getBoardItem().observe(viewLifecycleOwner, observer)
             this.lifecycle.addObserver(boardDetailVM)
         }
     }

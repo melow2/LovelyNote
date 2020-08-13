@@ -2,6 +2,7 @@ package com.khs.visionboard.view.behavior
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -23,7 +24,7 @@ class ScrollAwareFABBehavior : CoordinatorLayout.Behavior<FloatingActionButton> 
         type: Int
     ) {
         super.onStopNestedScroll(coordinatorLayout, child, target, type)
-        if (mHandler == null) mHandler = Handler()
+        if (mHandler == null) mHandler = Handler(Looper.getMainLooper())
         mHandler?.postDelayed(Runnable {
             child.animate().translationY(0f).setInterpolator(LinearInterpolator()).start()
         }, 1000)

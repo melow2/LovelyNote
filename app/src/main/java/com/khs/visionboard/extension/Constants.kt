@@ -16,12 +16,20 @@ object Constants {
     const val AUDIO_PATH_BY_DCIM: String = "/audio"
     const val VIDEO_PATH_BY_DCIM: String = "/video"
 
+    /*
+        최초 500개를 불러 들이고, 500개부터 다음페이지를 미리 불러오니, 바로 다음페이지 100개 불러들임.
+        페이지가 넘어갈 때 마다 100개씩 자동으로 읽음.
+     */
+    const val PAGE_SIZE = 100                   // 페이징당 개수.
+    const val INITIAL_LOAD_SIZE_HINT = 500      // 최초 개수.
+    const val PREFETCH_DISTANCE = 500           // 500개부터 다음 페이지를 미리 불러오기.
+
     /** RecyclerView */
-    const val MEDIA_RCV_HEIGHT = 1000
-    const val GALLERY_ITEM_RANGE = 3
+    const val MEDIA_RCV_HEIGHT = 720
+    const val GALLERY_ITEM_RANGE = 2
     const val SELECTED_ITEM_RANGE = 2
 
     /** Animation Duration*/
     const val DURATION_FADE_IN: Long = 1000
-    const val DURATION_FADE_OUT: Long = 200
+    const val DURATION_FADE_OUT: Long = 300
 }

@@ -3,6 +3,7 @@ package com.khs.visionboard.view.fragment
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
@@ -10,18 +11,19 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardItemMediaAudioBinding
 import com.khs.visionboard.databinding.BoardItemMediaImageBinding
+import com.khs.visionboard.databinding.BoardItemMediaVideoBinding
 import com.khs.visionboard.databinding.FragmentAddBoardBinding
 import com.khs.visionboard.extension.*
+import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 import com.khs.visionboard.extension.Constants.GALLERY_ITEM_RANGE
+import com.khs.visionboard.extension.Constants.MEDIA_RCV_HEIGHT
 import com.khs.visionboard.extension.Constants.SELECTED_ITEM_RANGE
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
-import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import com.khs.visionboard.model.mediastore.MediaStoreImage
-import com.khs.visionboard.model.mediastore.MediaStoreItemSelected
+import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
 import com.khs.visionboard.view.adapter.MediaAudioPagedAdapter
 import com.khs.visionboard.view.adapter.MediaImagePagedAdapter
+import com.khs.visionboard.view.adapter.MediaVideoPagedAdapter
 import com.khs.visionboard.view.adapter.SelectedMediaFileListAdapter
 import com.khs.visionboard.viewmodel.BoardAddVM
 import com.khs.visionboard.viewmodel.factory.BoardAddVMFactory
@@ -29,13 +31,15 @@ import timber.log.Timber
 
 
 class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
-    MediaImagePagedAdapter.MediaPagedImageListener,MediaAudioPagedAdapter.MediaPagedAudioListener {
+    MediaImagePagedAdapter.MediaPagedImageListener, MediaAudioPagedAdapter.MediaPagedAudioListener,
+    MediaVideoPagedAdapter.MediaPagedViedoListener {
 
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var boardAddVM: BoardAddVM
     private lateinit var mediaImagePagedAdapter: MediaImagePagedAdapter
     private lateinit var mediaAudioPagedAdapter: MediaAudioPagedAdapter
+    private lateinit var mediaVideoPagedAdapter: MediaVideoPagedAdapter
     private lateinit var selectedListAdapter: SelectedMediaFileListAdapter
 
     companion object {
@@ -77,12 +81,25 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         }
 
     /**
+     * 미디어스토에서 읽은 비디오 파일 observer
+     * 1) 프래그먼트 생성시 초기화.
+     * 2) 사실 상 옵저버 기능은 하지 않고, 최초에 읽어오는 것으로 구현.
+     * */
+    private val observerMediaStoreVideo: Observer<PagedList<MediaStoreVideo>> =
+        Observer { mediaStores: PagedList<MediaStoreVideo> ->
+            mediaStores.let {
+                mediaVideoPagedAdapter.submitList(mediaStores)
+            }
+        }
+
+
+    /**
      * 리사이클러뷰에서 선택한 이미지 observer
      *
      * 1) 선택한 이미지가 1개 이상이라면, 버튼에 애니메이션 추가.
      * */
-    private val observerSelectedMediaStoreItem: Observer<List<MediaStoreItemSelected>> =
-        Observer { selectedMediaStoreItems: List<MediaStoreItemSelected> ->
+    private val observerSelectedMediaStoreItem: Observer<List<SelectedMediaStoreItem>> =
+        Observer { selectedMediaStoreItems: List<SelectedMediaStoreItem> ->
             mBinding?.apply {
                 if (selectedMediaStoreItems.isNotEmpty() && btnRefresh.visibility == View.GONE) {
                     btnRefresh.fadeInAnimation()
@@ -137,22 +154,37 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     private fun setUpRecyclerView() {
         mBinding?.apply {
             rcvMediaImageList.apply {
-                mediaImagePagedAdapter = MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                mediaImagePagedAdapter =
+                    MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
+                isNestedScrollingEnabled = true
                 adapter = mediaImagePagedAdapter
             }
             rcvMediaAudioList.apply {
-                mediaAudioPagedAdapter = MediaAudioPagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                mediaAudioPagedAdapter =
+                    MediaAudioPagedAdapter(context).apply { addListener(this@AddBoardFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
+                isNestedScrollingEnabled = true
                 adapter = mediaAudioPagedAdapter
             }
+
+            rcvMediaVideoList.apply {
+                mediaVideoPagedAdapter =
+                    MediaVideoPagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
+                isNestedScrollingEnabled = true
+                adapter = mediaVideoPagedAdapter
+            }
+
             rcvMediaAdded.apply {
                 selectedListAdapter = SelectedMediaFileListAdapter(context).apply {}
                 layoutManager = GridLayoutManager(requireActivity(), SELECTED_ITEM_RANGE)
+                isNestedScrollingEnabled = true
                 adapter = selectedListAdapter
             }
         }
     }
+
     /**
      * todo 1) 라이프사이클 사용시 옵저버가 삭제되는 시점을 정확하게 알아야 함.
      * 확인해본 결과, 액티비티가 onDestroy() 되면서 옵저버도 모두 삭제되는 것으로 확인.
@@ -160,25 +192,30 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Timber.d("onActivityCreated")
         super.onActivityCreated(savedInstanceState)
-        boardAddVM = ViewModelProvider(this, BoardAddVMFactory(requireActivity().application, 100)).get(BoardAddVM::class.java)
+        boardAddVM =
+            ViewModelProvider(this, BoardAddVMFactory(requireActivity().application, 100)).get(
+                BoardAddVM::class.java
+            )
         boardAddVM.apply {
-            getImages().observeOnce(viewLifecycleOwner,observerMediaStoreImage)
-            getAudios().observeOnce(viewLifecycleOwner,observerMediaStoreAudio)
-            getSelectedImages().observe(viewLifecycleOwner,observerSelectedMediaStoreItem)
+            getImages().observeOnce(viewLifecycleOwner, observerMediaStoreImage)
+            getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
+            getSelectedImages().observe(viewLifecycleOwner, observerSelectedMediaStoreItem)
         }
         this.lifecycle.addObserver(boardAddVM)
     }
 
     /**
-    * 1) TABLE_RANGE_COUNT를 전역변수처럼 쓸 수 있음.
-    * */
+     * 1) TABLE_RANGE_COUNT를 전역변수처럼 쓸 수 있음.
+     * */
     private fun setUpListener() {
-        var TABLE_RANGE_COUNT: Int = GALLERY_ITEM_RANGE
+        var imageTableCounter: Int = GALLERY_ITEM_RANGE
+        var audioTableCounter: Int = GALLERY_ITEM_RANGE
+        var videoTableCounter: Int = GALLERY_ITEM_RANGE
         mBinding?.apply {
-
             /***************************************************************************
-            * 메인 버튼 ( 파일, 비디오, 오디오, 카메라, 미디어스토어)
-            * */
+             * 메인 버튼 ( 파일, 비디오, 오디오, 카메라, 미디어스토어)
+             * */
+            // 오디오 버튼.
             btnRecord.setOnClickListener {
                 showToast(requireActivity(), "DDDDDD")
             }
@@ -189,7 +226,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             // 미디어 스토어 버튼.
             btnMediaStore.setOnClickListener {
-                rootMediaLayout.expandAnimation(300,700)
+                rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
                 rootMediaBtnLayout.fadeInAnimation()
                 rootMainBtn.fadeOutAnimation()
                 rootMediaAddedList.fadeOutAnimation()
@@ -197,20 +234,30 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
 
             /***************************************************************************
-            * 미디어스토어 버튼 ( 사진, 비디오, 오디오, 선택해제, 저장 )
-            * 1) 미디어스토어를 항상 옵저버링 할 수 없음.
-            * 2) 액티비티 생성 주기에 맞게(create)에 초기화.
-            * */
+             * 미디어스토어 버튼 ( 사진, 비디오, 오디오, 선택해제, 저장 )
+             * 1) 미디어스토어를 항상 옵저버링 할 수 없음.
+             * 2) 액티비티 생성 주기에 맞게(create)에 초기화.
+             * */
+
+            btnMediaVideo.setOnClickListener {
+                if (rcvMediaVideoList.visibility == View.GONE) rcvMediaVideoList.fadeInAnimation()
+                if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility = View.GONE
+                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility = View.GONE
+                boardAddVM.getVedios().observeOnce(viewLifecycleOwner, observerMediaStoreVideo)
+            }
+
             btnMediaImage.setOnClickListener {
-                if(rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.fadeOutAnimation()
-                if(rcvMediaImageList.visibility == View.GONE) rcvMediaImageList.fadeInAnimation()
-                boardAddVM.getImages().observeOnce(viewLifecycleOwner,observerMediaStoreImage)
+                if (rcvMediaImageList.visibility == View.GONE) rcvMediaImageList.fadeInAnimation()
+                if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility = View.GONE
+                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility = View.GONE
+                boardAddVM.getImages().observeOnce(viewLifecycleOwner, observerMediaStoreImage)
             }
 
             btnMediaRecord.setOnClickListener {
-                if(rcvMediaAudioList.visibility == View.GONE) rcvMediaAudioList.fadeInAnimation()
-                if(rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.fadeOutAnimation()
-                boardAddVM.getAudios().observeOnce(viewLifecycleOwner,observerMediaStoreAudio)
+                if (rcvMediaAudioList.visibility == View.GONE) rcvMediaAudioList.fadeInAnimation()
+                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility = View.GONE
+                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility = View.GONE
+                boardAddVM.getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
             }
 
             // 새로고침 버튼.
@@ -219,6 +266,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                     removeAllSelectedImages()
                     mediaAudioPagedAdapter.initSelectedItems()
                     mediaImagePagedAdapter.initSelectedItems()
+                    mediaVideoPagedAdapter.initSelectedItems()
                 }
             }
 
@@ -227,25 +275,48 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 rootMediaBtnLayout.fadeOutAnimation()
                 rootMainBtn.fadeInAnimation()
                 rootMediaFileList.fadeOutAnimation()
-                boardAddVM.apply {
-                    val addListCount = boardAddVM.getSelectedImages().value
-                    if(addListCount.isNullOrEmpty()) {
-                        rootMediaLayout.collapseAnimation(300, 0)
-                    }else{
-                        rootMediaAddedList.fadeInAnimation()
+                rcvMediaAudioList.visibility = View.GONE
+                rcvMediaVideoList.visibility = View.GONE
+                rcvMediaImageList.visibility = View.VISIBLE
+                boardAddVM.run {
+                    getSelectedImages().value.run {
+                        if (this.isNullOrEmpty()) rootMediaLayout.collapseAnimation(
+                            DURATION_FADE_OUT,
+                            0
+                        )
+                        else rootMediaAddedList.fadeInAnimation()
                     }
                 }
             }
+
             // 리싸이클러뷰 뷰 범위 변경.
             btnTablePlus.setOnClickListener {
-                if (TABLE_RANGE_COUNT < 5) ++TABLE_RANGE_COUNT
-                else {
-                    TABLE_RANGE_COUNT = GALLERY_ITEM_RANGE
+                var targetRangeCounter: Int = GALLERY_ITEM_RANGE
+                when {
+                    rcvMediaImageList.visibility == View.VISIBLE -> {
+                        if (imageTableCounter < 5) ++imageTableCounter
+                        else {
+                            imageTableCounter = GALLERY_ITEM_RANGE
+                        }
+                        targetRangeCounter = imageTableCounter
+                    }
+                    rcvMediaAudioList.visibility == View.VISIBLE -> {
+                        if (audioTableCounter < 5) ++audioTableCounter
+                        else {
+                            audioTableCounter = GALLERY_ITEM_RANGE
+                        }
+                        targetRangeCounter = audioTableCounter
+                    }
+                    rcvMediaVideoList.visibility == View.VISIBLE -> {
+                        if (videoTableCounter < 5) ++videoTableCounter
+                        else {
+                            videoTableCounter = GALLERY_ITEM_RANGE
+                        }
+                        targetRangeCounter = videoTableCounter
+                    }
                 }
-                changedReyclerItemRange(TABLE_RANGE_COUNT)
+                changedReyclerItemRange(targetRangeCounter)
             }
-
-
         }
     }
 
@@ -255,11 +326,13 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
      * @param range: 이미지 갯수.
      * */
     private fun changedReyclerItemRange(range: Int) {
-        mBinding?.apply{
-            if(rcvMediaImageList.visibility == View.VISIBLE){
+        mBinding?.run {
+            if (rcvMediaImageList.visibility == View.VISIBLE) {
                 rcvMediaImageList.layoutManager = GridLayoutManager(requireActivity(), range)
-            }else if(rcvMediaAudioList.visibility == View.VISIBLE){
+            } else if (rcvMediaAudioList.visibility == View.VISIBLE) {
                 rcvMediaAudioList.layoutManager = GridLayoutManager(requireActivity(), range)
+            } else if (rcvMediaVideoList.visibility == View.VISIBLE) {
+                rcvMediaVideoList.layoutManager = GridLayoutManager(requireActivity(), range)
             }
         }
     }
@@ -280,15 +353,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         type: MediaStoreFileType,
         checked: Boolean
     ) {
-        var selectedItem: MediaStoreItemSelected? = MediaStoreItemSelected(binding, adapterPosition, item.contentUri, type, item)
-        when (checked) {
-            true -> {
-                boardAddVM.addSelectedItem(selectedItem)
-            }
-            false -> {
-                boardAddVM.removeSelectedItem(selectedItem)
-            }
-        }
+        addSelectedMediaStoreItem(binding, adapterPosition, item, type, checked)
     }
 
     override fun onMediaAudioClickEvent(
@@ -298,7 +363,28 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         type: MediaStoreFileType,
         checked: Boolean
     ) {
-        var selectedItem: MediaStoreItemSelected? = MediaStoreItemSelected(binding, adapterPosition, item.contentUri, type, item)
+        addSelectedMediaStoreItem(binding, adapterPosition, item, type, checked)
+    }
+
+    override fun onMediaVideoClickEvent(
+        binding: BoardItemMediaVideoBinding,
+        adapterPosition: Int,
+        item: MediaStoreVideo,
+        type: MediaStoreFileType,
+        checked: Boolean
+    ) {
+        addSelectedMediaStoreItem(binding, adapterPosition, item, type, checked)
+    }
+
+    private fun addSelectedMediaStoreItem(
+        binding: ViewDataBinding,
+        adapterPosition: Int,
+        item: MediaStoreItem,
+        type: MediaStoreFileType,
+        checked: Boolean
+    ) {
+        var selectedItem: SelectedMediaStoreItem? =
+            SelectedMediaStoreItem(binding, adapterPosition, item.contentUri, type, item)
         when (checked) {
             true -> {
                 boardAddVM.addSelectedItem(selectedItem)
