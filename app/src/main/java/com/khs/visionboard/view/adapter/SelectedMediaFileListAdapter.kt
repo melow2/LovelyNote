@@ -54,21 +54,20 @@ class SelectedMediaFileListAdapter(
         RecyclerView.ViewHolder(mBinding.root) {
 
         init {
-            mBinding.ivMediaItem.run {
-                setOnClickListener {
+            mBinding.run {
+                ivMediaItem.setOnClickListener {
                     listener?.run {
                         if (adapterPosition != RecyclerView.NO_POSITION) {
                             onClickSelectedItem(getItem(adapterPosition))
                         }
                     }
                 }
-                setOnLongClickListener {
+                btnDelete.setOnClickListener {
                     listener?.run {
                         if (adapterPosition != RecyclerView.NO_POSITION) {
                             onDeleteSelectedItem(getItem(adapterPosition))
                         }
                     }
-                    true
                 }
             }
         }
@@ -102,6 +101,7 @@ class SelectedMediaFileListAdapter(
         }
     }
 }
+
 
 
 

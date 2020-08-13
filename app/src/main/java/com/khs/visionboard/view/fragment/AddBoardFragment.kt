@@ -105,6 +105,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 if (selectedMediaStoreItems.isNotEmpty() && btnRefresh.visibility == View.GONE) {
                     btnRefresh.fadeInAnimation()
                     ivThumbnail.fadeInAnimation()
+
                 } else if (selectedMediaStoreItems.isEmpty() && btnRefresh.visibility == View.VISIBLE) {
                     btnRefresh.fadeOutAnimation()
                 }
@@ -115,7 +116,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         ProgressAppGlideModule.requestOptions(requireActivity())
                     )
                 } else {
-                    ivThumbnail.fadeOutAnimation()
+                    if(rootMediaAddedList.visibility==View.VISIBLE)
+                        rootMediaLayout.collapseAnimation(DURATION_FADE_OUT, 0)
                 }
                 selectedListAdapter.submitList(selectedMediaStoreItems)
             }
