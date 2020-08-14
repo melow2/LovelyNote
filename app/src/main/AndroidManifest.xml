@@ -16,7 +16,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".view.activity.AddBoardActivity"></activity>
         <activity android:name=".view.activity.BoardDetailActivity" />
-        <activity android:name=".view.activity.MainActivity">
+        <activity android:name=".view.activity.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
