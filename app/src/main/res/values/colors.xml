@@ -8,4 +8,6 @@
     <color name="colorBlue">#0859C3</color>                   <!-- 밝은 파랑 -->
     <color name="colorLightPink">#FFEAEA</color>              <!-- 밝은 핑크 -->
     <color name="colorGray">#A1A0A0</color>                   <!-- 밝은 회색 -->
+    <color name="colorTranslucent">#70000000</color>            <!-- 투명 -->
+    <color name="colorLIghtGreen">#13C31A</color>               <!-- 밝은 초록-->
 </resources>

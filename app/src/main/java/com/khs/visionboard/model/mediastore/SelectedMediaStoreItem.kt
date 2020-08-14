@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 data class SelectedMediaStoreItem(
     val itemBinding: ViewDataBinding,
     val position: Int,
-    val contentUri: Uri,
+    val contentUri: Uri?,
     val type: MediaStoreFileType?,
     val item: MediaStoreItem?
 ) {

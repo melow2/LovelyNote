@@ -7,7 +7,6 @@ import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import com.khs.visionboard.model.mediastore.MediaStoreImage
 import com.khs.visionboard.model.mediastore.MediaStoreVideo
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -28,7 +27,7 @@ fun ContentResolver.getMediaStoreImageFiles(
 ): MutableList<MediaStoreImage> {
     val contentResolver = this
     val fileList = mutableListOf<MediaStoreImage>()
-    val orderBy = MediaStore.Images.Media.DATE_TAKEN
+    val orderBy = MediaStore.Images.Media.DATE_MODIFIED
 
     val projection = arrayOf(
         MediaStore.Images.Media._ID,
@@ -37,7 +36,12 @@ fun ContentResolver.getMediaStoreImageFiles(
     )
 
     val selection = "$orderBy>= ?"
-    val selectionArgs = arrayOf(dateToTimestamp(day = 1, month = 1, year = 1970).toString())
+    val selectionArgs = arrayOf(
+        dateToTimestamp(
+            day = 1,
+            month = 1,
+            year = 1970
+        ).toString())
     val sortOrder = if (limit == null) "$orderBy DESC"
     else "$orderBy DESC LIMIT $limit OFFSET $offset"
 
@@ -55,7 +59,7 @@ fun ContentResolver.getMediaStoreImageFiles(
         val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
         while (cursor.moveToNext()) {
             val id = cursor.getLong(idColumn)
-            val dateTaken = Date(cursor.getLong(dateTakenColumn))
+            val dateTaken = Date(cursor.getLong(dateTakenColumn)*1000L)
             val displayName = cursor.getString(displayNameColumn)
             val contentUri = Uri.withAppendedPath(type.externalContentUri, id.toString())
             fileList.add(MediaStoreImage(id, dateTaken, displayName, contentUri, type))
@@ -65,10 +69,6 @@ fun ContentResolver.getMediaStoreImageFiles(
     return fileList
 }
 
-
-/**
- * orderBy에서 DATE_TAKEN을 쓸 수가 없음.
- * */
 fun ContentResolver.getMediaStoreAudioFiles(
     limit: Int,
     offset: Int,
@@ -76,7 +76,7 @@ fun ContentResolver.getMediaStoreAudioFiles(
 ): MutableList<MediaStoreAudio> {
     val contentResolver = this
     val fileList = mutableListOf<MediaStoreAudio>()
-    var orderBy = MediaStore.Audio.Media.DATE_ADDED
+    var orderBy = MediaStore.Audio.Media.DATE_MODIFIED
 
     val projection = arrayOf(
         MediaStore.Audio.Media._ID,
@@ -89,7 +89,8 @@ fun ContentResolver.getMediaStoreAudioFiles(
 
     val selection = "$orderBy >= ?"
     val selectionArgs = arrayOf(
-        dateToTimestamp(day = 1, month = 1, year = 1970).toString()
+        dateToTimestamp(day = 1, month = 1, year = 1970)
+            .toString()
     )
 
     val sortOrder = "$orderBy DESC LIMIT $limit OFFSET $offset"
@@ -104,7 +105,7 @@ fun ContentResolver.getMediaStoreAudioFiles(
 
     query?.use { cursor ->
         val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-        val dateAddedColumn = cursor.getColumnIndexOrThrow(orderBy)
+        val dateModifiedColumn = cursor.getColumnIndexOrThrow(orderBy)
         val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
         val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
         val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
@@ -112,7 +113,7 @@ fun ContentResolver.getMediaStoreAudioFiles(
 
         while (cursor.moveToNext()) {
             val id = cursor.getLong(idColumn)
-            val dateAdded = Date(cursor.getLong(dateAddedColumn))
+            val dateModified = Date(cursor.getLong(dateModifiedColumn)*1000L)
             val displayName = cursor.getString(displayNameColumn)
             val album = cursor.getString(albumColumn)
             val title = cursor.getString(titleColumn)
@@ -122,7 +123,7 @@ fun ContentResolver.getMediaStoreAudioFiles(
             fileList.add(
                 MediaStoreAudio(
                     id = id,
-                    dateTaken = dateAdded,
+                    dateTaken = dateModified,
                     displayName = displayName,
                     album = album,
                     title = title,
@@ -143,7 +144,7 @@ fun ContentResolver.getMediaStoreVideoFiles(
 ): MutableList<MediaStoreVideo> {
     val fileList = mutableListOf<MediaStoreVideo>()
     val contentResolver = this
-    val orderBy = MediaStore.Video.Media.DATE_TAKEN
+    val orderBy = MediaStore.Video.Media.DATE_MODIFIED
     val projection = arrayOf(
         MediaStore.Video.Media._ID,
         MediaStore.Video.Media.DISPLAY_NAME,
@@ -151,7 +152,8 @@ fun ContentResolver.getMediaStoreVideoFiles(
     )
     val selection = "$orderBy >= ?"
     val selectionArgs = arrayOf(
-        dateToTimestamp(day = 1, month = 1, year = 1970).toString()
+        dateToTimestamp(day = 1, month = 1, year = 1970)
+            .toString()
     )
 
     val sortOrder = if (limit == null) "$orderBy DESC"
@@ -170,7 +172,7 @@ fun ContentResolver.getMediaStoreVideoFiles(
         val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
         while (cursor.moveToNext()) {
             val id = cursor.getLong(idColumn)
-            val dateTaken = Date(cursor.getLong(dateTakenColumn))
+            val dateTaken = Date(cursor.getLong(dateTakenColumn)*1000L)
             val displayName = cursor.getString(displayNameColumn)
             val contentUri = Uri.withAppendedPath(
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -180,50 +182,4 @@ fun ContentResolver.getMediaStoreVideoFiles(
         }
     }
     return fileList
-}
-
-fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
-    SimpleDateFormat("dd.MM.yyyy").let { formatter ->
-        formatter.parse("$day.$month.$year")?.time ?: 0
-    }
-
-
-fun Long.formateMilliSeccond(): String? {
-    val milliseconds = this
-    var finalTimeHour = ""
-    var secondsString = ""
-    var minuteString = ""
-
-    // Convert total duration into time
-    val hours = (milliseconds / (1000 * 60 * 60)).toInt()
-    val minutes = (milliseconds % (1000 * 60 * 60)).toInt() / (1000 * 60)
-    val seconds = (milliseconds % (1000 * 60 * 60) % (1000 * 60) / 1000).toInt()
-
-    // Add hours if there
-    if (hours > 0) {
-        finalTimeHour = "0$hours:"
-    }
-
-    // Prepending 0 to seconds if it is one digit
-    secondsString = if (seconds < 10) {
-        "0$seconds"
-    } else {
-        "" + seconds
-    }
-
-    minuteString = if (minutes < 10) {
-        "0$minutes:"
-    } else {
-        "$minutes:"
-    }
-
-    val formatResult = "$finalTimeHour$minuteString$secondsString"
-
-    //      return  String.format("%02d Min, %02d Sec",
-    //                TimeUnit.MILLISECONDS.toMinutes(milliseconds),
-    //                TimeUnit.MILLISECONDS.toSeconds(milliseconds) -
-    //                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
-
-    // return timer string
-    return formatResult
 }

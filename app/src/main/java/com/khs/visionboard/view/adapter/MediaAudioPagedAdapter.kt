@@ -19,6 +19,7 @@ import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import com.khs.visionboard.model.mediastore.MediaStoreAudio.Companion.diffCallback
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import timber.log.Timber
+import java.text.SimpleDateFormat
 
 class MediaAudioPagedAdapter(var mContext: Context) :
     PagedListAdapter<MediaStoreAudio, MediaAudioPagedAdapter.GalleryViewHolder>(diffCallback) {
@@ -35,6 +36,9 @@ class MediaAudioPagedAdapter(var mContext: Context) :
             item: MediaStoreAudio,
             type: MediaStoreFileType,
             checked: Boolean
+        )
+        fun onMediaAudioPlayClientEvent(
+            item:MediaStoreAudio?
         )
     }
 
@@ -103,16 +107,12 @@ class MediaAudioPagedAdapter(var mContext: Context) :
                     when (mSelectedItems.get(adapterPosition, false)) {
                         false -> {
                             mSelectedItems.put(adapterPosition, true)
-                            ivAudio.complexOffAnimation()
-                            tvDuration.complexOffAnimation()
-                            btnAudioPlay.complexOffAnimation()
+                            rootAudioLyt.complexOffAnimation()
                             ivSelected.startDrawableAnimation()
                         }
                         else -> {
                             mSelectedItems.put(adapterPosition, false)
-                            ivAudio.complexOnAnimation()
-                            tvDuration.complexOnAnimation()
-                            btnAudioPlay.complexOnAnimation()
+                            rootAudioLyt.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
@@ -128,9 +128,10 @@ class MediaAudioPagedAdapter(var mContext: Context) :
                         )
                     }
                 }
-                // todo 오디오 플레이 버튼 구현해야 함.
-                btnAudioPlay.setOnClickListener {
 
+                btnAudioPlay.setOnClickListener {
+                    val mediaFile = getItem(adapterPosition)
+                    mListener?.onMediaAudioPlayClientEvent(mediaFile)
                 }
             }
         }

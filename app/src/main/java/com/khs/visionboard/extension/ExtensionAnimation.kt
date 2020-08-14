@@ -9,7 +9,6 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.khs.visionboard.extension.Constants.DURATION_FADE_IN
 import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 
-
 fun View.fadeOutAnimation() {
     val viewToFadeOut = this
     val fadeOut = ObjectAnimator.ofFloat(viewToFadeOut, "alpha", 1f, 0f)

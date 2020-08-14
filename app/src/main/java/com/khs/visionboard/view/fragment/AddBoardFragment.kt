@@ -3,6 +3,7 @@ package com.khs.visionboard.view.fragment
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,10 +15,13 @@ import com.khs.visionboard.databinding.BoardItemMediaImageBinding
 import com.khs.visionboard.databinding.BoardItemMediaVideoBinding
 import com.khs.visionboard.databinding.FragmentAddBoardBinding
 import com.khs.visionboard.extension.*
+import com.khs.visionboard.extension.Constants.AUDIO_ITEM_RANGE
+import com.khs.visionboard.extension.Constants.CURRENT_AUDIO_PLAYING
 import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 import com.khs.visionboard.extension.Constants.GALLERY_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.MEDIA_RCV_HEIGHT
 import com.khs.visionboard.extension.Constants.SELECTED_ITEM_RANGE
+import com.khs.visionboard.extension.Constants.VIDEO_ITEM_RANGE
 import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
@@ -25,6 +29,7 @@ import com.khs.visionboard.view.adapter.MediaAudioPagedAdapter
 import com.khs.visionboard.view.adapter.MediaImagePagedAdapter
 import com.khs.visionboard.view.adapter.MediaVideoPagedAdapter
 import com.khs.visionboard.view.adapter.SelectedMediaFileListAdapter
+import com.khs.visionboard.view.dialog.AudioPlayDialogFragment
 import com.khs.visionboard.viewmodel.BoardAddVM
 import com.khs.visionboard.viewmodel.factory.BoardAddVMFactory
 import timber.log.Timber
@@ -216,8 +221,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
      * */
     private fun setUpListener() {
         var imageTableCounter: Int = GALLERY_ITEM_RANGE
-        var audioTableCounter: Int = GALLERY_ITEM_RANGE
-        var videoTableCounter: Int = GALLERY_ITEM_RANGE
+        var audioTableCounter: Int = AUDIO_ITEM_RANGE
+        var videoTableCounter: Int = VIDEO_ITEM_RANGE
         mBinding?.apply {
             /***************************************************************************
              * 메인 버튼 ( 파일, 비디오, 오디오, 카메라, 미디어스토어)
@@ -314,16 +319,16 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         targetRangeCounter = imageTableCounter
                     }
                     rcvMediaAudioList.visibility == View.VISIBLE -> {
-                        if (audioTableCounter < 5) ++audioTableCounter
+                        if (audioTableCounter < 3) ++audioTableCounter
                         else {
-                            audioTableCounter = GALLERY_ITEM_RANGE
+                            audioTableCounter = AUDIO_ITEM_RANGE
                         }
                         targetRangeCounter = audioTableCounter
                     }
                     rcvMediaVideoList.visibility == View.VISIBLE -> {
-                        if (videoTableCounter < 5) ++videoTableCounter
+                        if (videoTableCounter < 4) ++videoTableCounter
                         else {
-                            videoTableCounter = GALLERY_ITEM_RANGE
+                            videoTableCounter = VIDEO_ITEM_RANGE
                         }
                         targetRangeCounter = videoTableCounter
                     }
@@ -396,8 +401,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         type: MediaStoreFileType,
         checked: Boolean
     ) {
-        var selectedItem: SelectedMediaStoreItem? =
-            SelectedMediaStoreItem(binding, adapterPosition, item.contentUri, type, item)
+        val selectedItem: SelectedMediaStoreItem? = SelectedMediaStoreItem(binding, adapterPosition, item.contentUri, type, item)
         when (checked) {
             true -> {
                 boardAddVM.addSelectedItem(selectedItem)
@@ -410,6 +414,17 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     override fun onClickSelectedItem(item: SelectedMediaStoreItem) {
 
+    }
+
+    override fun onMediaAudioPlayClientEvent(item: MediaStoreAudio?) {
+        val ft = parentFragmentManager.beginTransaction()
+        val prev = parentFragmentManager.findFragmentByTag(CURRENT_AUDIO_PLAYING)
+        prev?.let{
+            ft.remove(prev)
+        }
+        ft.addToBackStack(null)
+        val audioPlayDialog = AudioPlayDialogFragment.newInstance(item)
+        audioPlayDialog.show(ft, CURRENT_AUDIO_PLAYING)
     }
 
     // 클릭했을 때 뭘 하나 덜지우면, 깜빡거린다.

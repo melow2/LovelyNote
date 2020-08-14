@@ -27,9 +27,14 @@ object Constants {
     /** RecyclerView */
     const val MEDIA_RCV_HEIGHT = 720
     const val GALLERY_ITEM_RANGE = 2
+    const val AUDIO_ITEM_RANGE = 2
+    const val VIDEO_ITEM_RANGE = 2
     const val SELECTED_ITEM_RANGE = 2
 
     /** Animation Duration*/
     const val DURATION_FADE_IN: Long = 1000
     const val DURATION_FADE_OUT: Long = 300
+
+
+    const val CURRENT_AUDIO_PLAYING = "CURRENT_AUDIO_PLAYING"
 }

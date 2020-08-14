@@ -7,8 +7,8 @@ import java.util.*
 open class MediaStoreItem(
     open val id: Long,
     open val dateTaken: Date,
-    open val displayName: String,
-    open val contentUri: Uri,
+    open val displayName: String?,
+    open val contentUri: Uri?,
     open val type: MediaStoreFileType
 ){
     companion object {

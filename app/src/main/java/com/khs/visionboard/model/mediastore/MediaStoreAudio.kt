@@ -1,26 +1,61 @@
 package com.khs.visionboard.model.mediastore
 
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
+import androidx.core.text.parseAsHtml
 import androidx.recyclerview.widget.DiffUtil
 import com.khs.visionboard.extension.formateMilliSeccond
+import com.khs.visionboard.extension.toSimpleString
+import java.text.SimpleDateFormat
 import java.util.*
 
 data class MediaStoreAudio(
     override val id: Long,
-    override val dateTaken: Date,
-    override val displayName: String,
-    override val contentUri: Uri,
+    override var dateTaken: Date,
+    override val displayName: String?,
+    override val contentUri: Uri?,
     override val type: MediaStoreFileType,
-    val album: String,
-    val title: String,
+    val album: String?,
+    val title: String?,
     var _duration: String?
-) : MediaStoreItem(id, dateTaken, displayName, contentUri, type) {
+) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
 
     var duration: String?
         get() = _duration?.toLong()?.formateMilliSeccond()
         set(value) {
             _duration = value
         }
+
+    var _dateTaken:String?
+        get() = dateTaken.toSimpleString()
+        set(value){
+            dateTaken = SimpleDateFormat().parse(value)
+        }
+
+    constructor(source: Parcel) : this(
+        source.readLong(),
+        source.readSerializable() as Date,
+        source.readString(),
+        source.readParcelable<Uri>(Uri::class.java.classLoader),
+        MediaStoreFileType.values()[source.readInt()],
+        source.readString(),
+        source.readString(),
+        source.readString()
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeLong(id)
+        writeSerializable(dateTaken)
+        writeString(displayName)
+        writeParcelable(contentUri, 0)
+        writeInt(type.ordinal)
+        writeString(album)
+        writeString(title)
+        writeString(_duration)
+    }
 
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<MediaStoreAudio>() {
@@ -36,5 +71,14 @@ data class MediaStoreAudio(
             ): Boolean =
                 oldItem.contentUri == newItem.contentUri
         }
+
+        @JvmField
+        val CREATOR: Parcelable.Creator<MediaStoreAudio> =
+            object : Parcelable.Creator<MediaStoreAudio> {
+                override fun createFromParcel(source: Parcel): MediaStoreAudio =
+                    MediaStoreAudio(source)
+
+                override fun newArray(size: Int): Array<MediaStoreAudio?> = arrayOfNulls(size)
+            }
     }
 }

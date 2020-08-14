@@ -138,9 +138,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
                 }
                 MediaStoreFileType.AUDIO -> {
                     (item.itemBinding as BoardItemMediaAudioBinding).run {
-                        ivAudio.complexOnAnimation()
-                        btnAudioPlay.complexOnAnimation()
-                        tvDuration.complexOnAnimation()
+                        rootAudioLyt.complexOnAnimation()
                         ivSelected.visibility = View.GONE
                     }
                 }
@@ -167,9 +165,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
                     }
                     MediaStoreFileType.AUDIO -> {
                         (item.itemBinding as BoardItemMediaAudioBinding).run {
-                            ivAudio.complexOnAnimation()
-                            btnAudioPlay.complexOnAnimation()
-                            tvDuration.complexOnAnimation()
+                            rootAudioLyt.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
