@@ -74,27 +74,27 @@ class SelectedMediaFileListAdapter(
 
         fun bind(selected: SelectedMediaStoreItem) {
             selected.apply {
-                when (item?.type) {
+                when (selectedItem.type) {
                     MediaStoreFileType.IMAGE -> {
                         GlideImageLoader(
                             mBinding.ivMediaItem, null
                         ).load(
-                            (contentUri).toString(),
+                            (selectedItem.contentUri).toString(),
                             ProgressAppGlideModule.requestOptions(mContext)
                         )
                     }
                     MediaStoreFileType.AUDIO -> {
+                        Glide.with(mBinding.root)
+                            .load(R.drawable.ic_baseline_voice_hotpink_24)
+                            .into(mBinding.ivMediaItem)
+                    }
+                    MediaStoreFileType.VIDEO -> {
                         GlideImageLoader(
                             mBinding.ivMediaItem, null
                         ).load(
-                            (contentUri).toString(),
+                            (selectedItem.contentUri).toString(),
                             ProgressAppGlideModule.requestOptions(mContext)
                         )
-                    }
-                    MediaStoreFileType.VIDEO -> {
-                        Glide.with(mBinding.root)
-                            .load(R.drawable.ic_baseline_videocam)
-                            .into(mBinding.ivMediaItem)
                     }
                 }
             }

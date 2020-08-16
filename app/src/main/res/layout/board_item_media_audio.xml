@@ -4,16 +4,92 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data class="BoardItemMediaAudioBinding">
-
         <variable
             name="audio"
             type="com.khs.visionboard.model.mediastore.MediaStoreAudio" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_margin="5dp"
+        android:layout_margin="1.2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/root_audio_lyt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorDarkGray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/iv_audio"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:paddingBottom="50dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_voice_hotpink_24"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:text="@{audio.duration}"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/audio_play_layout"
+                    app:layout_constraintRight_toRightOf="parent"
+                    tools:text="00:00:00" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/audio_play_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white"
+                    android:padding="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent">
+
+                    <TextView
+                        android:id="@+id/tv_display_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:gravity="left"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="3dp"
+                        android:singleLine="true"
+                        android:text="@{audio.displayName}"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/btn_audio_play"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="기억의 습작 - 김동률" />
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/btn_audio_play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_baseline_play_circle_outline_green_32"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@+id/tv_display_name"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         <ImageView
             android:id="@+id/iv_selected"
             android:layout_width="48dp"
@@ -24,80 +100,5 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/anim_ic_check" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/root_audio_lyt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/iv_audio"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:scaleType="fitCenter"
-                android:paddingBottom="30dp"
-                android:src="@drawable/ic_baseline_voice_hotpink"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_audio_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_baseline_play_circle_outline_24"
-                app:layout_constraintBottom_toTopOf="@id/audio_play_layout"
-                app:layout_constraintLeft_toLeftOf="parent" />
-
-
-            <TextView
-                android:id="@+id/tv_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@{audio.duration}"
-                android:textColor="@android:color/black"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_margin="5dp"
-                app:layout_constraintBottom_toTopOf="@id/audio_play_layout"
-                app:layout_constraintRight_toRightOf="parent"
-                tools:text="00:00:00" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/audio_play_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorLightPink"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent">
-
-                <TextView
-                    android:id="@+id/tv_display_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="marquee"
-                    android:gravity="left"
-                    android:marqueeRepeatLimit="marquee_forever"
-                    android:singleLine="true"
-                    android:text="@{audio.displayName}"
-                    android:textStyle="bold"
-                    android:padding="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="안녕하세요.안녕하세요.안녕하세요.안녕하세요." />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -56,8 +56,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
     private val mAudioSourceFactory: MediaAudioSourceFactory
     private val mVideoSourceFactory: MediaVideoSourceFactory
     private val mPagedListConfig: PagedList.Config
-    private val mSelectedMediaStoreItemList: MutableLiveData<List<SelectedMediaStoreItem>> =
-        MutableLiveData()
+    private val mSelectedMediaStoreItemList: MutableLiveData<List<SelectedMediaStoreItem>> = MutableLiveData()
 
     init {
         mImageSourceFactory = MediaImageSourceFactory(mContext.contentResolver)
@@ -87,8 +86,23 @@ class BoardAddVM(application: Application, private val param1: Int) :
         return mVideoList
     }
 
-    fun getSelectedItems(): LiveData<List<SelectedMediaStoreItem>> {
+    fun getSelectedObjectList(): LiveData<List<SelectedMediaStoreItem>> {
         return mSelectedMediaStoreItemList
+    }
+
+
+    fun getSelectedIndexOf(item:SelectedMediaStoreItem): Int? {
+        return mSelectedMediaStoreItemList.value?.indexOf(item)
+    }
+
+
+    fun getAllSelectedItemList(): ArrayList<SelectedItem> {
+        val list =  arrayListOf<SelectedItem>()
+        mSelectedMediaStoreItemList.value?.run {
+            for(temp in this)
+                list.add(temp.selectedItem)
+        }
+        return list
     }
 
     /**
@@ -101,7 +115,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
         var list = mutableListOf<SelectedMediaStoreItem>()
         mSelectedMediaStoreItemList.run {
             value?.let {
-                list = (it as MutableList).toMutableList()
+                list = it.toMutableList()
             }
         }
         selectedMediaStoreItem?.let { list.add(it) }
@@ -127,24 +141,24 @@ class BoardAddVM(application: Application, private val param1: Int) :
      * 2) 선택된 이미지 데이터를 초기화 한다.
      * */
     fun removeAllSelectedItemAnimation() {
-        for (item in mSelectedMediaStoreItemList.value!!) {
-            when (item.type) {
+        for (selected in mSelectedMediaStoreItemList.value!!) {
+            when (selected.selectedItem.type) {
                 MediaStoreFileType.IMAGE -> {
-                    (item.itemBinding as BoardItemMediaImageBinding).run {
+                    (selected.itemBinding as BoardItemMediaImageBinding).run {
                         ivGallery.complexOnAnimation()
                         ivSelected.visibility = View.GONE
 
                     }
                 }
                 MediaStoreFileType.AUDIO -> {
-                    (item.itemBinding as BoardItemMediaAudioBinding).run {
+                    (selected.itemBinding as BoardItemMediaAudioBinding).run {
                         rootAudioLyt.complexOnAnimation()
                         ivSelected.visibility = View.GONE
                     }
                 }
                 MediaStoreFileType.VIDEO -> {
-                    (item.itemBinding as BoardItemMediaVideoBinding).run {
-                        ivVideo.complexOnAnimation()
+                    (selected.itemBinding as BoardItemMediaVideoBinding).run {
+                        rootVideoLyt.complexOnAnimation()
                         ivSelected.visibility = View.GONE
                     }
                 }
@@ -153,25 +167,25 @@ class BoardAddVM(application: Application, private val param1: Int) :
         mSelectedMediaStoreItemList.value = mutableListOf()
     }
 
-    fun removelSelectedItemAnimation(target: SelectedMediaStoreItem) {
-        for (item in mSelectedMediaStoreItemList.value!!) {
-            if(item.contentUri == target.contentUri) {
+    fun removelSelectedItemAnimation(target: SelectedItem) {
+        for (selected in mSelectedMediaStoreItemList.value!!) {
+            if(selected.selectedItem.contentUri == target.contentUri) {
                 when (target.type) {
                     MediaStoreFileType.IMAGE -> {
-                        (item.itemBinding as BoardItemMediaImageBinding).run {
+                        (selected.itemBinding as BoardItemMediaImageBinding).run {
                             ivGallery.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
                     MediaStoreFileType.AUDIO -> {
-                        (item.itemBinding as BoardItemMediaAudioBinding).run {
+                        (selected.itemBinding as BoardItemMediaAudioBinding).run {
                             rootAudioLyt.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
                     MediaStoreFileType.VIDEO -> {
-                        (item.itemBinding as BoardItemMediaVideoBinding).run {
-                            ivVideo.complexOnAnimation()
+                        (selected.itemBinding as BoardItemMediaVideoBinding).run {
+                            rootVideoLyt.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }

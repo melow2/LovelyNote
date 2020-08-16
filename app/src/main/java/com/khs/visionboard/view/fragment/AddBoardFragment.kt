@@ -3,7 +3,6 @@ package com.khs.visionboard.view.fragment
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +15,7 @@ import com.khs.visionboard.databinding.BoardItemMediaVideoBinding
 import com.khs.visionboard.databinding.FragmentAddBoardBinding
 import com.khs.visionboard.extension.*
 import com.khs.visionboard.extension.Constants.AUDIO_ITEM_RANGE
-import com.khs.visionboard.extension.Constants.CURRENT_AUDIO_PLAYING
+import com.khs.visionboard.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
 import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 import com.khs.visionboard.extension.Constants.GALLERY_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.MEDIA_RCV_HEIGHT
@@ -25,6 +24,7 @@ import com.khs.visionboard.extension.Constants.VIDEO_ITEM_RANGE
 import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
+import com.khs.visionboard.view.activity.MediaStoreViewPagerActivity
 import com.khs.visionboard.view.adapter.MediaAudioPagedAdapter
 import com.khs.visionboard.view.adapter.MediaImagePagedAdapter
 import com.khs.visionboard.view.adapter.MediaVideoPagedAdapter
@@ -117,11 +117,11 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 // 썸네일 저장.
                 if (!selectedMediaStoreItems.isNullOrEmpty() && ivThumbnail.visibility == View.VISIBLE) {
                     GlideImageLoader(ivThumbnail, null).load(
-                        (selectedMediaStoreItems[0].contentUri.toString()),
+                        (selectedMediaStoreItems[0].selectedItem.contentUri.toString()),
                         ProgressAppGlideModule.requestOptions(requireActivity())
                     )
                 } else {
-                    if(rootMediaAddedList.visibility==View.VISIBLE)
+                    if (rootMediaAddedList.visibility == View.VISIBLE)
                         rootMediaLayout.collapseAnimation(DURATION_FADE_OUT, 0)
                 }
                 selectedListAdapter.submitList(selectedMediaStoreItems)
@@ -156,11 +156,10 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val context = view.context
-        setUpRecyclerView()
+//      val context = view.context
         setUpListener()
+        setUpRecyclerView()
     }
-
 
     private fun setUpRecyclerView() {
         mBinding?.apply {
@@ -211,7 +210,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         boardAddVM.apply {
             getImages().observeOnce(viewLifecycleOwner, observerMediaStoreImage)
             getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
-            getSelectedItems().observe(viewLifecycleOwner, observerSelectedMediaStoreItem)
+            getSelectedObjectList().observe(viewLifecycleOwner, observerSelectedMediaStoreItem)
         }
         this.lifecycle.addObserver(boardAddVM)
     }
@@ -297,7 +296,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 rcvMediaVideoList.visibility = View.GONE
                 rcvMediaImageList.visibility = View.VISIBLE
                 boardAddVM.run {
-                    getSelectedItems().value.run {
+                    getSelectedObjectList().value.run {
                         if (this.isNullOrEmpty()) rootMediaLayout.collapseAnimation(
                             DURATION_FADE_OUT,
                             0
@@ -401,42 +400,49 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         type: MediaStoreFileType,
         checked: Boolean
     ) {
-        val selectedItem: SelectedMediaStoreItem? = SelectedMediaStoreItem(binding, adapterPosition, item.contentUri, type, item)
-        when (checked) {
-            true -> {
-                boardAddVM.addSelectedItem(selectedItem)
+        val selectedItem: SelectedMediaStoreItem? = SelectedMediaStoreItem(binding, SelectedItem(adapterPosition, item.contentUri, type, item))
+            when (checked) {
+                true -> {
+                    boardAddVM.addSelectedItem(selectedItem)
+                }
+                false -> {
+                    boardAddVM.removeSelectedItem(selectedItem)
+                }
             }
-            false -> {
-                boardAddVM.removeSelectedItem(selectedItem)
-            }
-        }
+
     }
 
-    override fun onClickSelectedItem(item: SelectedMediaStoreItem) {
-
+    override fun onClickSelectedItem(selectedItem: SelectedMediaStoreItem) {
+        startActivity(
+            MediaStoreViewPagerActivity.getStartIntent(
+                requireContext(),
+                boardAddVM.getAllSelectedItemList(),
+                boardAddVM.getSelectedIndexOf(selectedItem)
+            )
+        )
     }
 
     override fun onMediaAudioPlayClientEvent(item: MediaStoreAudio?) {
         val ft = parentFragmentManager.beginTransaction()
-        val prev = parentFragmentManager.findFragmentByTag(CURRENT_AUDIO_PLAYING)
-        prev?.let{
+        val prev = parentFragmentManager.findFragmentByTag(TAG_AUDIO_DIALOG_FRAGMENT)
+        prev?.let {
             ft.remove(prev)
         }
         ft.addToBackStack(null)
         val audioPlayDialog = AudioPlayDialogFragment.newInstance(item)
-        audioPlayDialog.show(ft, CURRENT_AUDIO_PLAYING)
+        audioPlayDialog.show(ft, TAG_AUDIO_DIALOG_FRAGMENT)
     }
 
     // 클릭했을 때 뭘 하나 덜지우면, 깜빡거린다.
-    override fun onDeleteSelectedItem(item: SelectedMediaStoreItem) {
+    override fun onDeleteSelectedItem(selectedItem: SelectedMediaStoreItem) {
         boardAddVM.run {
-            when (item.type) {
-                MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(item.position)
-                MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(item.position)
-                MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(item.position)
+            when (selectedItem.selectedItem.type) {
+                MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(selectedItem.selectedItem.position)
+                MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(selectedItem.selectedItem.position)
+                MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(selectedItem.selectedItem.position)
             }
-            removelSelectedItemAnimation(item)
-            removeSelectedItem(item)
+            removelSelectedItemAnimation(selectedItem.selectedItem)
+            removeSelectedItem(selectedItem)
         }
     }
 

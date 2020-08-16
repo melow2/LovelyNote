@@ -6,6 +6,7 @@ object Constants {
     const val TAG_LIST_FRAGMENT = "TAG_LIST_FRAGMENT"     // list fragment tag
     const val TAG_DETAIL_FRAGMENT = "TAG_DETAIL_FRAGMENT" // detail fragment tag
     const val TAG_ADD_FRAGMENT = "TAG_DETAIL_FRAGMENT"    // add fragment tag
+    const val TAG_AUDIO_DIALOG_FRAGMENT = "CURRENT_AUDIO_PLAYING"
 
     /** Media Type */
     const val IMAGE_MIME_TYPE: String = "image/*"
@@ -36,5 +37,5 @@ object Constants {
     const val DURATION_FADE_OUT: Long = 300
 
 
-    const val CURRENT_AUDIO_PLAYING = "CURRENT_AUDIO_PLAYING"
+
 }

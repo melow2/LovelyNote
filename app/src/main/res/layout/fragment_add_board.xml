@@ -41,8 +41,7 @@
                     android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@drawable/maldivas" />
+                    app:layout_constraintTop_toTopOf="parent" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rcv_media_added"
                     android:layout_width="0dp"
@@ -130,7 +129,7 @@
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_video"
                     style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_videocam"
+                    android:src="@drawable/ic_baseline_videocam_white_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_file"
                     app:layout_constraintRight_toLeftOf="@id/btn_record"
@@ -139,7 +138,7 @@
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_record"
                     style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_voice"
+                    android:src="@drawable/ic_baseline_voice_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_video"
                     app:layout_constraintRight_toLeftOf="@id/btn_camera"
@@ -177,7 +176,7 @@
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_media_video"
                     style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_videocam"
+                    android:src="@drawable/ic_baseline_videocam_white_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toLeftOf="@id/btn_media_record"
@@ -186,7 +185,7 @@
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_media_record"
                     style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_voice"
+                    android:src="@drawable/ic_baseline_voice_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_media_video"
                     app:layout_constraintRight_toLeftOf="@id/btn_media_image"

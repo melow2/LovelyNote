@@ -20,6 +20,8 @@ import com.khs.visionboard.model.mediastore.MediaStoreVideo
 import com.khs.visionboard.model.mediastore.MediaStoreVideo.Companion.diffCallback
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule.Companion.requestOptions
+import com.khs.visionboard.view.activity.ExoPlayerActivity
+
 
 class MediaVideoPagedAdapter(var mContext: Context) :
     PagedListAdapter<MediaStoreVideo, MediaVideoPagedAdapter.VideoViewHolder>(diffCallback) {
@@ -104,12 +106,12 @@ class MediaVideoPagedAdapter(var mContext: Context) :
                     when (mSelectedItems.get(adapterPosition, false)) {
                         false -> {
                             mSelectedItems.put(adapterPosition, true)
-                            ivVideo.complexOffAnimation()
+                            rootVideoLyt.complexOffAnimation()
                             ivSelected.startDrawableAnimation()
                         }
                         else -> {
                             mSelectedItems.put(adapterPosition, false)
-                            ivVideo.complexOnAnimation()
+                            rootVideoLyt.complexOnAnimation()
                             ivSelected.visibility = View.GONE
                         }
                     }
@@ -125,10 +127,15 @@ class MediaVideoPagedAdapter(var mContext: Context) :
                         )
                     }
                 }
+                btnPlay.setOnClickListener {
+                    val mIntent = ExoPlayerActivity.getStartIntent(mContext, getItem(adapterPosition))
+                    mContext.startActivity(mIntent)
+                }
             }
         }
 
         fun bind(item: MediaStoreVideo) {
+            mBinding.video = item
             GlideImageLoader(mBinding.ivVideo, null).load(
                 (item.contentUri).toString(),
                 requestOptions(mContext)

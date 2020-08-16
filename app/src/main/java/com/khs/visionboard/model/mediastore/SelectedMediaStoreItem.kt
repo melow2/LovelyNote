@@ -1,15 +1,11 @@
 package com.khs.visionboard.model.mediastore
 
-import android.net.Uri
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
 
 data class SelectedMediaStoreItem(
     val itemBinding: ViewDataBinding,
-    val position: Int,
-    val contentUri: Uri?,
-    val type: MediaStoreFileType?,
-    val item: MediaStoreItem?
+    val selectedItem:SelectedItem
 ) {
     companion object {
         val diffCallback: DiffUtil.ItemCallback<SelectedMediaStoreItem> =
@@ -25,10 +21,9 @@ data class SelectedMediaStoreItem(
                     oldItem: SelectedMediaStoreItem,
                     newItem: SelectedMediaStoreItem
                 ): Boolean {
-                    return oldItem.contentUri == newItem.contentUri
+                    return oldItem.selectedItem.contentUri == newItem.selectedItem.contentUri
                 }
             }
-
     }
 }
 /*

@@ -19,7 +19,6 @@ import com.khs.visionboard.extension.fadeOutAnimation
 import com.khs.visionboard.extension.formateMilliSeccond
 import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import kotlinx.android.synthetic.main.dialog_audio_play.*
-import java.util.concurrent.TimeUnit
 
 class AudioPlayDialogFragment : DialogFragment() {
 
@@ -33,7 +32,7 @@ class AudioPlayDialogFragment : DialogFragment() {
     private var bTime = 5000
     private val handler = Handler(Looper.getMainLooper())
 
-    private val UpdateSongTime: Runnable = object : Runnable {
+    private val updateSongTime: Runnable = object : Runnable {
         override fun run() {
             sTime = mPlayer.currentPosition
             mBinding.tvStartTime.text = sTime.toLong().formateMilliSeccond()
@@ -54,7 +53,6 @@ class AudioPlayDialogFragment : DialogFragment() {
             }
         }
     }
-
 
     interface EventListener {
         fun onPlayClick()
@@ -101,15 +99,24 @@ class AudioPlayDialogFragment : DialogFragment() {
         audio_seek_bar.setOnSeekBarChangeListener(listener)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDetach() {
+        super.onDetach()
         mPlayer.pause()
     }
 
-    inner class MediaPlayerListener(private val mBinding: DialogAudioPlayBinding) : EventListener,SeekBar.OnSeekBarChangeListener {
+    override fun onPause() {
+        super.onPause()
+        mPlayer.pause()
+    }
+
+    inner class MediaPlayerListener(private val mBinding: DialogAudioPlayBinding) : EventListener,
+        SeekBar.OnSeekBarChangeListener {
+
+        private var isPlaying = false
+
         override fun onPlayClick() {
             mBinding.run {
-                mPlayer.start()
+                mediaPlayerPlayAction()
                 eTime = mPlayer.duration;
                 sTime = mPlayer.currentPosition;
                 if (oTime == 0) {
@@ -118,32 +125,25 @@ class AudioPlayDialogFragment : DialogFragment() {
                 }
                 tvStartTime.text = sTime.toLong().formateMilliSeccond()
                 audioSeekBar.progress = sTime;
-                handler.postDelayed(UpdateSongTime, 100);
-                btnPause.fadeInAnimation()
-                btnPlay.fadeOutAnimation()
+                handler.postDelayed(updateSongTime, 100);
             }
-
         }
 
         override fun onPauseClick() {
-            mBinding.run{
-                mPlayer.pause();
-                btnPause.fadeOutAnimation()
-                btnPlay.fadeInAnimation()
+            mBinding.run {
+                mediaPlayerPauseAction()
             }
         }
 
         override fun onBackwardClick() {
-            if((sTime - bTime) > 0)
-            {
+            if ((sTime - bTime) > 0) {
                 sTime -= bTime;
                 mPlayer.seekTo(sTime);
             }
         }
 
         override fun onFrontwardClick() {
-            if((sTime + fTime) <= eTime)
-            {
+            if ((sTime + fTime) <= eTime) {
                 sTime += fTime;
                 mPlayer.seekTo(sTime);
             }
@@ -152,15 +152,36 @@ class AudioPlayDialogFragment : DialogFragment() {
         override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
 
         override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            mPlayer.pause()
+            if(isPlaying) {
+                mediaPlayerPauseAction()
+            }
         }
 
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            seekBar?.progress?.run {
-                mPlayer.seekTo(this)
-                mPlayer.start()
+            if(!isPlaying && sTime!=0) {
+                seekBar?.progress?.run {
+                    mPlayer.seekTo(this)
+                    mPlayer.start()
+                }
             }
+        }
 
+        private fun mediaPlayerPauseAction() {
+            if(isPlaying) {
+                mPlayer.pause()
+                mBinding.btnPause.fadeOutAnimation()
+                mBinding.btnPlay.fadeInAnimation()
+                isPlaying = false
+            }
+        }
+
+        private fun mediaPlayerPlayAction(){
+            if(!isPlaying) {
+                mPlayer.start()
+                mBinding.btnPause.fadeInAnimation()
+                mBinding.btnPlay.fadeOutAnimation()
+                isPlaying = true
+            }
         }
     }
 }
