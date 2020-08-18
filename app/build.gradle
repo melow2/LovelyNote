@@ -83,4 +83,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.10.3'
     // ViewPager2
     implementation "androidx.viewpager2:viewpager2:1.0.0"
+    // PhotoView
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }

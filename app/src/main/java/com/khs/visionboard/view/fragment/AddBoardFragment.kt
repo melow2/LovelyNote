@@ -1,29 +1,32 @@
 package com.khs.visionboard.view.fragment
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import android.widget.LinearLayout
+import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
 import com.khs.visionboard.R
-import com.khs.visionboard.databinding.BoardItemMediaAudioBinding
-import com.khs.visionboard.databinding.BoardItemMediaImageBinding
-import com.khs.visionboard.databinding.BoardItemMediaVideoBinding
-import com.khs.visionboard.databinding.FragmentAddBoardBinding
+import com.khs.visionboard.databinding.*
 import com.khs.visionboard.extension.*
 import com.khs.visionboard.extension.Constants.AUDIO_ITEM_RANGE
-import com.khs.visionboard.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
 import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 import com.khs.visionboard.extension.Constants.GALLERY_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.MEDIA_RCV_HEIGHT
 import com.khs.visionboard.extension.Constants.SELECTED_ITEM_RANGE
+import com.khs.visionboard.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
 import com.khs.visionboard.extension.Constants.VIDEO_ITEM_RANGE
 import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
+import com.khs.visionboard.view.activity.ExoPlayerActivity
 import com.khs.visionboard.view.activity.MediaStoreViewPagerActivity
 import com.khs.visionboard.view.adapter.MediaAudioPagedAdapter
 import com.khs.visionboard.view.adapter.MediaImagePagedAdapter
@@ -33,6 +36,7 @@ import com.khs.visionboard.view.dialog.AudioPlayDialogFragment
 import com.khs.visionboard.viewmodel.BoardAddVM
 import com.khs.visionboard.viewmodel.factory.BoardAddVMFactory
 import timber.log.Timber
+import java.util.*
 
 
 class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
@@ -51,6 +55,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
+        private const val RC_GET_CONTENT = 1007
 
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
@@ -109,20 +114,18 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             mBinding?.apply {
                 if (selectedMediaStoreItems.isNotEmpty() && btnRefresh.visibility == View.GONE) {
                     btnRefresh.fadeInAnimation()
-                    ivThumbnail.fadeInAnimation()
-
+                    thumbnailLyt.fadeInAnimation()
                 } else if (selectedMediaStoreItems.isEmpty() && btnRefresh.visibility == View.VISIBLE) {
                     btnRefresh.fadeOutAnimation()
                 }
                 // 썸네일 저장.
-                if (!selectedMediaStoreItems.isNullOrEmpty() && ivThumbnail.visibility == View.VISIBLE) {
-                    GlideImageLoader(ivThumbnail, null).load(
-                        (selectedMediaStoreItems[0].selectedItem.contentUri.toString()),
-                        ProgressAppGlideModule.requestOptions(requireActivity())
-                    )
+                if (!selectedMediaStoreItems.isNullOrEmpty() && thumbnailLyt.visibility == View.VISIBLE) {
+                    thumbnailLyt.addView(Thumbnail(target = selectedMediaStoreItems[0]))
                 } else {
-                    if (rootMediaAddedList.visibility == View.VISIBLE)
+                    if (rootMediaAddedList.visibility == View.VISIBLE) {
+                        thumbnailLyt.fadeOutAnimation()
                         rootMediaLayout.collapseAnimation(DURATION_FADE_OUT, 0)
+                    }
                 }
                 selectedListAdapter.submitList(selectedMediaStoreItems)
             }
@@ -226,6 +229,12 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             /***************************************************************************
              * 메인 버튼 ( 파일, 비디오, 오디오, 카메라, 미디어스토어)
              * */
+            // 파일 버튼.
+            btnFile.setOnClickListener {
+                rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
+                loadExtraOrdinaryFiles()
+            }
+
             // 오디오 버튼.
             btnRecord.setOnClickListener {
                 showToast(requireActivity(), "DDDDDD")
@@ -318,14 +327,14 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         targetRangeCounter = imageTableCounter
                     }
                     rcvMediaAudioList.visibility == View.VISIBLE -> {
-                        if (audioTableCounter < 3) ++audioTableCounter
+                        if (audioTableCounter < 5) ++audioTableCounter
                         else {
                             audioTableCounter = AUDIO_ITEM_RANGE
                         }
                         targetRangeCounter = audioTableCounter
                     }
                     rcvMediaVideoList.visibility == View.VISIBLE -> {
-                        if (videoTableCounter < 4) ++videoTableCounter
+                        if (videoTableCounter < 5) ++videoTableCounter
                         else {
                             videoTableCounter = VIDEO_ITEM_RANGE
                         }
@@ -335,6 +344,54 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 changedReyclerItemRange(targetRangeCounter)
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                RC_GET_CONTENT -> {
+                    for (item in getExtraOrdinaryFiles(data)) {
+                        context?.contentResolver?.getFileDataFromUri(item)?.let { target ->
+                            addSelectedMediaStoreItem(null, null, target, target.type, true)
+                        }
+                    }            // 아이템 추가 버튼.
+                    mBinding?.run {
+                        rootMediaAddedList.fadeInAnimation()
+                    }
+                }
+            }
+        }else if(resultCode == Activity.DEFAULT_KEYS_DISABLE){
+            mBinding?.rootMediaLayout?.collapseAnimation(DURATION_FADE_OUT, 0)
+        }
+    }
+
+
+    private fun getExtraOrdinaryFiles(paramIntent: Intent?): ArrayList<Uri> {
+        val arrayList: ArrayList<Uri> = arrayListOf()
+        if (paramIntent?.clipData != null) {
+            paramIntent.clipData.let { clips ->
+                val itemCount: Int? = clips?.itemCount
+                itemCount?.let {
+                    for (i in 0 until itemCount) {
+                        arrayList.add(clips.getItemAt(i).uri)
+                    }
+                }
+            }
+        } else {
+            paramIntent?.data?.let {
+                arrayList.add(it)
+            }
+        }
+        return arrayList
+    }
+
+    private fun loadExtraOrdinaryFiles() {
+        startActivityForResult(Intent("android.intent.action.GET_CONTENT").apply {
+            putExtra("android.intent.extra.ALLOW_MULTIPLE", true)
+            addCategory("android.intent.category.OPENABLE")
+            type = "*/*"
+        }, RC_GET_CONTENT)
     }
 
     /**
@@ -394,21 +451,25 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     }
 
     private fun addSelectedMediaStoreItem(
-        binding: ViewDataBinding,
-        adapterPosition: Int,
+        binding: ViewDataBinding?,
+        adapterPosition: Int?,
         item: MediaStoreItem,
         type: MediaStoreFileType,
-        checked: Boolean
+        checked: Boolean?
     ) {
-        val selectedItem: SelectedMediaStoreItem? = SelectedMediaStoreItem(binding, SelectedItem(adapterPosition, item.contentUri, type, item))
-            when (checked) {
-                true -> {
-                    boardAddVM.addSelectedItem(selectedItem)
-                }
-                false -> {
-                    boardAddVM.removeSelectedItem(selectedItem)
-                }
+        val selectedItem: SelectedMediaStoreItem? =
+            SelectedMediaStoreItem(
+                binding,
+                SelectedItem(adapterPosition, item.contentUri, type, item)
+            )
+        when (checked) {
+            true -> {
+                boardAddVM.addSelectedItem(selectedItem)
             }
+            false -> {
+                boardAddVM.removeSelectedItem(selectedItem)
+            }
+        }
 
     }
 
@@ -433,18 +494,117 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         audioPlayDialog.show(ft, TAG_AUDIO_DIALOG_FRAGMENT)
     }
 
+    override fun onMediaVideoPlayClientEvent(item: MediaStoreVideo?) {
+        val mIntent = ExoPlayerActivity.getStartIntent(requireContext(), item)
+        requireContext().startActivity(mIntent)
+    }
+
     // 클릭했을 때 뭘 하나 덜지우면, 깜빡거린다.
-    override fun onDeleteSelectedItem(selectedItem: SelectedMediaStoreItem) {
+    override fun onDeleteSelectedItem(target: SelectedMediaStoreItem) {
         boardAddVM.run {
-            when (selectedItem.selectedItem.type) {
-                MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(selectedItem.selectedItem.position)
-                MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(selectedItem.selectedItem.position)
-                MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(selectedItem.selectedItem.position)
+            target.selectedItem.position?.let { pos ->
+                when (target.selectedItem.type) {
+                    MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(pos)
+                    MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(pos)
+                    MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(pos)
+                    else -> return
+                }
             }
-            removelSelectedItemAnimation(selectedItem.selectedItem)
-            removeSelectedItem(selectedItem)
+            removelSelectedItemAnimation(target.selectedItem)
+            removeSelectedItem(target)
         }
     }
+
+    override fun onPlayMediaItem(item: SelectedMediaStoreItem) {
+        when (item.selectedItem.type) {
+            MediaStoreFileType.AUDIO -> {
+                onMediaAudioPlayClientEvent(item.selectedItem.item as MediaStoreAudio)
+            }
+            MediaStoreFileType.VIDEO -> {
+                onMediaVideoPlayClientEvent(item.selectedItem.item as MediaStoreVideo)
+            }
+        }
+    }
+
+    inner class Thumbnail(private val target: SelectedMediaStoreItem) :
+        LinearLayout(requireContext()) {
+        init {
+            mBinding?.thumbnailLyt?.removeAllViews()
+            setThumbnail()
+        }
+
+        // addView 할때 match_parent & wrap_content 지켜야 함.
+        private fun setThumbnail() {
+            when (target.selectedItem.type) {
+                MediaStoreFileType.IMAGE -> {
+                    val binding: BoardItemMediaThumbnailImageBinding = DataBindingUtil.inflate(
+                        requireActivity().layoutInflater,
+                        R.layout.board_item_media_thumbnail_image,
+                        this,
+                        true
+                    )
+
+                    binding.run {
+                        GlideImageLoader(ivThumbnailImage, null).load(
+                            (target.selectedItem.contentUri.toString()),
+                            ProgressAppGlideModule.requestOptions(requireActivity())
+                        )
+                        btnDelete.setOnClickListener {
+                            onDeleteSelectedItem(target)
+                        }
+                        rootThumbnailLyt.setOnClickListener {
+                            onClickSelectedItem(target)
+                        }
+                    }
+                }
+                MediaStoreFileType.AUDIO -> {
+                    val binding: BoardItemMediaThumbnailAudioBinding = DataBindingUtil.inflate(
+                        requireActivity().layoutInflater,
+                        R.layout.board_item_media_thumbnail_audio,
+                        this,
+                        true
+                    )
+                    binding.run {
+                        tvDuration.text = (target.selectedItem.item as MediaStoreAudio).duration
+                        btnPlay.setOnClickListener {
+                            onMediaAudioPlayClientEvent(target.selectedItem.item)
+                        }
+                        btnDelete.setOnClickListener {
+                            onDeleteSelectedItem(target)
+                        }
+                        rootThumbnailLyt.setOnClickListener {
+                            onClickSelectedItem(target)
+                        }
+                    }
+                }
+                MediaStoreFileType.VIDEO -> {
+                    val binding: BoardItemMediaThumbnailVideoBinding = DataBindingUtil.inflate(
+                        requireActivity().layoutInflater,
+                        R.layout.board_item_media_thumbnail_video,
+                        this,
+                        true
+                    )
+                    binding.run {
+                        tvDuration.text = (target.selectedItem.item as MediaStoreVideo).duration
+                        GlideImageLoader(ivThumbnailImage, null).load(
+                            (target.selectedItem.contentUri.toString()),
+                            ProgressAppGlideModule.requestOptions(requireActivity())
+                        )
+                        btnPlay.setOnClickListener {
+                            onMediaVideoPlayClientEvent(target.selectedItem.item as MediaStoreVideo)
+                        }
+                        btnDelete.setOnClickListener {
+                            onDeleteSelectedItem(target)
+                        }
+                        rootThumbnailLyt.setOnClickListener {
+                            onClickSelectedItem(target)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

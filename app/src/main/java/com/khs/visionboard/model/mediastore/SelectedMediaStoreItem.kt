@@ -4,7 +4,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
 
 data class SelectedMediaStoreItem(
-    val itemBinding: ViewDataBinding,
+    val itemBinding: ViewDataBinding?,
     val selectedItem:SelectedItem
 ) {
     companion object {

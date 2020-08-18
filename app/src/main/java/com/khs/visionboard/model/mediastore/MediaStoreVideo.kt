@@ -3,28 +3,40 @@ package com.khs.visionboard.model.mediastore
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
-import android.widget.ImageView
-import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
-import com.bumptech.glide.Glide
-import com.khs.visionboard.R
-import com.khs.visionboard.module.glide.GlideImageLoader
-import com.khs.visionboard.module.glide.ProgressAppGlideModule
+import com.khs.visionboard.extension.formateMilliSeccond
+import com.khs.visionboard.extension.toSimpleString
+import java.text.SimpleDateFormat
 import java.util.*
 
-class MediaStoreVideo(
-    override val id: Long,
-    override val dateTaken: Date,
-    override val displayName: String?,
-    override val contentUri: Uri?,
-    override val type: MediaStoreFileType
+data class MediaStoreVideo(
+    override var id: Long,
+    override var dateTaken: Date,
+    override var displayName: String?,
+    override var contentUri: Uri?,
+    override var type: MediaStoreFileType,
+    var _duration: String?
 ) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
+
+    var duration: String?
+        get() = _duration?.toLong()?.formateMilliSeccond()
+        set(value) {
+            _duration = value
+        }
+
+    var _dateTaken: String?
+        get() = dateTaken.toSimpleString()
+        set(value) {
+            dateTaken = SimpleDateFormat().parse(value)
+        }
+
     constructor(source: Parcel) : this(
         source.readLong(),
         source.readSerializable() as Date,
         source.readString(),
         source.readParcelable<Uri>(Uri::class.java.classLoader),
-        MediaStoreFileType.values()[source.readInt()]
+        MediaStoreFileType.values()[source.readInt()],
+        source.readString()
     )
 
     override fun describeContents() = 0
@@ -35,6 +47,7 @@ class MediaStoreVideo(
         writeString(displayName)
         writeParcelable(contentUri, 0)
         writeInt(type.ordinal)
+        writeString(_duration)
     }
 
     companion object {

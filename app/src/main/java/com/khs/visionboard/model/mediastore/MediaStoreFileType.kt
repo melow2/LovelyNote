@@ -4,13 +4,15 @@ import android.net.Uri
 import android.provider.MediaStore
 import com.khs.visionboard.extension.Constants.AUDIO_MIME_TYPE
 import com.khs.visionboard.extension.Constants.AUDIO_PATH_BY_DCIM
+import com.khs.visionboard.extension.Constants.FILE_MIME_TYPE
+import com.khs.visionboard.extension.Constants.FILE_PATH_BY_DCIM
 import com.khs.visionboard.extension.Constants.IMAGE_MIME_TYPE
 import com.khs.visionboard.extension.Constants.IMAGE_PATH_BY_DCIM
 import com.khs.visionboard.extension.Constants.VIDEO_MIME_TYPE
 import com.khs.visionboard.extension.Constants.VIDEO_PATH_BY_DCIM
 
 enum class MediaStoreFileType(
-    val externalContentUri: Uri,
+    var externalContentUri: Uri,
     val mimeType: String,
     val pathByDCIM: String,
     val typeCode: Int
@@ -32,5 +34,11 @@ enum class MediaStoreFileType(
         VIDEO_MIME_TYPE,
         VIDEO_PATH_BY_DCIM,
         MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
-    );
+    ),
+    FILE(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        FILE_MIME_TYPE,
+        FILE_PATH_BY_DCIM,
+        MediaStore.Files.FileColumns.MEDIA_TYPE_NONE
+    )
 }

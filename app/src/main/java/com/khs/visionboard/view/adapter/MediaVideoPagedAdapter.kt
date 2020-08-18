@@ -39,6 +39,7 @@ class MediaVideoPagedAdapter(var mContext: Context) :
             type: MediaStoreFileType,
             checked: Boolean
         )
+        fun onMediaVideoPlayClientEvent(item: MediaStoreVideo?)
     }
 
     fun addListener(listener: MediaPagedViedoListener) {
@@ -128,8 +129,11 @@ class MediaVideoPagedAdapter(var mContext: Context) :
                     }
                 }
                 btnPlay.setOnClickListener {
-                    val mIntent = ExoPlayerActivity.getStartIntent(mContext, getItem(adapterPosition))
-                    mContext.startActivity(mIntent)
+                    mListener?.run {
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            onMediaVideoPlayClientEvent(getItem(adapterPosition))
+                        }
+                    }
                 }
             }
         }

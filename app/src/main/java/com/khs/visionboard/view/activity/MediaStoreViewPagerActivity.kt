@@ -6,11 +6,15 @@ import android.os.Bundle
 import androidx.viewpager2.widget.ViewPager2
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityAddedViewPagerBinding
+import com.khs.visionboard.extension.Constants
+import com.khs.visionboard.model.mediastore.MediaStoreAudio
+import com.khs.visionboard.model.mediastore.MediaStoreVideo
 import com.khs.visionboard.model.mediastore.SelectedItem
 import com.khs.visionboard.model.mediastore.SelectedMediaStoreItem
 import com.khs.visionboard.view.adapter.MediaStoreItemAdapter
+import com.khs.visionboard.view.dialog.AudioPlayDialogFragment
 
-class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>() {
+class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>(),MediaStoreItemAdapter.MediaStoreItemEvent  {
 
     private var mList:ArrayList<SelectedItem> = arrayListOf()
     private var mPosition: Int = 0
@@ -34,7 +38,9 @@ class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>(
         bindView(R.layout.activity_added_view_pager)
         if(intent.hasExtra(MEDIA_ITEM_POSTION)) mPosition = intent.getIntExtra(MEDIA_ITEM_POSTION,0)
         if(intent.hasExtra(MEDIA_ITEM_LIST)) mList = intent.getParcelableArrayListExtra<SelectedItem>(MEDIA_ITEM_LIST) as ArrayList<SelectedItem>
-        viewPagerAdapter = MediaStoreItemAdapter(this, mList)
+        viewPagerAdapter = MediaStoreItemAdapter(this, mList).apply {
+            addListener(this@MediaStoreViewPagerActivity)
+        }
         mBinding?.run {
             mediaViwpager.adapter = viewPagerAdapter
             mediaViwpager.currentItem = mPosition
@@ -60,4 +66,19 @@ class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>(
         }
     }
 
+    override fun onPlayAudio(item: MediaStoreAudio) {
+        val ft = supportFragmentManager.beginTransaction()
+        val prev = supportFragmentManager.findFragmentByTag(Constants.TAG_AUDIO_DIALOG_FRAGMENT)
+        prev?.let {
+            ft.remove(prev)
+        }
+        ft.addToBackStack(null)
+        val audioPlayDialog = AudioPlayDialogFragment.newInstance(item)
+        audioPlayDialog.show(ft, Constants.TAG_AUDIO_DIALOG_FRAGMENT)
+    }
+
+    override fun onPlayVideo(item:MediaStoreVideo) {
+        val mIntent = ExoPlayerActivity.getStartIntent(this, item)
+        startActivity(mIntent)
+    }
 }

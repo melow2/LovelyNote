@@ -11,13 +11,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 data class MediaStoreAudio(
-    override val id: Long,
+    override var id: Long,
     override var dateTaken: Date,
-    override val displayName: String?,
-    override val contentUri: Uri?,
-    override val type: MediaStoreFileType,
-    val album: String?,
-    val title: String?,
+    override var displayName: String?,
+    override var contentUri: Uri?,
+    override var type: MediaStoreFileType,
+    var album: String?,
+    var title: String?,
     var _duration: String?
 ) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
 

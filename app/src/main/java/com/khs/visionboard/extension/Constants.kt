@@ -9,13 +9,20 @@ object Constants {
     const val TAG_AUDIO_DIALOG_FRAGMENT = "CURRENT_AUDIO_PLAYING"
 
     /** Media Type */
+
+    const val TYPE_IMAGE = "image"
+    const val TYPE_AUDIO = "audio"
+    const val TYPE_VIDEO = "video"
+
     const val IMAGE_MIME_TYPE: String = "image/*"
     const val AUDIO_MIME_TYPE: String = "audio/*"
     const val VIDEO_MIME_TYPE: String = "video/*"
+    const val FILE_MIME_TYPE: String = "file/*"
 
     const val IMAGE_PATH_BY_DCIM: String = "/image"
     const val AUDIO_PATH_BY_DCIM: String = "/audio"
     const val VIDEO_PATH_BY_DCIM: String = "/video"
+    const val FILE_PATH_BY_DCIM: String = "/file"
 
     /*
         최초 500개를 불러 들이고, 500개부터 다음페이지를 미리 불러오니, 바로 다음페이지 100개 불러들임.

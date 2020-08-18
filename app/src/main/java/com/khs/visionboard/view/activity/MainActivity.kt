@@ -14,7 +14,7 @@ import com.khs.visionboard.view.fragment.BoardListFragment
 * */
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
-    lateinit var boardListFragment: BoardListFragment
+    private lateinit var boardListFragment: BoardListFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

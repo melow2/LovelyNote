@@ -142,25 +142,28 @@ class BoardAddVM(application: Application, private val param1: Int) :
      * */
     fun removeAllSelectedItemAnimation() {
         for (selected in mSelectedMediaStoreItemList.value!!) {
-            when (selected.selectedItem.type) {
-                MediaStoreFileType.IMAGE -> {
-                    (selected.itemBinding as BoardItemMediaImageBinding).run {
-                        ivGallery.complexOnAnimation()
-                        ivSelected.visibility = View.GONE
+            selected.itemBinding?.let {
+                when (selected.selectedItem.type) {
+                    MediaStoreFileType.IMAGE -> {
+                        (selected.itemBinding as BoardItemMediaImageBinding).run {
+                            ivGallery.complexOnAnimation()
+                            ivSelected.visibility = View.GONE
 
+                        }
                     }
-                }
-                MediaStoreFileType.AUDIO -> {
-                    (selected.itemBinding as BoardItemMediaAudioBinding).run {
-                        rootAudioLyt.complexOnAnimation()
-                        ivSelected.visibility = View.GONE
+                    MediaStoreFileType.AUDIO -> {
+                        (selected.itemBinding as BoardItemMediaAudioBinding).run {
+                            rootAudioLyt.complexOnAnimation()
+                            ivSelected.visibility = View.GONE
+                        }
                     }
-                }
-                MediaStoreFileType.VIDEO -> {
-                    (selected.itemBinding as BoardItemMediaVideoBinding).run {
-                        rootVideoLyt.complexOnAnimation()
-                        ivSelected.visibility = View.GONE
+                    MediaStoreFileType.VIDEO -> {
+                        (selected.itemBinding as BoardItemMediaVideoBinding).run {
+                            rootVideoLyt.complexOnAnimation()
+                            ivSelected.visibility = View.GONE
+                        }
                     }
+                    else -> return
                 }
             }
         }
@@ -169,7 +172,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
 
     fun removelSelectedItemAnimation(target: SelectedItem) {
         for (selected in mSelectedMediaStoreItemList.value!!) {
-            if(selected.selectedItem.contentUri == target.contentUri) {
+            if(selected.selectedItem.contentUri == target.contentUri && selected.itemBinding!=null) {
                 when (target.type) {
                     MediaStoreFileType.IMAGE -> {
                         (selected.itemBinding as BoardItemMediaImageBinding).run {

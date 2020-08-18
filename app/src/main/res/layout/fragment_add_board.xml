@@ -17,7 +17,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/root_media_layout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:background="@color/colorLightYellow"
             android:orientation="horizontal"
             android:visibility="gone"
@@ -27,28 +27,35 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/root_media_added_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:visibility="visible"
                 android:visibility="gone">
-                <ImageView
-                    android:id="@+id/iv_thumbnail"
+
+                <LinearLayout
+                    android:id="@+id/thumbnail_lyt"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"
+                    android:visibility="visible"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/rcv_media_added" >
+                </LinearLayout>
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rcv_media_added"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    tools:listitem="@layout/board_item_media_image" />
-            </LinearLayout>
+                    android:layout_height="0dp"
+                    tools:listitem="@layout/board_item_media_image"
+                    app:layout_constraintLeft_toRightOf="@id/thumbnail_lyt"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/root_media_file_list"
@@ -56,6 +63,7 @@
                 android:layout_height="match_parent"
                 android:animateLayoutChanges="true"
                 android:visibility="gone">
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rcv_media_image_list"
                     android:layout_width="match_parent"
@@ -103,7 +111,7 @@
             android:id="@+id/root_all_btn_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorLightYellow"
+            android:background="@android:color/white"
             android:orientation="horizontal"
             android:visibility="visible"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -114,6 +122,7 @@
                 android:id="@+id/root_main_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@android:color/white"
                 android:gravity="end"
                 android:visibility="visible">
 
