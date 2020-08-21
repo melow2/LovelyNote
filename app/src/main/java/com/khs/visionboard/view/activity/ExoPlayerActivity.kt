@@ -31,10 +31,10 @@ class ExoPlayerActivity : BaseActivity<ActivityExoPlayerBinding>(), Player.Event
 
     companion object {
         /** ExoPlayer Config */
-        const val MIN_BUFFER_DURATION = 10000            // Minimum Video you want to buffer while Playing
-        const val MAX_BUFFER_DURATION = 10000            // Max Video you want to buffer during PlayBack
-        const val MIN_PLAYBACK_START_BUFFER = 10000      // Min Video you want to buffer before start Playing it
-        const val MIN_PLAYBACK_RESUME_BUFFER = 10000     // Min video You want to buffer when user resumes video
+        const val MIN_BUFFER_DURATION = 15000            // Minimum Video you want to buffer while Playing
+        const val MAX_BUFFER_DURATION = 30000           // Max Video you want to buffer during PlayBack
+        const val MIN_PLAYBACK_START_BUFFER = 2500      // Min Video you want to buffer before start Playing it
+        const val MIN_PLAYBACK_RESUME_BUFFER = 5000     // Min video You want to buffer when user resumes video
 
         fun getStartIntent(context: Context?, video: MediaStoreVideo?): Intent? {
             val intent = Intent(context, ExoPlayerActivity::class.java)

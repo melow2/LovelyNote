@@ -59,9 +59,9 @@ class BoardAddVM(application: Application, private val param1: Int) :
     private val mSelectedMediaStoreItemList: MutableLiveData<List<SelectedMediaStoreItem>> = MutableLiveData()
 
     init {
-        mImageSourceFactory = MediaImageSourceFactory(mContext.contentResolver)
-        mAudioSourceFactory = MediaAudioSourceFactory(mContext.contentResolver)
-        mVideoSourceFactory = MediaVideoSourceFactory(mContext.contentResolver)
+        mImageSourceFactory = MediaImageSourceFactory(mContext)
+        mAudioSourceFactory = MediaAudioSourceFactory(mContext)
+        mVideoSourceFactory = MediaVideoSourceFactory(mContext)
 
         mPagedListConfig = PagedList.Config.Builder()
             .setPageSize(PAGE_SIZE)

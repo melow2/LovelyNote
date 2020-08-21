@@ -16,7 +16,7 @@ import com.khs.visionboard.R
 import com.khs.visionboard.databinding.DialogAudioPlayBinding
 import com.khs.visionboard.extension.fadeInAnimation
 import com.khs.visionboard.extension.fadeOutAnimation
-import com.khs.visionboard.extension.formateMilliSeccond
+import com.khs.visionboard.extension.parseTime
 import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import kotlinx.android.synthetic.main.dialog_audio_play.*
 
@@ -35,7 +35,7 @@ class AudioPlayDialogFragment : DialogFragment() {
     private val updateSongTime: Runnable = object : Runnable {
         override fun run() {
             sTime = mPlayer.currentPosition
-            mBinding.tvStartTime.text = sTime.toLong().formateMilliSeccond()
+            mBinding.tvStartTime.text = sTime.toLong().parseTime()
             mBinding.audioSeekBar.progress = sTime
             handler.postDelayed(this, 100)
         }
@@ -85,7 +85,7 @@ class AudioPlayDialogFragment : DialogFragment() {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.dialog_audio_play, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT)) // 모서리 둥글게.
         mBinding.audio = mAudio
-        mBinding.tvStartTime.text = 0L.formateMilliSeccond()
+        mBinding.tvStartTime.text = 0L.parseTime()
         return mBinding.root
     } // #2
 
@@ -123,7 +123,7 @@ class AudioPlayDialogFragment : DialogFragment() {
                     audioSeekBar.max = eTime;
                     oTime = 1;
                 }
-                tvStartTime.text = sTime.toLong().formateMilliSeccond()
+                tvStartTime.text = sTime.toLong().parseTime()
                 audioSeekBar.progress = sTime;
                 handler.postDelayed(updateSongTime, 100);
             }

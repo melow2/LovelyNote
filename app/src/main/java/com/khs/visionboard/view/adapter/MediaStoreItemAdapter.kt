@@ -8,12 +8,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.BoardItemMediaAudioSlidingBinding
+import com.khs.visionboard.databinding.BoardItemMediaFileSlidingBinding
 import com.khs.visionboard.databinding.BoardItemMediaImageSlidingBinding
 import com.khs.visionboard.databinding.BoardItemMediaVideoSlidingBinding
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
-import com.khs.visionboard.model.mediastore.MediaStoreImage
-import com.khs.visionboard.model.mediastore.MediaStoreVideo
-import com.khs.visionboard.model.mediastore.SelectedItem
+import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
 
@@ -26,12 +24,13 @@ class MediaStoreItemAdapter(
     private lateinit var mImageBinding: BoardItemMediaImageSlidingBinding
     private lateinit var mAudioBinding: BoardItemMediaAudioSlidingBinding
     private lateinit var mVideoBinding: BoardItemMediaVideoSlidingBinding
-
+    private lateinit var mFileBinding: BoardItemMediaFileSlidingBinding
     private lateinit var mListener:MediaStoreItemEvent
 
     interface MediaStoreItemEvent{
         fun onPlayAudio(item:MediaStoreAudio)
         fun onPlayVideo(item:MediaStoreVideo)
+        fun onOpenFile(item:MediaStoreFile)
     }
 
     fun addListener(listener:MediaStoreItemEvent){
@@ -61,7 +60,7 @@ class MediaStoreItemAdapter(
                 )
                 return MediaVideoSlideHolder(mVideoBinding)
             }
-            else -> {
+            MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO ->{
                 mAudioBinding = DataBindingUtil.inflate(
                     LayoutInflater.from(parent.context),
                     R.layout.board_item_media_audio_sliding,
@@ -69,6 +68,15 @@ class MediaStoreItemAdapter(
                     false
                 )
                 return MediaAudioSlideHolder(mAudioBinding)
+            }
+            else ->{
+                mFileBinding = DataBindingUtil.inflate(
+                    LayoutInflater.from(parent.context),
+                    R.layout.board_item_media_file_sliding,
+                    parent,
+                    false
+                )
+                return MediaFileSlideHolder(mFileBinding)
             }
         }
     }
@@ -92,6 +100,9 @@ class MediaStoreItemAdapter(
             }
             is MediaAudioSlideHolder ->{
                 holder.bind(mList[position].item as MediaStoreAudio)
+            }
+            is MediaFileSlideHolder ->{
+                holder.bind(mList[position].item as MediaStoreFile)
             }
         }
     }
@@ -147,7 +158,20 @@ class MediaStoreItemAdapter(
         }
     }
 
+    inner class MediaFileSlideHolder(private val mBinding: BoardItemMediaFileSlidingBinding) :
+        RecyclerView.ViewHolder(mBinding.root) {
 
+        init {
+            mBinding.run{
+                btnSlidingFileOpen.setOnClickListener {
+                    mListener.onOpenFile(mList[adapterPosition].item as MediaStoreFile)
+                }
+            }
+        }
 
+        fun bind(item: MediaStoreFile?) {
+            mBinding.tvDisplayName.text = item?.displayName
+        }
+    }
 }
 

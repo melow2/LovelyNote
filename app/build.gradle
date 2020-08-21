@@ -53,6 +53,7 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'commons-io:commons-io:2.4'
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
     // RecyclerView
@@ -85,4 +86,6 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     // PhotoView
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+    // Audio
+    implementation 'com.github.melow2:AudioRecordButton:2.0.3'
 }

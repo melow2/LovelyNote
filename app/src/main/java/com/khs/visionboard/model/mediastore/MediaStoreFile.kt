@@ -8,7 +8,7 @@ import java.util.*
 
 data class MediaStoreFile(
     override var id: Long,
-    override var dateTaken: Date,
+    override var dateTaken: Date?,
     override var displayName: String?,
     override var contentUri: Uri?,
     override var type: MediaStoreFileType

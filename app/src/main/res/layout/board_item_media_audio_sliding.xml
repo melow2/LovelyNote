@@ -18,6 +18,7 @@
                 android:id="@+id/iv_sliding"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:alpha="0.6"
                 android:background="@color/colorTranslucent"
                 android:src="@drawable/ic_baseline_voice_hotpink_24"
                 app:layout_constraintLeft_toLeftOf="parent"

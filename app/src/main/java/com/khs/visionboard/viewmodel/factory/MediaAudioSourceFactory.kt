@@ -1,13 +1,12 @@
 package com.khs.visionboard.viewmodel.factory
 
 import android.content.ContentResolver
+import android.content.Context
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.khs.visionboard.extension.getMediaStoreAudioFiles
-import com.khs.visionboard.extension.getMediaStoreImageFiles
 import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import com.khs.visionboard.model.mediastore.MediaStoreImage
 
 /**
  * DataSource.Factory:
@@ -39,12 +38,12 @@ import com.khs.visionboard.model.mediastore.MediaStoreImage
 
 
 class MediaAudioSourceFactory(
-    private val contentResolver: ContentResolver
+    private val mContext: Context
 ) :
     DataSource.Factory<Int, MediaStoreAudio>() {
 
     override fun create(): DataSource<Int, MediaStoreAudio> {
-        return AudioDataSource(contentResolver)
+        return AudioDataSource(mContext.contentResolver)
     }
 
     inner class AudioDataSource(private val contentResolver: ContentResolver) :
@@ -56,7 +55,7 @@ class MediaAudioSourceFactory(
         ) {
             // Timber.d("loadInitial start: ${params.requestedStartPosition}, size: ${params.requestedLoadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreAudioFiles(
+                mContext.getMediaStoreAudioFiles(
                     params.requestedLoadSize,
                     params.requestedStartPosition,
                     MediaStoreFileType.AUDIO
@@ -70,7 +69,7 @@ class MediaAudioSourceFactory(
         ) {
             // Timber.d("loadRange start: ${params.startPosition}, size: ${params.loadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreAudioFiles(
+                mContext.getMediaStoreAudioFiles(
                     params.loadSize,
                     params.startPosition,
                     MediaStoreFileType.AUDIO

@@ -7,10 +7,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.ActivityAddedViewPagerBinding
 import com.khs.visionboard.extension.Constants
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
-import com.khs.visionboard.model.mediastore.MediaStoreVideo
-import com.khs.visionboard.model.mediastore.SelectedItem
-import com.khs.visionboard.model.mediastore.SelectedMediaStoreItem
+import com.khs.visionboard.extension.viewFile
+import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.view.adapter.MediaStoreItemAdapter
 import com.khs.visionboard.view.dialog.AudioPlayDialogFragment
 
@@ -80,5 +78,9 @@ class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>(
     override fun onPlayVideo(item:MediaStoreVideo) {
         val mIntent = ExoPlayerActivity.getStartIntent(this, item)
         startActivity(mIntent)
+    }
+
+    override fun onOpenFile(item: MediaStoreFile) {
+        viewFile(item.contentUri,item.displayName)
     }
 }

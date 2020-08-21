@@ -1,14 +1,11 @@
 package com.khs.visionboard.viewmodel.factory
 
 import android.content.ContentResolver
+import android.content.Context
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
-import com.khs.visionboard.extension.getMediaStoreAudioFiles
-import com.khs.visionboard.extension.getMediaStoreImageFiles
 import com.khs.visionboard.extension.getMediaStoreVideoFiles
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
-import com.khs.visionboard.model.mediastore.MediaStoreImage
 import com.khs.visionboard.model.mediastore.MediaStoreVideo
 
 /**
@@ -41,12 +38,12 @@ import com.khs.visionboard.model.mediastore.MediaStoreVideo
 
 
 class MediaVideoSourceFactory(
-    private val contentResolver: ContentResolver
+    private val mContext: Context
 ) :
     DataSource.Factory<Int, MediaStoreVideo>() {
 
     override fun create(): DataSource<Int, MediaStoreVideo> {
-        return GalleryDataSource(contentResolver)
+        return GalleryDataSource(mContext.contentResolver)
     }
 
     inner class GalleryDataSource(private val contentResolver: ContentResolver) :
@@ -58,7 +55,7 @@ class MediaVideoSourceFactory(
         ) {
             // Timber.d("loadInitial start: ${params.requestedStartPosition}, size: ${params.requestedLoadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreVideoFiles(
+                mContext.getMediaStoreVideoFiles(
                     params.requestedLoadSize,
                     params.requestedStartPosition,
                     MediaStoreFileType.VIDEO
@@ -72,7 +69,7 @@ class MediaVideoSourceFactory(
         ) {
             // Timber.d("loadRange start: ${params.startPosition}, size: ${params.loadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreVideoFiles(
+                mContext.getMediaStoreVideoFiles(
                     params.loadSize,
                     params.startPosition,
                     MediaStoreFileType.VIDEO

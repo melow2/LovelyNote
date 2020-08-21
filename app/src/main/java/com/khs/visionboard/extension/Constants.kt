@@ -43,6 +43,14 @@ object Constants {
     const val DURATION_FADE_IN: Long = 1000
     const val DURATION_FADE_OUT: Long = 300
 
+    /** ActivityForResult */
+    const val RC_GET_CONTENT = 1007 // 파일 열기.
+    const val RC_GET_CAMERA = 1008  // 카메라 열기.
+    const val RC_GET_AUDIO = 1009  // 오디오 열기.
+    const val RC_GET_VIDEO = 1010  // 비디오 열기.
 
+
+    /** Constant Date Format*/
+    const val DATE_FORMAT = "yyyyMMdd_HHmmss"
 
 }

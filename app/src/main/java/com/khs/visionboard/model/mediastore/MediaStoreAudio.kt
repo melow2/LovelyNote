@@ -3,16 +3,15 @@ package com.khs.visionboard.model.mediastore
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.core.text.parseAsHtml
 import androidx.recyclerview.widget.DiffUtil
-import com.khs.visionboard.extension.formateMilliSeccond
+import com.khs.visionboard.extension.parseTime
 import com.khs.visionboard.extension.toSimpleString
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class MediaStoreAudio(
     override var id: Long,
-    override var dateTaken: Date,
+    override var dateTaken: Date?,
     override var displayName: String?,
     override var contentUri: Uri?,
     override var type: MediaStoreFileType,
@@ -22,13 +21,13 @@ data class MediaStoreAudio(
 ) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
 
     var duration: String?
-        get() = _duration?.toLong()?.formateMilliSeccond()
+        get() = _duration?.toLong()?.parseTime()
         set(value) {
             _duration = value
         }
 
     var _dateTaken:String?
-        get() = dateTaken.toSimpleString()
+        get() = dateTaken?.toSimpleString()
         set(value){
             dateTaken = SimpleDateFormat().parse(value)
         }

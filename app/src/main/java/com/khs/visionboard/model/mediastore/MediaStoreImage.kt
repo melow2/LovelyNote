@@ -10,14 +10,14 @@ import java.util.*
 
 data class MediaStoreImage(
     override var id: Long,
-    override var dateTaken: Date,
+    override var dateTaken: Date?,
     override var displayName: String?,
     override var contentUri: Uri?,
     override var type: MediaStoreFileType
 ) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
 
     var _dateTaken:String?
-        get() = dateTaken.toSimpleString()
+        get() = dateTaken?.toSimpleString()
         set(value){
             dateTaken = SimpleDateFormat().parse(value)
         }

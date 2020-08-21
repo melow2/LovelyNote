@@ -1,11 +1,16 @@
 package com.khs.visionboard.view.fragment
 
 import android.app.Activity
+import android.app.Activity.RESULT_OK
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.SystemClock
+import android.provider.MediaStore
 import android.view.*
+import android.widget.Chronometer
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -13,6 +18,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
+import com.khs.audiorecorder.AudioListener
+import com.khs.audiorecorder.AudioRecording
+import com.khs.audiorecorder.RecordingItem
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.*
 import com.khs.visionboard.extension.*
@@ -20,6 +28,10 @@ import com.khs.visionboard.extension.Constants.AUDIO_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 import com.khs.visionboard.extension.Constants.GALLERY_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.MEDIA_RCV_HEIGHT
+import com.khs.visionboard.extension.Constants.RC_GET_AUDIO
+import com.khs.visionboard.extension.Constants.RC_GET_CAMERA
+import com.khs.visionboard.extension.Constants.RC_GET_CONTENT
+import com.khs.visionboard.extension.Constants.RC_GET_VIDEO
 import com.khs.visionboard.extension.Constants.SELECTED_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
 import com.khs.visionboard.extension.Constants.VIDEO_ITEM_RANGE
@@ -51,11 +63,12 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     private lateinit var mediaAudioPagedAdapter: MediaAudioPagedAdapter
     private lateinit var mediaVideoPagedAdapter: MediaVideoPagedAdapter
     private lateinit var selectedListAdapter: SelectedMediaFileListAdapter
+    private var cameraList: List<Uri> = mutableListOf()
+    private lateinit var audioRecording:AudioRecording
 
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
-        private const val RC_GET_CONTENT = 1007
 
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
@@ -167,8 +180,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     private fun setUpRecyclerView() {
         mBinding?.apply {
             rcvMediaImageList.apply {
-                mediaImagePagedAdapter =
-                    MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                mediaImagePagedAdapter = MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = mediaImagePagedAdapter
@@ -198,7 +210,6 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
         }
     }
-
     /**
      * todo 1) 라이프사이클 사용시 옵저버가 삭제되는 시점을 정확하게 알아야 함.
      * 확인해본 결과, 액티비티가 onDestroy() 되면서 옵저버도 모두 삭제되는 것으로 확인.
@@ -217,14 +228,16 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         }
         this.lifecycle.addObserver(boardAddVM)
     }
-
     /**
      * 1) TABLE_RANGE_COUNT를 전역변수처럼 쓸 수 있음.
      * */
     private fun setUpListener() {
+
         var imageTableCounter: Int = GALLERY_ITEM_RANGE
         var audioTableCounter: Int = AUDIO_ITEM_RANGE
         var videoTableCounter: Int = VIDEO_ITEM_RANGE
+        audioRecording = AudioRecording(context)
+
         mBinding?.apply {
             /***************************************************************************
              * 메인 버튼 ( 파일, 비디오, 오디오, 카메라, 미디어스토어)
@@ -232,16 +245,41 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             // 파일 버튼.
             btnFile.setOnClickListener {
                 rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
-                loadExtraOrdinaryFiles()
+                startActivityForResult(Intent(Intent.ACTION_GET_CONTENT).apply {
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }, RC_GET_CONTENT)
+            }
+
+            // 비디오 버튼.
+            btnVideo.setOnClickListener {
+                rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
+                startActivityForResult(requireContext().openVideoIntent(), RC_GET_VIDEO)
             }
 
             // 오디오 버튼.
-            btnRecord.setOnClickListener {
-                showToast(requireActivity(), "DDDDDD")
-            }
+            btnRecord.setOnAudioListener(object :AudioListener{
+                override fun onError(e: Exception?) {}
+                override fun onStart() {
+                    rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
+                    lytAudioChronometer.fadeInAnimation()
+                    audioChronometer.base = SystemClock.elapsedRealtime()
+                    audioChronometer.start()
+                }
+                override fun onStop(recordingItem: RecordingItem?) {
+                    recordingItem?.let{
+                        audioRecording.play(recordingItem)
+                    }
+                    audioChronometer.stop()
+                    lytAudioChronometer.fadeOutAnimation()
+                }
+            })
+
             // 카메라 버튼
             btnCamera.setOnClickListener {
-                showToast(requireActivity(), "adfadfadfadf")
+                rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
+                startActivityForResult(requireContext().openCameraIntent(), RC_GET_CAMERA)
             }
 
             // 미디어 스토어 버튼.
@@ -258,7 +296,6 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
              * 1) 미디어스토어를 항상 옵저버링 할 수 없음.
              * 2) 액티비티 생성 주기에 맞게(create)에 초기화.
              * */
-
             btnMediaVideo.setOnClickListener {
                 if (rcvMediaVideoList.visibility == View.GONE) rcvMediaVideoList.fadeInAnimation()
                 if (rcvMediaAudioList.visibility == View.VISIBLE) rcvMediaAudioList.visibility =
@@ -279,10 +316,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             btnMediaRecord.setOnClickListener {
                 if (rcvMediaAudioList.visibility == View.GONE) rcvMediaAudioList.fadeInAnimation()
-                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility =
-                    View.GONE
-                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility =
-                    View.GONE
+                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility = View.GONE
+                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility = View.GONE
                 boardAddVM.getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
             }
 
@@ -348,21 +383,52 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
+        val contentResolver = context!!.contentResolver
+        if (resultCode == RESULT_OK) {
             when (requestCode) {
                 RC_GET_CONTENT -> {
                     for (item in getExtraOrdinaryFiles(data)) {
-                        context?.contentResolver?.getFileDataFromUri(item)?.let { target ->
+                        context?.getFileDataFromUri(item)?.let { target ->
                             addSelectedMediaStoreItem(null, null, target, target.type, true)
                         }
-                    }            // 아이템 추가 버튼.
-                    mBinding?.run {
-                        rootMediaAddedList.fadeInAnimation()
+                    }
+                    mBinding?.rootMediaAddedList?.fadeInAnimation()
+                }
+
+                RC_GET_CAMERA -> {
+                    when(data?.data){
+                        null -> true
+                        else -> false
+                    }.let {
+                        when (it) {
+                            true -> outputMediaFileUri
+                            else -> data?.data
+                        }
+                    }?.run {
+                        context?.getFileDataFromUri(this)
+                    }?.let {
+                        // CAMERA: /storage/emulated/0/Pictures/20200820_041947_IMAGE.jpg
+                        // IMAGE: /storage/emulated/0/Pictures/tUHEtWJ3R58.jpg
+                        addSelectedMediaStoreItem(null, null, it, it.type, true)
+                        mBinding?.rootMediaAddedList?.fadeInAnimation()
+                    }
+                }
+                RC_GET_VIDEO -> {
+                    var videoData = data?.data
+                    videoData?.let {
+                        context?.getFileDataFromUri(it)?.let {
+                                addSelectedMediaStoreItem(null, null, it, it.type, true)
+                                mBinding?.rootMediaAddedList?.fadeInAnimation()
+                            }
                     }
                 }
             }
-        }else if(resultCode == Activity.DEFAULT_KEYS_DISABLE){
-            mBinding?.rootMediaLayout?.collapseAnimation(DURATION_FADE_OUT, 0)
+        } else if (resultCode == Activity.DEFAULT_KEYS_DISABLE) {
+            if(requestCode== RC_GET_CAMERA)
+                outputMediaFileUri?.delete(contentResolver)
+            if (boardAddVM.getAllSelectedItemList().isEmpty()) {
+                mBinding?.rootMediaLayout?.collapseAnimation(DURATION_FADE_OUT, 0)
+            }
         }
     }
 
@@ -384,14 +450,6 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
         }
         return arrayList
-    }
-
-    private fun loadExtraOrdinaryFiles() {
-        startActivityForResult(Intent("android.intent.action.GET_CONTENT").apply {
-            putExtra("android.intent.extra.ALLOW_MULTIPLE", true)
-            addCategory("android.intent.category.OPENABLE")
-            type = "*/*"
-        }, RC_GET_CONTENT)
     }
 
     /**
@@ -468,6 +526,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
             false -> {
                 boardAddVM.removeSelectedItem(selectedItem)
+
             }
         }
 
@@ -523,6 +582,12 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             MediaStoreFileType.VIDEO -> {
                 onMediaVideoPlayClientEvent(item.selectedItem.item as MediaStoreVideo)
             }
+        }
+    }
+
+    override fun onOpenFile(item: SelectedMediaStoreItem) {
+        (item.selectedItem.item as MediaStoreFile).run {
+            requireContext().viewFile(this.contentUri, this.displayName)
         }
     }
 
@@ -601,16 +666,37 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         }
                     }
                 }
+                MediaStoreFileType.FILE -> {
+                    val binding: BoardItemMediaThumbnailFileBinding = DataBindingUtil.inflate(
+                        requireActivity().layoutInflater,
+                        R.layout.board_item_media_thumbnail_file,
+                        this,
+                        true
+                    )
+                    binding.run {
+                        tvDisplayName.text =
+                            (target.selectedItem.item as MediaStoreFile).displayName
+                        btnDelete.setOnClickListener {
+                            onDeleteSelectedItem(target)
+                        }
+                        rootThumbnailLyt.setOnClickListener {
+                            onClickSelectedItem(target)
+                        }
+                        btnOpen.setOnClickListener {
+                            onOpenFile(target)
+                        }
+                    }
+                }
             }
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
     }
 
     override fun onDetach() {
+        audioRecording.clearCacheData()
         super.onDetach()
     }
 

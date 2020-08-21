@@ -9,10 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.visionboard.R
 import com.khs.visionboard.databinding.*
-import com.khs.visionboard.model.mediastore.MediaStoreAudio
-import com.khs.visionboard.model.mediastore.MediaStoreImage
-import com.khs.visionboard.model.mediastore.MediaStoreVideo
-import com.khs.visionboard.model.mediastore.SelectedMediaStoreItem
+import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.model.mediastore.SelectedMediaStoreItem.Companion.diffCallback
 import com.khs.visionboard.module.glide.GlideImageLoader
 import com.khs.visionboard.module.glide.ProgressAppGlideModule
@@ -26,6 +23,7 @@ class SelectedMediaFileListAdapter(
     private lateinit var mImageBinding: BoardSelectedImageBinding
     private lateinit var mAudioBinding: BoardSelectedAudioBinding
     private lateinit var mVideoBinding: BoardSelectedVideoBinding
+    private lateinit var mFileBinding: BoardSelectedFileBinding
 
     private var listener: SelectedImageListEvent? = null
 
@@ -33,6 +31,7 @@ class SelectedMediaFileListAdapter(
         fun onClickSelectedItem(item: SelectedMediaStoreItem)
         fun onDeleteSelectedItem(item: SelectedMediaStoreItem)
         fun onPlayMediaItem(item: SelectedMediaStoreItem)
+        fun onOpenFile(item:SelectedMediaStoreItem)
     }
 
     fun addEventListener(listener: SelectedImageListEvent) {
@@ -59,12 +58,19 @@ class SelectedMediaFileListAdapter(
                 )
                 return MediaAudioHolder(mAudioBinding)
             }
-            else -> {
+            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO->{
                 mVideoBinding = DataBindingUtil.inflate(
                     LayoutInflater.from(parent.context),
                     R.layout.board_item_media_selected_video, parent, false
                 )
                 return MediaVideoHolder(mVideoBinding)
+            }
+            else -> {
+                mFileBinding = DataBindingUtil.inflate(
+                    LayoutInflater.from(parent.context),
+                    R.layout.board_item_media_selected_file, parent, false
+                )
+                return MediaFileHolder(mFileBinding)
             }
         }
     }
@@ -80,6 +86,9 @@ class SelectedMediaFileListAdapter(
             }
             is MediaVideoHolder -> {
                 holder.bind(item as MediaStoreVideo)
+            }
+            is MediaFileHolder ->{
+                holder.bind(item as MediaStoreFile)
             }
         }
     }
@@ -187,6 +196,40 @@ class SelectedMediaFileListAdapter(
                 (item.contentUri).toString(),
                 ProgressAppGlideModule.requestOptions(mContext)
             )
+        }
+    }
+
+    inner class MediaFileHolder(private val mBinding: BoardSelectedFileBinding) :
+        RecyclerView.ViewHolder(mBinding.root) {
+
+        init {
+            mBinding.run {
+                rootFileLyt.setOnClickListener {
+                    listener?.run {
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            onClickSelectedItem(getItem(adapterPosition))
+                        }
+                    }
+                }
+                btnDelete.setOnClickListener {
+                    listener?.run {
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            onDeleteSelectedItem(getItem(adapterPosition))
+                        }
+                    }
+                }
+                btnOpen.setOnClickListener {
+                    listener?.run {
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            onOpenFile(getItem(adapterPosition))
+                        }
+                    }
+                }
+            }
+        }
+
+        fun bind(item: MediaStoreFile) {
+            mBinding.file = item
         }
     }
 }

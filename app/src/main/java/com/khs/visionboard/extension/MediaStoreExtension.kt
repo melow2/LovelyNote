@@ -1,14 +1,15 @@
 package com.khs.visionboard.extension
 
 import android.content.ContentResolver
+import android.content.Context
+import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.*
 import android.net.Uri
 import android.provider.MediaStore
-import android.webkit.MimeTypeMap
 import com.khs.visionboard.extension.Constants.TYPE_AUDIO
 import com.khs.visionboard.extension.Constants.TYPE_IMAGE
 import com.khs.visionboard.extension.Constants.TYPE_VIDEO
 import com.khs.visionboard.model.mediastore.*
-import java.io.File
 import java.util.*
 
 
@@ -22,13 +23,11 @@ import java.util.*
  * LIMIT 3 OFFSET 2: 2개의 로우를 건너 뛰고 3개를 출력하라는 의미.
  * */
 
-
-fun ContentResolver.getMediaStoreImageFiles(
+fun Context.getMediaStoreImageFiles(
     limit: Int?,
     offset: Int?,
     type: MediaStoreFileType
 ): MutableList<MediaStoreImage> {
-    val contentResolver = this
     val fileList = mutableListOf<MediaStoreImage>()
     val orderBy = MediaStore.Images.Media.DATE_MODIFIED
 
@@ -66,7 +65,8 @@ fun ContentResolver.getMediaStoreImageFiles(
             val dateTaken = Date(cursor.getLong(dateTakenColumn) * 1000L)
             val displayName = cursor.getString(displayNameColumn)
             val contentUri = Uri.withAppendedPath(type.externalContentUri, id.toString())
-            fileList.add(MediaStoreImage(id, dateTaken, displayName, contentUri, type))
+            val filePath = getPath(contentUri.toString())
+            fileList.add(MediaStoreImage(id, dateTaken, displayName, Uri.parse(filePath), type))
         }
     }
     query?.close()
@@ -74,12 +74,11 @@ fun ContentResolver.getMediaStoreImageFiles(
     return fileList
 }
 
-fun ContentResolver.getMediaStoreAudioFiles(
+fun Context.getMediaStoreAudioFiles(
     limit: Int,
     offset: Int,
     type: MediaStoreFileType
 ): MutableList<MediaStoreAudio> {
-    val contentResolver = this
     val fileList = mutableListOf<MediaStoreAudio>()
     var orderBy = MediaStore.Audio.Media.DATE_MODIFIED
 
@@ -123,8 +122,8 @@ fun ContentResolver.getMediaStoreAudioFiles(
             val album = cursor.getString(albumColumn)
             val title = cursor.getString(titleColumn)
             val duration = cursor.getString(durationColumn)
-            val contentUri =
-                Uri.withAppendedPath(type.externalContentUri, id.toString())
+            val contentUri = Uri.withAppendedPath(type.externalContentUri, id.toString())
+            val filePath = getPath(contentUri.toString())
             fileList.add(
                 MediaStoreAudio(
                     id = id,
@@ -133,7 +132,7 @@ fun ContentResolver.getMediaStoreAudioFiles(
                     album = album,
                     title = title,
                     _duration = duration,
-                    contentUri = contentUri,
+                    contentUri = Uri.parse(filePath),
                     type = MediaStoreFileType.AUDIO
                 )
             )
@@ -143,13 +142,12 @@ fun ContentResolver.getMediaStoreAudioFiles(
     return fileList
 }
 
-fun ContentResolver.getMediaStoreVideoFiles(
+fun Context.getMediaStoreVideoFiles(
     limit: Int?,
     offset: Int?,
     type: MediaStoreFileType
 ): MutableList<MediaStoreVideo> {
     val fileList = mutableListOf<MediaStoreVideo>()
-    val contentResolver = this
     val orderBy = MediaStore.Video.Media.DATE_MODIFIED
     val projection = arrayOf(
         MediaStore.Video.Media._ID,
@@ -169,7 +167,7 @@ fun ContentResolver.getMediaStoreVideoFiles(
     val query = contentResolver.query(
         type.externalContentUri,
         projection,
-        null, // selection
+        null,     // selection
         null, //selectionArgs
         sortOrder
     )
@@ -183,68 +181,41 @@ fun ContentResolver.getMediaStoreVideoFiles(
             val dateTaken = Date(cursor.getLong(dateTakenColumn) * 1000L)
             val displayName = cursor.getString(displayNameColumn)
             val duration = cursor.getString(durationColumn)
-            val contentUri = Uri.withAppendedPath(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                id.toString()
+            val contentUri = Uri.withAppendedPath(type.externalContentUri, id.toString())
+            val filePath = getPath(contentUri.toString())
+            fileList.add(
+                MediaStoreVideo(
+                    id,
+                    dateTaken,
+                    displayName,
+                    Uri.parse(filePath),
+                    type,
+                    duration
+                )
             )
-            fileList.add(MediaStoreVideo(id, dateTaken, displayName, contentUri,type,duration))
         }
     }
     query?.close()
     return fileList
 }
 
-fun ContentResolver.getFileDataFromUri(uri: Uri): MediaStoreItem? {
-    val contentResolver = this
-    val type = getType(uri)?.run {
-        val idx = this.indexOf("/")
-        this.substring(0, idx)
-    }
-    var projection: Array<String>? = arrayOf()
-    when (type) {
-        TYPE_IMAGE -> {
-            projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_MODIFIED
-            )
 
-        }
-        TYPE_AUDIO -> {
-            projection = arrayOf(
-                MediaStore.Audio.AudioColumns._ID,
-                MediaStore.Audio.AudioColumns.DISPLAY_NAME,
-                MediaStore.Audio.AudioColumns.DATE_MODIFIED,
-                MediaStore.Audio.AudioColumns.ALBUM,
-                MediaStore.Audio.AudioColumns.TITLE,
-                MediaStore.Audio.AudioColumns.DURATION
-            )
-        }
-        TYPE_VIDEO -> {
-            projection = arrayOf(
-                MediaStore.Video.Media._ID,
-                MediaStore.Video.Media.DISPLAY_NAME,
-                MediaStore.Video.Media.DATE_MODIFIED,
-                MediaStore.Video.Media.DURATION
-            )
-        }
-        else -> {
-            projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.DATE_MODIFIED
-            )
-        }
-    }
+/**
+ * ContentUri에서 미디어 데이터를 추출하여 Model로 저장한다.
+ * getPath() 메소드로 ContentUri에서 파싱한 뒤 실제 저장 위치를 모델에 저장.
+ * todo 미디어 데이터를 추출하는 과정에서 dateTaken과 Id를 추출할 수가 없어 임의로 생성 후 저장.
+ * @param uri file intent에서 선택한 content:// Uri
+ * @author 권혁신
+ * @version 1.0.0
+ * @since
+ **/
 
-
+fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
+    val type = contentResolver.getMediaItemType(uri)             // 아이템 타입.
+    val parsedUri = Uri.parse(getPath(uri.toString()))           // 실제 경로.
+    val projection = arrayOf(MediaStore.Files.FileColumns.DISPLAY_NAME)
     var query = contentResolver.query(
-        when (type) {
-            TYPE_AUDIO -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            TYPE_VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            TYPE_IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            else -> uri
-        },
+        uri,
         projection,
         null, // selection
         null, //selectionArgs
@@ -252,41 +223,33 @@ fun ContentResolver.getFileDataFromUri(uri: Uri): MediaStoreItem? {
     )
 
     when (type) {
-        TYPE_IMAGE -> {
+        MediaStoreFileType.IMAGE -> {
             query?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(projection[0])
-                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[1])
-                val dateModifiedColumn = cursor.getColumnIndexOrThrow(projection[2])
+                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[0])
                 if (cursor.moveToFirst()) {
-                    val id = cursor.getLong(idColumn)
-                    val dateTaken = Date(cursor.getLong(dateModifiedColumn) * 1000L)
+                    val id = System.currentTimeMillis()
+                    val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
                     return MediaStoreImage(
                         id,
-                        dateTaken,
+                        dateModified,
                         displayName,
-                        uri,
+                        parsedUri,
                         MediaStoreFileType.IMAGE
                     )
                 }
             }
         }
-        TYPE_AUDIO -> {
+        MediaStoreFileType.AUDIO -> {
             query?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(projection[0])
-                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[1])
-                val dateModifiedColumn = cursor.getColumnIndexOrThrow(projection[2])
-                val albumColumn = cursor.getColumnIndexOrThrow(projection[3])
-                val titleColumn = cursor.getColumnIndexOrThrow(projection[4])
-                val durationColumn = cursor.getColumnIndexOrThrow(projection[5])
-
+                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[0])
                 if (cursor.moveToFirst()) {
-                    val id = cursor.getLong(idColumn)
-                    val dateModified = Date(cursor.getLong(dateModifiedColumn) * 1000L)
+                    val id = System.currentTimeMillis()
+                    val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
-                    val album = cursor.getString(albumColumn)
-                    val title = cursor.getString(titleColumn)
-                    val duration = cursor.getString(durationColumn)
+                    val album = getMediaMetaData(parsedUri, METADATA_KEY_ALBUM)
+                    val title = getMediaMetaData(parsedUri, METADATA_KEY_TITLE)
+                    val duration = getMediaMetaData(parsedUri, METADATA_KEY_DURATION)
                     return MediaStoreAudio(
                         id = id,
                         dateTaken = dateModified,
@@ -294,51 +257,44 @@ fun ContentResolver.getFileDataFromUri(uri: Uri): MediaStoreItem? {
                         album = album,
                         title = title,
                         _duration = duration,
-                        contentUri = uri,
+                        contentUri = parsedUri,
                         type = MediaStoreFileType.AUDIO
                     )
                 }
             }
         }
-        TYPE_VIDEO -> {
+        MediaStoreFileType.VIDEO -> {
             query?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(projection[0])
-                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[1])
-                val dateModifiedColumn = cursor.getColumnIndexOrThrow(projection[2])
-                val durationColumn = cursor.getColumnIndexOrThrow(projection[3])
+                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[0])
                 if (cursor.moveToFirst()) {
-                    val id = cursor.getLong(idColumn)
-                    val dateTaken = Date(cursor.getLong(dateModifiedColumn) * 1000L)
+                    val id = System.currentTimeMillis()
+                    val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
-                    val duration = cursor.getString(durationColumn)
+                    val _duration = getMediaMetaData(uri, METADATA_KEY_DURATION)
                     return MediaStoreVideo(
                         id,
-                        dateTaken,
+                        dateModified,
                         displayName,
-                        uri,
+                        parsedUri,
                         MediaStoreFileType.VIDEO,
-                        duration
+                        _duration
                     )
                 }
             }
         }
         else -> {
             query?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(projection[0])
-                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[1])
-                val dateModifiedColumn = cursor.getColumnIndexOrThrow(projection[2])
+                val displayNameColumn = cursor.getColumnIndexOrThrow(projection[0])
                 if (cursor.moveToFirst()) {
-                    val id = cursor.getLong(idColumn)
-                    val dateTaken = Date(cursor.getLong(dateModifiedColumn) * 1000L)
+                    val id = System.currentTimeMillis()
+                    val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
                     return MediaStoreFile(
                         id,
-                        dateTaken,
+                        dateModified,
                         displayName,
-                        uri,
-                        MediaStoreFileType.FILE.apply {
-                            externalContentUri = uri
-                        }
+                        parsedUri,
+                        MediaStoreFileType.FILE
                     )
                 }
             }
@@ -348,20 +304,28 @@ fun ContentResolver.getFileDataFromUri(uri: Uri): MediaStoreItem? {
     return null
 }
 
-fun ContentResolver.getMimeType(uri: Uri): String? {
-    val contentResolver = this
-    val extension: String?
-    //Check uri format to avoid null
-    extension = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-        //If scheme is a content
-        val mime = MimeTypeMap.getSingleton()
-        mime.getExtensionFromMimeType(contentResolver.getType(uri))
-    } else {
-        //If scheme is a File
-        //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
-        MimeTypeMap.getFileExtensionFromUrl(
-            Uri.fromFile(File(uri.path)).toString()
-        )
+fun ContentResolver.getMediaItemType(uri: Uri): MediaStoreFileType {
+    val type = getType(uri)?.run {
+        val idx = this.indexOf("/")
+        this.substring(0, idx)
     }
-    return extension
+    return when (type) {
+        TYPE_IMAGE -> MediaStoreFileType.IMAGE
+        TYPE_VIDEO -> MediaStoreFileType.VIDEO
+        TYPE_AUDIO -> MediaStoreFileType.AUDIO
+        else -> MediaStoreFileType.FILE
+    }
 }
+
+fun Context.getMediaMetaData(uri: Uri, metaData: Int): String? {
+    val retriever = MediaMetadataRetriever();
+    retriever.setDataSource(this, uri);
+    val data = retriever.extractMetadata(metaData);
+    retriever.release()
+    return when (metaData) {
+        METADATA_KEY_DURATION -> data?.toLong().toString()
+        METADATA_KEY_ALBUM, METADATA_KEY_TITLE -> data
+        else -> null
+    }
+}
+

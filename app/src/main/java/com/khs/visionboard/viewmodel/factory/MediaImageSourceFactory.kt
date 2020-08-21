@@ -1,6 +1,7 @@
 package com.khs.visionboard.viewmodel.factory
 
 import android.content.ContentResolver
+import android.content.Context
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.khs.visionboard.extension.getMediaStoreImageFiles
@@ -38,12 +39,12 @@ import timber.log.Timber
 
 
 class MediaImageSourceFactory(
-    private val contentResolver: ContentResolver
+    private val mContext: Context
 ) :
     DataSource.Factory<Int, MediaStoreImage>() {
 
     override fun create(): DataSource<Int, MediaStoreImage> {
-        return ImageDataSource(contentResolver)
+        return ImageDataSource(mContext.contentResolver)
     }
 
     inner class ImageDataSource(private val contentResolver: ContentResolver) :
@@ -56,7 +57,7 @@ class MediaImageSourceFactory(
             // 한번만 호출
             Timber.d("loadInitial start: ${params.requestedStartPosition}, size: ${params.requestedLoadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreImageFiles(
+                mContext.getMediaStoreImageFiles(
                     params.requestedLoadSize,
                     params.requestedStartPosition,
                     MediaStoreFileType.IMAGE
@@ -70,7 +71,7 @@ class MediaImageSourceFactory(
         ) {
             Timber.d("loadRange start: ${params.startPosition}, size: ${params.loadSize}")
             callback.onResult(
-                contentResolver.getMediaStoreImageFiles(
+                mContext.getMediaStoreImageFiles(
                     params.loadSize,
                     params.startPosition,
                     MediaStoreFileType.IMAGE
