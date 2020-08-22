@@ -6,6 +6,13 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.*
 import android.net.Uri
 import android.provider.MediaStore
+import com.khs.visionboard.extension.Constants.BMP
+import com.khs.visionboard.extension.Constants.GIF
+import com.khs.visionboard.extension.Constants.JPEG
+import com.khs.visionboard.extension.Constants.JPG
+import com.khs.visionboard.extension.Constants.MP3
+import com.khs.visionboard.extension.Constants.MP4
+import com.khs.visionboard.extension.Constants.PNG
 import com.khs.visionboard.extension.Constants.TYPE_AUDIO
 import com.khs.visionboard.extension.Constants.TYPE_IMAGE
 import com.khs.visionboard.extension.Constants.TYPE_VIDEO
@@ -211,8 +218,8 @@ fun Context.getMediaStoreVideoFiles(
  **/
 
 fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
+    // val path = Uri.parse(getPath(uri.toString()))
     val type = contentResolver.getMediaItemType(uri)             // 아이템 타입.
-    val parsedUri = Uri.parse(getPath(uri.toString()))           // 실제 경로.
     val projection = arrayOf(MediaStore.Files.FileColumns.DISPLAY_NAME)
     var query = contentResolver.query(
         uri,
@@ -221,7 +228,6 @@ fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
         null, //selectionArgs
         null
     )
-
     when (type) {
         MediaStoreFileType.IMAGE -> {
             query?.use { cursor ->
@@ -234,7 +240,7 @@ fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
                         id,
                         dateModified,
                         displayName,
-                        parsedUri,
+                        uri,
                         MediaStoreFileType.IMAGE
                     )
                 }
@@ -247,9 +253,9 @@ fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
                     val id = System.currentTimeMillis()
                     val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
-                    val album = getMediaMetaData(parsedUri, METADATA_KEY_ALBUM)
-                    val title = getMediaMetaData(parsedUri, METADATA_KEY_TITLE)
-                    val duration = getMediaMetaData(parsedUri, METADATA_KEY_DURATION)
+                    var album:String?= getMediaMetaData(uri, METADATA_KEY_ALBUM) ?: "LovelyNote"
+                    var title:String?= getMediaMetaData(uri, METADATA_KEY_TITLE) ?: displayName.substringBeforeLast(".")
+                    val duration = getMediaMetaData(uri, METADATA_KEY_DURATION)
                     return MediaStoreAudio(
                         id = id,
                         dateTaken = dateModified,
@@ -257,27 +263,38 @@ fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
                         album = album,
                         title = title,
                         _duration = duration,
-                        contentUri = parsedUri,
+                        contentUri = uri,
                         type = MediaStoreFileType.AUDIO
                     )
                 }
             }
         }
         MediaStoreFileType.VIDEO -> {
-            query?.use { cursor ->
+            // 외부 비디오 앱을 사용했을 경우.
+            if(query==null){
+                return MediaStoreVideo(
+                    System.currentTimeMillis(),
+                    Date(),
+                    uri.toString().substringBeforeLast("."),
+                    uri,
+                    MediaStoreFileType.VIDEO,
+                    getMediaMetaData(uri, METADATA_KEY_DURATION)
+                )
+            }
+            query.use { cursor ->
                 val displayNameColumn = cursor.getColumnIndexOrThrow(projection[0])
                 if (cursor.moveToFirst()) {
                     val id = System.currentTimeMillis()
                     val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
-                    val _duration = getMediaMetaData(uri, METADATA_KEY_DURATION)
+                    val duration = getMediaMetaData(uri, METADATA_KEY_DURATION)
                     return MediaStoreVideo(
                         id,
                         dateModified,
                         displayName,
-                        parsedUri,
+                        uri,
                         MediaStoreFileType.VIDEO,
-                        _duration
+                        duration
                     )
                 }
             }
@@ -293,7 +310,7 @@ fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
                         id,
                         dateModified,
                         displayName,
-                        parsedUri,
+                        uri,
                         MediaStoreFileType.FILE
                     )
                 }
@@ -308,6 +325,24 @@ fun ContentResolver.getMediaItemType(uri: Uri): MediaStoreFileType {
     val type = getType(uri)?.run {
         val idx = this.indexOf("/")
         this.substring(0, idx)
+    }.apply {
+        if(this==null){
+            // content 가 아닐 경우.
+            return when(uri.toString().substringAfterLast(".")){
+                MP3->{
+                    MediaStoreFileType.AUDIO
+                }
+                MP4 ->{
+                    MediaStoreFileType.VIDEO
+                }
+                JPG, JPEG, PNG, BMP,GIF->{
+                    MediaStoreFileType.IMAGE
+                }
+                else->{
+                    MediaStoreFileType.FILE
+                }
+            }
+        }
     }
     return when (type) {
         TYPE_IMAGE -> MediaStoreFileType.IMAGE

@@ -16,7 +16,9 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.khs.visionboard.model.mediastore.MediaStoreFileType
 import org.apache.commons.io.IOUtils
+import timber.log.Timber
 import java.io.*
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -89,7 +91,8 @@ fun Context.viewFile(filePath: Uri?, fileName: String?) {
 
 fun Context.copyFileUri(sourceUri: Uri?, destFile: File): Uri? {
     try {
-        val inputStream: InputStream = sourceUri?.let { contentResolver.openInputStream(it) } ?: return null
+        val inputStream: InputStream =
+            sourceUri?.let { contentResolver.openInputStream(it) } ?: return null
         val outputStream: OutputStream = FileOutputStream(destFile)
         IOUtils.copy(inputStream, outputStream)
         inputStream.close()
@@ -103,41 +106,47 @@ fun Context.copyFileUri(sourceUri: Uri?, destFile: File): Uri? {
         FileProvider.getUriForFile(this, applicationContext.packageName + ".fileprovider", destFile)
     }
 }
-
-fun Context.createMediaFile(mediaType: MediaStoreFileType, fileName: String?): File? {
-    val dirPath = File(getExternalFilesDir(null), SimpleDateFormat("yyyyMMdd").format(Date()))
-    if (!dirPath.exists()) {
-        dirPath.mkdirs()
+fun Context.saveFile(uri:Uri?,destination:File): Uri? {
+    try {
+        val filePath = uri?.let { getPath(this, it) }
+        val source =  File(filePath);
+        val src =  FileInputStream(source).channel;
+        val dst =  FileOutputStream(destination).channel;
+        dst.transferFrom(src, 0, src.size());
+        src.close();
+        dst.close();
+    } catch (e:Exception){
+        e.printStackTrace()
     }
-    return when (mediaType) {
-        MediaStoreFileType.IMAGE -> {
-            File(dirPath, currentTimeStamp() + "_IMAGE.png")
-        }
-        MediaStoreFileType.VIDEO -> {
-            File(dirPath, currentTimeStamp() + "_VIDEO.mp4")
-        }
-        MediaStoreFileType.AUDIO -> {
-            File(dirPath, currentTimeStamp() + "_AUDIO.mp3")
-        }
-        else -> {
-            val name = fileName?.substringBeforeLast(".")
-            val extension = fileName?.substringAfterLast(".")
-            File(dirPath, "$name.$extension")
-        }
+    return if (Build.VERSION.SDK_INT < 24) {
+        Uri.fromFile(destination)
+    } else {
+        FileProvider.getUriForFile(this, applicationContext.packageName + ".fileprovider", destination)
     }
 }
 
+fun Context.createMediaFile(dirId: String, fileName: String?): File {
+    val dirPath = File(getExternalFilesDir(null), dirId)
+    if (!dirPath.exists()) {
+        dirPath.mkdirs()
+    }
+    val name = fileName?.substringBeforeLast(".")
+    val extension = fileName?.substringAfterLast(".")
+    return File(dirPath, "$name.$extension")
+}
 
 fun Uri.delete(contentResolver: ContentResolver) {
     contentResolver.delete(this, null, null)
 }
 
 fun Context.clearCacheData() {
-    val cache = File(cacheDir, SimpleDateFormat("yyyyMMdd").format(Date()))
-    if (cache.isDirectory) {
-        val children: Array<String> = cache.list()
-        for (i in children.indices) {
-            File(cache, children[i]).delete()
+    val cache = externalCacheDir
+    if (cache != null) {
+        if (cache.isDirectory) {
+            val children: Array<String> = cache.list()
+            for (i in children.indices) {
+                File(cache, children[i]).delete()
+            }
         }
     }
 }
@@ -158,7 +167,7 @@ fun Context.getPath(string: String?): String? {
     return getPath(this, Uri.parse(string))
 }
 
-fun getPath(context:Context,uri: Uri): String? {
+fun getPath(context: Context, uri: Uri): String? {
     val isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
 
     // DocumentProvider
@@ -200,9 +209,9 @@ fun getPath(context:Context,uri: Uri): String? {
     } else if ("content".equals(uri.scheme, ignoreCase = true)) {
         return getDataColumn(context, uri, null, null)
     } else if ("file".equals(uri.scheme, ignoreCase = true)) {
+        Timber.d("getPath, context: $context, uri: $uri")
         return uri.path
     }
-    return null
 }
 
 /**

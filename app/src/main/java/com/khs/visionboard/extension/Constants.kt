@@ -52,5 +52,11 @@ object Constants {
 
     /** Constant Date Format*/
     const val DATE_FORMAT = "yyyyMMdd_HHmmss"
-
+    const val MP3 = "mp3"
+    const val MP4 = "mp4"
+    const val JPG = "jpg"
+    const val JPEG ="jpeg"
+    const val GIF ="gif"
+    const val PNG = "png"
+    const val BMP = "bmp"
 }

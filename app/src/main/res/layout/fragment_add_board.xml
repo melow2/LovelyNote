@@ -7,7 +7,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gline_horizontal"
             android:layout_width="wrap_content"
@@ -18,7 +17,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/root_media_layout"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
             android:background="@color/colorLightYellow"
             android:orientation="horizontal"
             android:visibility="gone"
@@ -165,6 +164,7 @@
                     app:layout_constraintRight_toLeftOf="@id/btn_record"
                     app:layout_constraintTop_toTopOf="parent" />
 
+
                 <com.khs.audiorecorder.AudioRecordButton
                     android:id="@+id/btn_record"
                     style="@style/default_floating_button_style"
@@ -172,7 +172,8 @@
                     app:layout_constraintLeft_toRightOf="@id/btn_video"
                     app:layout_constraintRight_toLeftOf="@id/btn_camera"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:recorder_image="@drawable/ic_mic_shape_24" />
+                    app:recorder_image="@drawable/ic_voice_modified_24">
+                </com.khs.audiorecorder.AudioRecordButton>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_camera"
@@ -215,7 +216,7 @@
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_media_record"
                     style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_voice_24"
+                    android:src="@drawable/ic_baseline_library_music_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/btn_media_video"
                     app:layout_constraintRight_toLeftOf="@id/btn_media_image"
@@ -229,7 +230,6 @@
                     app:layout_constraintLeft_toRightOf="@id/btn_media_record"
                     app:layout_constraintRight_toLeftOf="@+id/btn_temp"
                     app:layout_constraintTop_toTopOf="parent" />
-
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn_temp"
@@ -259,6 +259,23 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/root_all_btn_layout">
+            <Button
+                android:text="저장"
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:text="읽기"
+                android:id="@+id/btn_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

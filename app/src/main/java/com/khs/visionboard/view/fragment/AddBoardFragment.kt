@@ -2,15 +2,13 @@ package com.khs.visionboard.view.fragment
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.media.MediaMetadataRetriever.*
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
-import android.provider.MediaStore
 import android.view.*
-import android.widget.Chronometer
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -28,12 +26,12 @@ import com.khs.visionboard.extension.Constants.AUDIO_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.DURATION_FADE_OUT
 import com.khs.visionboard.extension.Constants.GALLERY_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.MEDIA_RCV_HEIGHT
-import com.khs.visionboard.extension.Constants.RC_GET_AUDIO
 import com.khs.visionboard.extension.Constants.RC_GET_CAMERA
 import com.khs.visionboard.extension.Constants.RC_GET_CONTENT
 import com.khs.visionboard.extension.Constants.RC_GET_VIDEO
 import com.khs.visionboard.extension.Constants.SELECTED_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
+import com.khs.visionboard.extension.Constants.TYPE_AUDIO
 import com.khs.visionboard.extension.Constants.VIDEO_ITEM_RANGE
 import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
@@ -63,8 +61,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     private lateinit var mediaAudioPagedAdapter: MediaAudioPagedAdapter
     private lateinit var mediaVideoPagedAdapter: MediaVideoPagedAdapter
     private lateinit var selectedListAdapter: SelectedMediaFileListAdapter
-    private var cameraList: List<Uri> = mutableListOf()
-    private lateinit var audioRecording:AudioRecording
+    private lateinit var audioRecording: AudioRecording
 
     companion object {
         private const val ARG_PARAM1 = "param1"
@@ -136,7 +133,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                     thumbnailLyt.addView(Thumbnail(target = selectedMediaStoreItems[0]))
                 } else {
                     if (rootMediaAddedList.visibility == View.VISIBLE) {
-                        thumbnailLyt.fadeOutAnimation()
+                        thumbnailLyt.removeAllViews()
                         rootMediaLayout.collapseAnimation(DURATION_FADE_OUT, 0)
                     }
                 }
@@ -180,7 +177,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     private fun setUpRecyclerView() {
         mBinding?.apply {
             rcvMediaImageList.apply {
-                mediaImagePagedAdapter = MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                mediaImagePagedAdapter =
+                    MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = mediaImagePagedAdapter
@@ -210,6 +208,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
         }
     }
+
     /**
      * todo 1) 라이프사이클 사용시 옵저버가 삭제되는 시점을 정확하게 알아야 함.
      * 확인해본 결과, 액티비티가 onDestroy() 되면서 옵저버도 모두 삭제되는 것으로 확인.
@@ -228,6 +227,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         }
         this.lifecycle.addObserver(boardAddVM)
     }
+
     /**
      * 1) TABLE_RANGE_COUNT를 전역변수처럼 쓸 수 있음.
      * */
@@ -259,20 +259,43 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
 
             // 오디오 버튼.
-            btnRecord.setOnAudioListener(object :AudioListener{
+            btnRecord.setOnAudioListener(object : AudioListener {
+                private var isRecording: Boolean = false
+                private val RECORD = "Record"
                 override fun onError(e: Exception?) {}
                 override fun onStart() {
-                    rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
+                    if (rootMediaLayout.height == 0) {
+                        rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
+                        showToast(requireContext(), "Click and hold the microphone button.")
+                        isRecording = false
+                        return
+                    }
+                    rootMediaAddedList.fadeOutAnimation()
                     lytAudioChronometer.fadeInAnimation()
                     audioChronometer.base = SystemClock.elapsedRealtime()
                     audioChronometer.start()
+                    isRecording = true
                 }
+
                 override fun onStop(recordingItem: RecordingItem?) {
-                    recordingItem?.let{
-                        audioRecording.play(recordingItem)
+                    if (recordingItem != null && isRecording) {
+                        val uri = Uri.parse(recordingItem.filePath)
+                        MediaStoreAudio(
+                            System.currentTimeMillis(),
+                            Date(),
+                            currentTimeStamp() + "_"+RECORD+".mp3",
+                            uri,
+                            MediaStoreFileType.AUDIO,
+                            RECORD,
+                            System.currentTimeMillis().toString()+"_"+RECORD,
+                            requireContext().getMediaMetaData(uri, METADATA_KEY_DURATION)
+                        ).apply {
+                            addSelectedMediaStoreItem(null, null, this, this.type, true)
+                            audioChronometer.stop()
+                            lytAudioChronometer.fadeOutAnimation()
+                            rootMediaAddedList.fadeInAnimation()
+                        }
                     }
-                    audioChronometer.stop()
-                    lytAudioChronometer.fadeOutAnimation()
                 }
             })
 
@@ -316,8 +339,10 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             btnMediaRecord.setOnClickListener {
                 if (rcvMediaAudioList.visibility == View.GONE) rcvMediaAudioList.fadeInAnimation()
-                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility = View.GONE
-                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility = View.GONE
+                if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility =
+                    View.GONE
+                if (rcvMediaVideoList.visibility == View.VISIBLE) rcvMediaVideoList.visibility =
+                    View.GONE
                 boardAddVM.getAudios().observeOnce(viewLifecycleOwner, observerMediaStoreAudio)
             }
 
@@ -378,6 +403,11 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 }
                 changedReyclerItemRange(targetRangeCounter)
             }
+
+            btnSave.setOnClickListener {
+                save(System.currentTimeMillis().toString())
+            }
+
         }
     }
 
@@ -396,13 +426,16 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 }
 
                 RC_GET_CAMERA -> {
-                    when(data?.data){
+                    when (data?.data) {
                         null -> true
                         else -> false
                     }.let {
                         when (it) {
                             true -> outputMediaFileUri
-                            else -> data?.data
+                            else -> {
+                                outputMediaFileUri?.delete(contentResolver)
+                                data?.data
+                            }
                         }
                     }?.run {
                         context?.getFileDataFromUri(this)
@@ -417,14 +450,14 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                     var videoData = data?.data
                     videoData?.let {
                         context?.getFileDataFromUri(it)?.let {
-                                addSelectedMediaStoreItem(null, null, it, it.type, true)
-                                mBinding?.rootMediaAddedList?.fadeInAnimation()
-                            }
+                            addSelectedMediaStoreItem(null, null, it, it.type, true)
+                            mBinding?.rootMediaAddedList?.fadeInAnimation()
+                        }
                     }
                 }
             }
         } else if (resultCode == Activity.DEFAULT_KEYS_DISABLE) {
-            if(requestCode== RC_GET_CAMERA)
+            if (requestCode == RC_GET_CAMERA)
                 outputMediaFileUri?.delete(contentResolver)
             if (boardAddVM.getAllSelectedItemList().isEmpty()) {
                 mBinding?.rootMediaLayout?.collapseAnimation(DURATION_FADE_OUT, 0)
@@ -691,12 +724,43 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         }
     }
 
+    private fun save(Id:String){
+        for(target in boardAddVM.getAllSelectedItemList()){
+            when(target.type){
+                MediaStoreFileType.IMAGE -> {
+                    // context?.createMediaFile(Id,target.item?.displayName)
+                    val item = target.item as MediaStoreImage
+                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                    context?.createMediaFile(Id,item.displayName).apply {
+                        val uri = this?.let { context?.saveFile(item.contentUri, it) }
+                        if (uri != null) {
+                            val item = context?.getFileDataFromUri(uri)
+                            Timber.d(item.toString())
+                        }
+                    }
+                }
+                MediaStoreFileType.VIDEO -> {
+                    val item = target.item as MediaStoreVideo
+                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                }
+                MediaStoreFileType.AUDIO -> {
+                    val item = target.item as MediaStoreAudio
+                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                }
+                MediaStoreFileType.FILE -> {
+                    val item = target.item as MediaStoreFile
+                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                }
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
     }
 
     override fun onDetach() {
-        audioRecording.clearCacheData()
+        requireContext().clearCacheData()
         super.onDetach()
     }
 

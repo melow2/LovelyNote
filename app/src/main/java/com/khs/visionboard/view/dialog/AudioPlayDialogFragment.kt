@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,8 +44,8 @@ class AudioPlayDialogFragment : DialogFragment() {
 
     companion object {
         private const val ITEM_AUDIO = "ITEM_AUDIO"
-        private const val DIALOG_WIDTH = 1000
-        private const val DIALOG_HEIGHT = 1000
+        private const val DIALOG_WIDTH = 700
+        private const val DIALOG_HEIGHT = 700
         fun newInstance(item: MediaStoreAudio?): AudioPlayDialogFragment {
             return AudioPlayDialogFragment().apply {
                 arguments = Bundle().apply {
@@ -64,7 +65,10 @@ class AudioPlayDialogFragment : DialogFragment() {
     override fun onStart() {
         super.onStart()
         if (dialog == null || dialog?.window == null) return
-        dialog?.window?.setLayout(DIALOG_WIDTH, DIALOG_HEIGHT)
+        val width = ViewGroup.LayoutParams.MATCH_PARENT
+        val height = ViewGroup.LayoutParams.WRAP_CONTENT
+        dialog?.window?.setLayout(width,height)
+        dialog?.window?.setGravity(Gravity.CENTER)
     } // #3
 
 

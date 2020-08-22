@@ -92,6 +92,7 @@ fun Context.openVideoIntent(): Intent? {
         Intent(captureIntent).apply {
             component = ComponentName(packageName, res.activityInfo.name)
             setPackage(packageName)
+            putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
         }.let {
             videoIntents.add(it)
         }
@@ -100,6 +101,7 @@ fun Context.openVideoIntent(): Intent? {
     val galleryIntent = Intent().apply {
         type = "video/*"
         action = Intent.ACTION_GET_CONTENT
+        putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
     }
     // Chooser of filesystem options.
     return Intent.createChooser(galleryIntent, "Select Source").apply {
