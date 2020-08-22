@@ -212,6 +212,7 @@ fun getPath(context: Context, uri: Uri): String? {
         Timber.d("getPath, context: $context, uri: $uri")
         return uri.path
     }
+    return null
 }
 
 /**
