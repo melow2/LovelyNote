@@ -4,13 +4,10 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import com.khs.visionboard.extension.Constants.AUDIO_MIME_TYPE
-import com.khs.visionboard.extension.Constants.AUDIO_PATH_BY_DCIM
 import com.khs.visionboard.extension.Constants.FILE_MIME_TYPE
-import com.khs.visionboard.extension.Constants.FILE_PATH_BY_DCIM
 import com.khs.visionboard.extension.Constants.IMAGE_MIME_TYPE
-import com.khs.visionboard.extension.Constants.IMAGE_PATH_BY_DCIM
 import com.khs.visionboard.extension.Constants.VIDEO_MIME_TYPE
-import com.khs.visionboard.extension.Constants.VIDEO_PATH_BY_DCIM
+
 
 enum class MediaStoreFileType(
     var externalContentUri: Uri,

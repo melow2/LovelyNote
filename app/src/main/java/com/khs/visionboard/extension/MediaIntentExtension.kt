@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
-import com.khs.visionboard.extension.Constants.RC_GET_AUDIO
 
 
 var outputMediaFileUri: Uri? = null

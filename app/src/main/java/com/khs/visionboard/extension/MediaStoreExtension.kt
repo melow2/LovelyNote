@@ -17,6 +17,7 @@ import com.khs.visionboard.extension.Constants.TYPE_AUDIO
 import com.khs.visionboard.extension.Constants.TYPE_IMAGE
 import com.khs.visionboard.extension.Constants.TYPE_VIDEO
 import com.khs.visionboard.model.mediastore.*
+import timber.log.Timber
 import java.util.*
 
 
@@ -44,14 +45,6 @@ fun Context.getMediaStoreImageFiles(
         orderBy
     )
 
-    val selection = "$orderBy>= ?"
-    val selectionArgs = arrayOf(
-        dateToTimestamp(
-            day = 1,
-            month = 1,
-            year = 1970
-        ).toString()
-    )
     val sortOrder = if (limit == null) "$orderBy DESC"
     else "$orderBy DESC LIMIT $limit OFFSET $offset"
 
@@ -98,14 +91,7 @@ fun Context.getMediaStoreAudioFiles(
         orderBy
     )
 
-    val selection = "$orderBy >= ?"
-    val selectionArgs = arrayOf(
-        dateToTimestamp(day = 1, month = 1, year = 1970)
-            .toString()
-    )
-
     val sortOrder = "$orderBy DESC LIMIT $limit OFFSET $offset"
-
     val query = contentResolver.query(
         type.externalContentUri,
         projection,
@@ -162,11 +148,6 @@ fun Context.getMediaStoreVideoFiles(
         MediaStore.Video.Media.DURATION,
         orderBy
     )
-    val selection = "$orderBy >= ?"
-    val selectionArgs = arrayOf(
-        dateToTimestamp(day = 1, month = 1, year = 1970)
-            .toString()
-    )
 
     val sortOrder = if (limit == null) "$orderBy DESC"
     else "$orderBy DESC LIMIT $limit OFFSET $offset"
@@ -217,8 +198,7 @@ fun Context.getMediaStoreVideoFiles(
  * @since
  **/
 
-fun Context.getFileDataFromUri(uri: Uri): MediaStoreItem? {
-    // val path = Uri.parse(getPath(uri.toString()))
+fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
     val type = contentResolver.getMediaItemType(uri)             // 아이템 타입.
     val projection = arrayOf(MediaStore.Files.FileColumns.DISPLAY_NAME)
     var query = contentResolver.query(

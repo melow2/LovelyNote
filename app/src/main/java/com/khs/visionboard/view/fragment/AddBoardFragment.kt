@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
-import android.media.MediaMetadataRetriever.*
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
@@ -31,7 +31,6 @@ import com.khs.visionboard.extension.Constants.RC_GET_CONTENT
 import com.khs.visionboard.extension.Constants.RC_GET_VIDEO
 import com.khs.visionboard.extension.Constants.SELECTED_ITEM_RANGE
 import com.khs.visionboard.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
-import com.khs.visionboard.extension.Constants.TYPE_AUDIO
 import com.khs.visionboard.extension.Constants.VIDEO_ITEM_RANGE
 import com.khs.visionboard.model.mediastore.*
 import com.khs.visionboard.module.glide.GlideImageLoader
@@ -283,11 +282,11 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         MediaStoreAudio(
                             System.currentTimeMillis(),
                             Date(),
-                            currentTimeStamp() + "_"+RECORD+".mp3",
+                            currentTimeStamp() + "_" + RECORD + ".mp3",
                             uri,
                             MediaStoreFileType.AUDIO,
                             RECORD,
-                            System.currentTimeMillis().toString()+"_"+RECORD,
+                            System.currentTimeMillis().toString() + "_" + RECORD,
                             requireContext().getMediaMetaData(uri, METADATA_KEY_DURATION)
                         ).apply {
                             addSelectedMediaStoreItem(null, null, this, this.type, true)
@@ -418,7 +417,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             when (requestCode) {
                 RC_GET_CONTENT -> {
                     for (item in getExtraOrdinaryFiles(data)) {
-                        context?.getFileDataFromUri(item)?.let { target ->
+                        context?.getDataFromContentUri(item)?.let { target ->
                             addSelectedMediaStoreItem(null, null, target, target.type, true)
                         }
                     }
@@ -438,7 +437,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                             }
                         }
                     }?.run {
-                        context?.getFileDataFromUri(this)
+                        context?.getDataFromContentUri(this)
                     }?.let {
                         // CAMERA: /storage/emulated/0/Pictures/20200820_041947_IMAGE.jpg
                         // IMAGE: /storage/emulated/0/Pictures/tUHEtWJ3R58.jpg
@@ -449,7 +448,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 RC_GET_VIDEO -> {
                     var videoData = data?.data
                     videoData?.let {
-                        context?.getFileDataFromUri(it)?.let {
+                        context?.getDataFromContentUri(it)?.let {
                             addSelectedMediaStoreItem(null, null, it, it.type, true)
                             mBinding?.rootMediaAddedList?.fadeInAnimation()
                         }
@@ -724,32 +723,54 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         }
     }
 
-    private fun save(Id:String){
-        for(target in boardAddVM.getAllSelectedItemList()){
-            when(target.type){
+
+    /**
+     * select한 아이템을 모두 저장하는 메소드
+     *
+     * - 모두 같은 디렉토리에 저장 됨
+     * - 선택된 아이템의 uri은 content일 수도 있고, storage일 수도 있음.
+     * - content로 읽은 uri은 copyContentUri()로 파일 복사.
+     * - storage로 읽은 uri은 copyStorageUri()로 파일 복사.
+     * - 결과적으로 모두 content uri로 저장되고, 이는 실제 경로가 아님.
+     * @param id 디렉토리 Id
+     * @author 권혁신
+     * @version 1.0.0
+     * @since 2020-08-23 오후 2:43
+     **/
+    private fun save(Id: String) {
+        for (target in boardAddVM.getAllSelectedItemList()) {
+            var item: MediaStoreItem? = when (target.type) {
                 MediaStoreFileType.IMAGE -> {
-                    // context?.createMediaFile(Id,target.item?.displayName)
-                    val item = target.item as MediaStoreImage
-                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
-                    context?.createMediaFile(Id,item.displayName).apply {
-                        val uri = this?.let { context?.saveFile(item.contentUri, it) }
-                        if (uri != null) {
-                            val item = context?.getFileDataFromUri(uri)
-                            Timber.d(item.toString())
-                        }
-                    }
+                    target.item as MediaStoreImage
                 }
                 MediaStoreFileType.VIDEO -> {
-                    val item = target.item as MediaStoreVideo
-                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                    target.item as MediaStoreVideo
                 }
                 MediaStoreFileType.AUDIO -> {
-                    val item = target.item as MediaStoreAudio
-                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                    target.item as MediaStoreAudio
                 }
                 MediaStoreFileType.FILE -> {
-                    val item = target.item as MediaStoreFile
-                    Timber.d("type: ${item.type}, uri: ${item.contentUri}, display:${item.displayName}")
+                    target.item as MediaStoreFile
+                }
+            }
+            // content 파일을 저장할 경우.
+            val scheme = item?.contentUri?.scheme
+            if (scheme.equals("content", ignoreCase = true)) {
+                context?.createMediaFile(Id, item).apply {
+                    val uri = this?.let { context?.copyContentUri(item?.contentUri, it) }
+                    if (uri != null) {
+                        val item = context?.getDataFromContentUri(uri)
+                        Timber.d(item.toString())
+                    }
+                }
+                // 비디오,오디오,이미지 파일 을 저장 할 경우 (storage)
+            } else {
+                context?.createMediaFile(Id, item).apply {
+                    val uri = this?.let { context?.copyStorageUri(item?.contentUri, it) }
+                    if (uri != null) {
+                        val item = context?.getDataFromContentUri(uri)
+                        Timber.d(item.toString())
+                    }
                 }
             }
         }
