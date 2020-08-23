@@ -15,6 +15,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.khs.lovelynote.R
 import com.khs.lovelynote.databinding.DialogAudioPlayBinding
+import com.khs.lovelynote.extension.fadeInAnimation
+import com.khs.lovelynote.extension.fadeOutAnimation
 import com.khs.lovelynote.extension.parseTime
 import com.khs.lovelynote.model.mediastore.MediaStoreAudio
 import kotlinx.android.synthetic.main.dialog_audio_play.*

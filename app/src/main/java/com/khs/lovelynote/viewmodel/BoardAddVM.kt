@@ -11,6 +11,7 @@ import com.khs.lovelynote.databinding.BoardItemMediaVideoBinding
 import com.khs.lovelynote.extension.Constants.INITIAL_LOAD_SIZE_HINT
 import com.khs.lovelynote.extension.Constants.PAGE_SIZE
 import com.khs.lovelynote.extension.Constants.PREFETCH_DISTANCE
+import com.khs.lovelynote.extension.complexOnAnimation
 import com.khs.lovelynote.model.mediastore.*
 import com.khs.lovelynote.viewmodel.factory.MediaAudioSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaImageSourceFactory

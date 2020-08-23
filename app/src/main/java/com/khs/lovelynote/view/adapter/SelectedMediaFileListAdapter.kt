@@ -8,6 +8,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.lovelynote.R
+import com.khs.lovelynote.databinding.BoardSelectedAudioBinding
+import com.khs.lovelynote.databinding.BoardSelectedFileBinding
+import com.khs.lovelynote.databinding.BoardSelectedImageBinding
+import com.khs.lovelynote.databinding.BoardSelectedVideoBinding
 import com.khs.lovelynote.model.mediastore.*
 import com.khs.lovelynote.model.mediastore.SelectedMediaStoreItem.Companion.diffCallback
 import com.khs.lovelynote.module.glide.GlideImageLoader

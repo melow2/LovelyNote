@@ -12,6 +12,9 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.khs.lovelynote.R
 import com.khs.lovelynote.databinding.BoardItemMediaAudioBinding
+import com.khs.lovelynote.extension.complexOffAnimation
+import com.khs.lovelynote.extension.complexOnAnimation
+import com.khs.lovelynote.extension.startDrawableAnimation
 import com.khs.lovelynote.model.mediastore.MediaStoreAudio
 import com.khs.lovelynote.model.mediastore.MediaStoreAudio.Companion.diffCallback
 import com.khs.lovelynote.model.mediastore.MediaStoreFileType

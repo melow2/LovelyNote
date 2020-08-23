@@ -20,6 +20,7 @@ import com.khs.audiorecorder.AudioListener
 import com.khs.audiorecorder.AudioRecording
 import com.khs.audiorecorder.RecordingItem
 import com.khs.lovelynote.R
+import com.khs.lovelynote.databinding.*
 import com.khs.lovelynote.extension.*
 import com.khs.lovelynote.extension.Constants.AUDIO_ITEM_RANGE
 import com.khs.lovelynote.extension.Constants.DURATION_FADE_OUT
