@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:src="@drawable/tag_plus"
-            app:layout_behavior="com.khs.visionboard.view.behavior.ScrollAwareFABBehavior"
+            app:layout_behavior="com.khs.lovelynote.view.behavior.ScrollAwareFABBehavior"
             app:fabSize="normal"
             app:borderWidth="0dp"
             app:layout_anchor="@id/rcv_board_list"

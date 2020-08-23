@@ -7,7 +7,7 @@
 
         <variable
             name="video"
-            type="com.khs.visionboard.model.mediastore.MediaStoreVideo" />
+            type="com.khs.lovelynote.model.mediastore.MediaStoreVideo" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

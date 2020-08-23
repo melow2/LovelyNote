@@ -7,7 +7,7 @@
     <data class="BoardSelectedAudioBinding">
         <variable
             name="audio"
-            type="com.khs.visionboard.model.mediastore.MediaStoreAudio" />
+            type="com.khs.lovelynote.model.mediastore.MediaStoreAudio" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

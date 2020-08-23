@@ -7,7 +7,7 @@
     <data class="BoardItemBinding">
         <variable
             name="board"
-            type="com.khs.visionboard.model.Board" />
+            type="com.khs.lovelynote.model.Board" />
     </data>
 
 

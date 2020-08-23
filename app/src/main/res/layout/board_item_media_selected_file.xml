@@ -7,7 +7,7 @@
     <data class="BoardSelectedFileBinding">
         <variable
             name="file"
-            type="com.khs.visionboard.model.mediastore.MediaStoreFile" />
+            type="com.khs.lovelynote.model.mediastore.MediaStoreFile" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
