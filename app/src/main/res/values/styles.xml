@@ -2,9 +2,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/colorLightPink</item>
+        <item name="colorPrimaryDark">@color/colorLightPink</item>
+        <item name="colorAccent">@color/colorLightPink</item>
+        <item name="actionOverflowButtonStyle">@color/colorLightPink</item>
+    </style>
+
+    <style name="OverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@android:color/white</item>
     </style>
 
     <style name="divider_vertical">
@@ -30,6 +35,11 @@
         <item name="borderWidth">0dp</item>
     </style>
 
+    <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textCursorDrawable">@drawable/background_text_cursor</item>
+        <item name="android:textColorHighlight">@color/colorLightPink</item>
+    </style>
+
     <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">
         <item name="android:windowNoTitle">true</item>
         <!-- Set this to true if you want Full Screen without status bar -->
@@ -37,6 +47,11 @@
         <item name="android:windowIsFloating">true</item>
         <!-- This is important! Don't forget to set window background -->
         <item name="android:windowBackground">@color/colorTranslucent</item>
+    </style>
+
+    <style name="BottomAppBarStyle" parent="Widget.MaterialComponents.BottomAppBar">
+        <item name="backgroundTint">@color/colorHotPink</item>
+        <item name="colorPrimary">@color/colorHotPink</item>
     </style>
 
 </resources>

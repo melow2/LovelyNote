@@ -2,6 +2,7 @@ package com.khs.lovelynote.view.activity
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.viewpager2.widget.ViewPager2
 import com.khs.lovelynote.R
@@ -81,6 +82,6 @@ class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>(
     }
 
     override fun onOpenFile(item: MediaStoreFile) {
-        viewFile(item.contentUri,item.displayName)
+        viewFile(Uri.parse(item.contentUri),item.displayName)
     }
 }

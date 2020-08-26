@@ -3,279 +3,301 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/root_add_board_lyt"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gline_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.6" />
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/root_media_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorLightYellow"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/div1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible">
-
-            <LinearLayout
-                android:id="@+id/lyt_audio_chronometer"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-                <Chronometer
-                    android:id="@+id/audio_chronometer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/ic_background_chronometer"
-                    android:gravity="center"
-                    android:padding="3dp"
-                    android:textSize="80dp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
-            </LinearLayout>
+            android:layout_height="match_parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/root_media_added_list"
+                android:id="@+id/root_media_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorLightYellow"
+                android:orientation="horizontal"
                 android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/div1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible">
 
                 <LinearLayout
-                    android:id="@+id/thumbnail_lyt"
+                    android:id="@+id/lyt_audio_chronometer"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:orientation="vertical"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/rcv_media_added"
-                    app:layout_constraintTop_toTopOf="parent"></LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rcv_media_added"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/thumbnail_lyt"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:listitem="@layout/board_item_media_image" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/root_media_file_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:animateLayoutChanges="true"
-                android:visibility="gone">
+                    <Chronometer
+                        android:id="@+id/audio_chronometer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ic_background_chronometer"
+                        android:gravity="center"
+                        android:padding="3dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="80dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rcv_media_image_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="visible"
-                    tools:listitem="@layout/board_item_media_image" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rcv_media_audio_list"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_media_added_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="gone"
-                    tools:listitem="@layout/board_item_media_audio" />
+                    tools:visibility="visible">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rcv_media_video_list"
+                    <LinearLayout
+                        android:id="@+id/thumbnail_lyt"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:orientation="vertical"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/rcv_media_added"
+                        app:layout_constraintTop_toTopOf="parent"></LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rcv_media_added"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/thumbnail_lyt"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:listitem="@layout/board_item_media_image" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_media_file_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="gone"
-                    tools:listitem="@layout/board_item_media_video" />
+                    android:animateLayoutChanges="true"
+                    android:visibility="gone">
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/btn_table_plus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/table_plus"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rcv_media_image_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="visible"
+                        tools:listitem="@layout/board_item_media_image" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rcv_media_audio_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone"
+                        tools:listitem="@layout/board_item_media_audio" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rcv_media_video_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone"
+                        tools:listitem="@layout/board_item_media_video" />
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/btn_table_plus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/table_plus"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <View
+                android:id="@+id/div1"
+                style="@style/divider_horizontal"
 
-        <View
-            android:id="@+id/div1"
-            style="@style/divider_horizontal"
-            android:layout_margin="1dp"
-            app:layout_constraintBottom_toTopOf="@id/root_all_btn_layout"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/root_media_layout" />
+                app:layout_constraintBottom_toTopOf="@id/root_all_btn_layout"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/root_media_layout" />
 
-        <LinearLayout
-            android:id="@+id/root_all_btn_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:orientation="horizontal"
-            android:visibility="visible"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/div1">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/root_main_btn"
+            <LinearLayout
+                android:id="@+id/root_all_btn_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/white"
-                android:gravity="end"
-                android:visibility="visible">
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_file"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_file"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/btn_video"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_video"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_videocam_white_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_file"
-                    app:layout_constraintRight_toLeftOf="@id/btn_record"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-
-                <com.khs.audiorecorder.AudioRecordButton
-                    android:id="@+id/btn_record"
-                    style="@style/default_floating_button_style"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_video"
-                    app:layout_constraintRight_toLeftOf="@id/btn_camera"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:recorder_image="@drawable/ic_voice_modified_24">
-                </com.khs.audiorecorder.AudioRecordButton>
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_camera"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/camera"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_record"
-                    app:layout_constraintRight_toLeftOf="@id/btn_media_store"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_media_store"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_perm_media"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_camera"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/root_media_btn_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:visibility="gone"
+                android:orientation="horizontal"
+                android:visibility="visible"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/root_media_layout">
+                app:layout_constraintTop_toBottomOf="@id/div1">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_media_video"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_videocam_white_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/btn_media_record"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_main_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white"
+                    android:gravity="end"
+                    android:visibility="visible">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_media_record"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_library_music_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_media_video"
-                    app:layout_constraintRight_toLeftOf="@id/btn_media_image"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_file"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/ic_baseline_file"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/btn_video"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_media_image"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/camera_image"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_media_record"
-                    app:layout_constraintRight_toLeftOf="@+id/btn_temp"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_video"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/ic_baseline_videocam_white_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_file"
+                        app:layout_constraintRight_toLeftOf="@id/btn_record"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_temp"
-                    style="@style/default_floating_button_style"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_media_image"
-                    app:layout_constraintRight_toLeftOf="@id/btn_item_add"
-                    app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_refresh"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/ic_baseline_refresh"
+                    <com.khs.audiorecorder.AudioRecordButton
+                        android:id="@+id/btn_record"
+                        style="@style/default_floating_button_style"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_video"
+                        app:layout_constraintRight_toLeftOf="@id/btn_camera"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:recorder_image="@drawable/ic_voice_modified_24"></com.khs.audiorecorder.AudioRecordButton>
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_camera"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/camera"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_record"
+                        app:layout_constraintRight_toLeftOf="@id/btn_media_store"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_media_store"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/ic_baseline_perm_media"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_camera"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_media_btn_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_media_image"
-                    app:layout_constraintRight_toLeftOf="@id/btn_item_add"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_item_add"
-                    style="@style/default_floating_button_style"
-                    android:src="@drawable/playlist_check"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/btn_temp"
+                    app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
+                    app:layout_constraintTop_toBottomOf="@id/root_media_layout">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/root_all_btn_layout">
-            <Button
-                android:text="저장"
-                android:id="@+id/btn_save"
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_media_video"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/ic_baseline_videocam_white_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/btn_media_record"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_media_record"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/ic_baseline_library_music_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_media_video"
+                        app:layout_constraintRight_toLeftOf="@id/btn_media_image"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_media_image"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/camera_image"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_media_record"
+                        app:layout_constraintRight_toLeftOf="@+id/btn_temp"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_temp"
+                        style="@style/default_floating_button_style"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_media_image"
+                        app:layout_constraintRight_toLeftOf="@id/btn_item_add"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_refresh"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/ic_baseline_refresh"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_media_image"
+                        app:layout_constraintRight_toLeftOf="@id/btn_item_add"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_item_add"
+                        style="@style/default_floating_button_style"
+                        android:src="@drawable/playlist_check"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/btn_temp"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/div2"
+                style="@style/divider_horizontal"
+                app:layout_constraintBottom_toTopOf="@id/tv_timestamp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/root_all_btn_layout" />
+
+            <TextView
+                android:id="@+id/tv_timestamp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:text="읽기"
-                android:id="@+id/btn_delete"
+                android:layout_height="wrap_content"
+                android:background="@color/colorLightYellow"
+                android:gravity="left"
+                android:padding="10dp"
+                android:textColor="@color/colorGray"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/edt_content"
+                app:layout_constraintTop_toBottomOf="@id/div2"
+                tools:text="Aug 25, 2020 4:02:45 AM" />
+
+            <EditText
+                android:id="@+id/edt_content"
+                style="@style/EditTextStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="fill_parent"
+                android:background="@android:color/transparent"
+                android:gravity="left|top"
+                android:hint="Tell me your story."
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:textIsSelectable="true"
+                android:textSize="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_timestamp"
+                tools:text="Hello Stranger" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
 </layout>

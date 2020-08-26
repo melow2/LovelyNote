@@ -13,7 +13,6 @@ import com.khs.lovelynote.R
 import com.khs.lovelynote.databinding.FragmentListBinding
 import com.khs.lovelynote.extension.Constants.TAG_PARCELABLE_BOARD
 import com.khs.lovelynote.model.Board
-import com.khs.lovelynote.view.activity.AddBoardActivity
 import com.khs.lovelynote.view.activity.BoardDetailActivity
 import com.khs.lovelynote.view.adapter.BoardListAdapter
 import com.khs.lovelynote.viewmodel.BoardListVM
@@ -91,10 +90,6 @@ class BoardListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun setUpListener() {
-        // FloatingButton
-        mBinding?.btnAdd?.setOnClickListener {
-            startActivity(Intent(context, AddBoardActivity::class.java).apply {})
-        }
 
         listAdapter?.addEventListener(object : BoardListAdapter.BoardListEvent {
             override fun onClick(position: Int) {

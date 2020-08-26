@@ -202,7 +202,7 @@ fun Context.createMediaFile(dirId: String, mediaItem: MediaStoreItem?): File {
     if (!dirPath.exists()) {
         dirPath.mkdirs()
     }
-    val file = File(mediaItem?.contentUri?.path, mediaItem?.displayName)
+    val file = File(Uri.parse(mediaItem?.contentUri).path, mediaItem?.displayName)
     val fileName = file.name.substringBeforeLast('.')
     var fileExtend = getExtension(file.absolutePath)
     if (fileExtend.isEmpty()) {

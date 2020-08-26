@@ -33,17 +33,14 @@
         <activity
             android:name="com.khs.lovelynote.view.activity.ExoPlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
-        <activity
-            android:name="com.khs.lovelynote.view.activity.AddBoardActivity"
-            android:launchMode="singleTask"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
         <activity android:name="com.khs.lovelynote.view.activity.BoardDetailActivity" />
         <activity
             android:name="com.khs.lovelynote.view.activity.MainActivity"
+            android:isScrollContainer="true"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

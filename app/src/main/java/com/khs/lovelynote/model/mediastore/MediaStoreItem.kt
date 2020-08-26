@@ -10,14 +10,14 @@ open class MediaStoreItem(
     open val id: Long,
     open val dateTaken: Date?,
     open val displayName: String?,
-    open val contentUri: Uri?,
+    open var contentUri: String?,
     open val type: MediaStoreFileType
 ) : Parcelable {
     constructor(source: Parcel) : this(
         source.readLong(),
-        source.readSerializable() as Date,
+        source.readSerializable() as Date?,
         source.readString(),
-        source.readParcelable<Uri>(Uri::class.java.classLoader),
+        source.readString(),
         MediaStoreFileType.values()[source.readInt()]
     )
 
@@ -27,7 +27,7 @@ open class MediaStoreItem(
         writeLong(id)
         writeSerializable(dateTaken)
         writeString(displayName)
-        writeParcelable(contentUri, 0)
+        writeString(contentUri)
         writeInt(type.ordinal)
     }
 

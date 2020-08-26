@@ -65,7 +65,7 @@ fun Context.getMediaStoreImageFiles(
             val displayName = cursor.getString(displayNameColumn)
             val contentUri = Uri.withAppendedPath(type.externalContentUri, id.toString())
             val filePath = getPath(contentUri.toString())
-            fileList.add(MediaStoreImage(id, dateTaken, displayName, Uri.parse(filePath), type))
+            fileList.add(MediaStoreImage(id, dateTaken, displayName, filePath, type))
         }
     }
     query?.close()
@@ -124,7 +124,7 @@ fun Context.getMediaStoreAudioFiles(
                     album = album,
                     title = title,
                     _duration = duration,
-                    contentUri = Uri.parse(filePath),
+                    contentUri = filePath,
                     type = MediaStoreFileType.AUDIO
                 )
             )
@@ -175,7 +175,7 @@ fun Context.getMediaStoreVideoFiles(
                     id,
                     dateTaken,
                     displayName,
-                    Uri.parse(filePath),
+                    filePath,
                     type,
                     duration
                 )
@@ -219,7 +219,7 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
                         id,
                         dateModified,
                         displayName,
-                        uri,
+                        uri.toString(),
                         MediaStoreFileType.IMAGE
                     )
                 }
@@ -242,7 +242,7 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
                         album = album,
                         title = title,
                         _duration = duration,
-                        contentUri = uri,
+                        contentUri = uri.toString(),
                         type = MediaStoreFileType.AUDIO
                     )
                 }
@@ -255,7 +255,7 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
                     System.currentTimeMillis(),
                     Date(),
                     uri.toString().substringBeforeLast("."),
-                    uri,
+                    uri.toString(),
                     MediaStoreFileType.VIDEO,
                     getMediaMetaData(uri, METADATA_KEY_DURATION)
                 )
@@ -271,7 +271,7 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
                         id,
                         dateModified,
                         displayName,
-                        uri,
+                        uri.toString(),
                         MediaStoreFileType.VIDEO,
                         duration
                     )
@@ -289,7 +289,7 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
                         id,
                         dateModified,
                         displayName,
-                        uri,
+                        uri.toString(),
                         MediaStoreFileType.FILE
                     )
                 }

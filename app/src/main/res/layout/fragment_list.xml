@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -13,20 +12,5 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:listitem="@layout/board_iist_item" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btn_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/tag_plus"
-            app:layout_behavior="com.khs.lovelynote.view.behavior.ScrollAwareFABBehavior"
-            app:fabSize="normal"
-            app:borderWidth="0dp"
-            app:layout_anchor="@id/rcv_board_list"
-            app:layout_anchorGravity="bottom|right|end"/>
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
 </layout>

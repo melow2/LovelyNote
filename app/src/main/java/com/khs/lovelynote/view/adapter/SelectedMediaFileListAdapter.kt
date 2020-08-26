@@ -120,7 +120,7 @@ class SelectedMediaFileListAdapter(
 
         fun bind(selected: MediaStoreImage) {
             GlideImageLoader(
-                mBinding.ivMediaImage, null
+                mBinding.ivMediaImage, mBinding.pgbLoading
             ).load(
                 (selected.contentUri).toString(),
                 ProgressAppGlideModule.requestOptions(mContext)

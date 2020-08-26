@@ -13,7 +13,7 @@ data class MediaStoreVideo(
     override var id: Long,
     override var dateTaken: Date?,
     override var displayName: String?,
-    override var contentUri: Uri?,
+    override var contentUri: String?,
     override var type: MediaStoreFileType,
     var _duration: String?
 ) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
@@ -32,9 +32,9 @@ data class MediaStoreVideo(
 
     constructor(source: Parcel) : this(
         source.readLong(),
-        source.readSerializable() as Date,
+        source.readSerializable() as Date?,
         source.readString(),
-        source.readParcelable<Uri>(Uri::class.java.classLoader),
+        source.readString(),
         MediaStoreFileType.values()[source.readInt()],
         source.readString()
     )
@@ -45,7 +45,7 @@ data class MediaStoreVideo(
         writeLong(id)
         writeSerializable(dateTaken)
         writeString(displayName)
-        writeParcelable(contentUri, 0)
+        writeString(contentUri)
         writeInt(type.ordinal)
         writeString(_duration)
     }

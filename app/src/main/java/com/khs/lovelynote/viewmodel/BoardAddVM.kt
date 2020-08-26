@@ -12,7 +12,9 @@ import com.khs.lovelynote.extension.Constants.INITIAL_LOAD_SIZE_HINT
 import com.khs.lovelynote.extension.Constants.PAGE_SIZE
 import com.khs.lovelynote.extension.Constants.PREFETCH_DISTANCE
 import com.khs.lovelynote.extension.complexOnAnimation
+import com.khs.lovelynote.model.LovelyNote
 import com.khs.lovelynote.model.mediastore.*
+import com.khs.lovelynote.repository.NoteRepository
 import com.khs.lovelynote.viewmodel.factory.MediaAudioSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaImageSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaVideoSourceFactory
@@ -48,21 +50,21 @@ import timber.log.Timber
 class BoardAddVM(application: Application, private val param1: Int) :
     AndroidViewModel(application), LifecycleObserver {
 
-    private lateinit var mImageList: LiveData<PagedList<MediaStoreImage>>
-    private lateinit var mAudioList: LiveData<PagedList<MediaStoreAudio>>
-    private lateinit var mVideoList: LiveData<PagedList<MediaStoreVideo>>
+    private var mImageList: LiveData<PagedList<MediaStoreImage>>
+    private var mAudioList: LiveData<PagedList<MediaStoreAudio>>
+    private var mVideoList: LiveData<PagedList<MediaStoreVideo>>
     private val mContext = application.applicationContext
     private val mImageSourceFactory: MediaImageSourceFactory
     private val mAudioSourceFactory: MediaAudioSourceFactory
     private val mVideoSourceFactory: MediaVideoSourceFactory
     private val mPagedListConfig: PagedList.Config
     private val mSelectedMediaStoreItemList: MutableLiveData<List<SelectedMediaStoreItem>> = MutableLiveData()
+    private val noteRepository: NoteRepository = NoteRepository.getInstance(application)
 
     init {
         mImageSourceFactory = MediaImageSourceFactory(mContext)
         mAudioSourceFactory = MediaAudioSourceFactory(mContext)
         mVideoSourceFactory = MediaVideoSourceFactory(mContext)
-
         mPagedListConfig = PagedList.Config.Builder()
             .setPageSize(PAGE_SIZE)
             .setInitialLoadSizeHint(INITIAL_LOAD_SIZE_HINT)
@@ -90,16 +92,14 @@ class BoardAddVM(application: Application, private val param1: Int) :
         return mSelectedMediaStoreItemList
     }
 
-
-    fun getSelectedIndexOf(item:SelectedMediaStoreItem): Int? {
+    fun getSelectedIndexOf(item: SelectedMediaStoreItem): Int? {
         return mSelectedMediaStoreItemList.value?.indexOf(item)
     }
 
-
     fun getAllSelectedItemList(): ArrayList<SelectedItem> {
-        val list =  arrayListOf<SelectedItem>()
+        val list = arrayListOf<SelectedItem>()
         mSelectedMediaStoreItemList.value?.run {
-            for(temp in this)
+            for (temp in this)
                 list.add(temp.selectedItem)
         }
         return list
@@ -172,7 +172,7 @@ class BoardAddVM(application: Application, private val param1: Int) :
 
     fun removelSelectedItemAnimation(target: SelectedItem) {
         for (selected in mSelectedMediaStoreItemList.value!!) {
-            if(selected.selectedItem.contentUri == target.contentUri && selected.itemBinding!=null) {
+            if (selected.selectedItem.contentUri == target.contentUri && selected.itemBinding != null) {
                 when (target.type) {
                     MediaStoreFileType.IMAGE -> {
                         (selected.itemBinding as BoardItemMediaImageBinding).run {
@@ -192,9 +192,14 @@ class BoardAddVM(application: Application, private val param1: Int) :
                             ivSelected.visibility = View.GONE
                         }
                     }
+                    else -> return
                 }
             }
         }
+    }
+
+    fun insertItem(item: LovelyNote){
+        noteRepository.insert(item)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)

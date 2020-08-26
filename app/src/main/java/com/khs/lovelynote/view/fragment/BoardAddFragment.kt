@@ -32,6 +32,7 @@ import com.khs.lovelynote.extension.Constants.RC_GET_VIDEO
 import com.khs.lovelynote.extension.Constants.SELECTED_ITEM_RANGE
 import com.khs.lovelynote.extension.Constants.TAG_AUDIO_DIALOG_FRAGMENT
 import com.khs.lovelynote.extension.Constants.VIDEO_ITEM_RANGE
+import com.khs.lovelynote.model.LovelyNote
 import com.khs.lovelynote.model.mediastore.*
 import com.khs.lovelynote.module.glide.GlideImageLoader
 import com.khs.lovelynote.module.glide.ProgressAppGlideModule
@@ -41,6 +42,7 @@ import com.khs.lovelynote.view.adapter.MediaAudioPagedAdapter
 import com.khs.lovelynote.view.adapter.MediaImagePagedAdapter
 import com.khs.lovelynote.view.adapter.MediaVideoPagedAdapter
 import com.khs.lovelynote.view.adapter.SelectedMediaFileListAdapter
+import com.khs.lovelynote.view.behavior.KeyBoardActionBehavior
 import com.khs.lovelynote.view.dialog.AudioPlayDialogFragment
 import com.khs.lovelynote.viewmodel.BoardAddVM
 import com.khs.lovelynote.viewmodel.factory.BoardAddVMFactory
@@ -48,7 +50,7 @@ import timber.log.Timber
 import java.util.*
 
 
-class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
+class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
     MediaImagePagedAdapter.MediaPagedImageListener, MediaAudioPagedAdapter.MediaPagedAudioListener,
     MediaVideoPagedAdapter.MediaPagedViedoListener,
     SelectedMediaFileListAdapter.SelectedImageListEvent {
@@ -61,6 +63,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     private lateinit var mediaVideoPagedAdapter: MediaVideoPagedAdapter
     private lateinit var selectedListAdapter: SelectedMediaFileListAdapter
     private lateinit var audioRecording: AudioRecording
+    private val currentDate = Date()
 
     companion object {
         private const val ARG_PARAM1 = "param1"
@@ -68,7 +71,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            AddBoardFragment().apply {
+            BoardAddFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
@@ -140,13 +143,9 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             }
         }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_add_menu, menu)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,22 +168,28 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //      val context = view.context
+        initView()
         setUpListener()
         setUpRecyclerView()
+    }
+
+    private fun initView() {
+        mBinding?.tvTimestamp?.text = currentDate.normalTimeStamp()
+        mBinding?.edtContent?.onFocusChangeListener = KeyBoardActionBehavior(requireActivity()).focusChangeListener
     }
 
     private fun setUpRecyclerView() {
         mBinding?.apply {
             rcvMediaImageList.apply {
                 mediaImagePagedAdapter =
-                    MediaImagePagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                    MediaImagePagedAdapter(context).apply { addListener(this@BoardAddFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = mediaImagePagedAdapter
             }
             rcvMediaAudioList.apply {
                 mediaAudioPagedAdapter =
-                    MediaAudioPagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                    MediaAudioPagedAdapter(context).apply { addListener(this@BoardAddFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = mediaAudioPagedAdapter
@@ -192,7 +197,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             rcvMediaVideoList.apply {
                 mediaVideoPagedAdapter =
-                    MediaVideoPagedAdapter(context).apply { addListener(this@AddBoardFragment) }
+                    MediaVideoPagedAdapter(context).apply { addListener(this@BoardAddFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), GALLERY_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = mediaVideoPagedAdapter
@@ -200,7 +205,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             rcvMediaAdded.apply {
                 selectedListAdapter =
-                    SelectedMediaFileListAdapter(context).apply { addEventListener(this@AddBoardFragment) }
+                    SelectedMediaFileListAdapter(context).apply { addEventListener(this@BoardAddFragment) }
                 layoutManager = GridLayoutManager(requireActivity(), SELECTED_ITEM_RANGE)
                 isNestedScrollingEnabled = true
                 adapter = selectedListAdapter
@@ -282,8 +287,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                         MediaStoreAudio(
                             System.currentTimeMillis(),
                             Date(),
-                            currentTimeStamp() + "_" + RECORD + ".mp3",
-                            uri,
+                            fileNameTimeStamp() + "_" + RECORD + ".mp3",
+                            uri.toString(),
                             MediaStoreFileType.AUDIO,
                             RECORD,
                             System.currentTimeMillis().toString() + "_" + RECORD,
@@ -403,9 +408,15 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                 changedReyclerItemRange(targetRangeCounter)
             }
 
+/*
             btnSave.setOnClickListener {
-                save(System.currentTimeMillis().toString())
+                testSave(System.currentTimeMillis().toString())
             }
+
+            btnRead.setOnClickListener {
+                testRead()
+            }
+*/
 
         }
     }
@@ -446,8 +457,8 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                     }
                 }
                 RC_GET_VIDEO -> {
-                    var videoData = data?.data
-                    videoData?.let {
+                    val videoData = data?.data
+                    videoData?.let { it ->
                         context?.getDataFromContentUri(it)?.let {
                             addSelectedMediaStoreItem(null, null, it, it.type, true)
                             mBinding?.rootMediaAddedList?.fadeInAnimation()
@@ -550,7 +561,7 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
         val selectedItem: SelectedMediaStoreItem? =
             SelectedMediaStoreItem(
                 binding,
-                SelectedItem(adapterPosition, item.contentUri, type, item)
+                SelectedItem(adapterPosition, Uri.parse(item.contentUri), type, item)
             )
         when (checked) {
             true -> {
@@ -614,12 +625,13 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
             MediaStoreFileType.VIDEO -> {
                 onMediaVideoPlayClientEvent(item.selectedItem.item as MediaStoreVideo)
             }
+            else -> return
         }
     }
 
     override fun onOpenFile(item: SelectedMediaStoreItem) {
         (item.selectedItem.item as MediaStoreFile).run {
-            requireContext().viewFile(this.contentUri, this.displayName)
+            requireContext().viewFile(Uri.parse(this.contentUri), this.displayName)
         }
     }
 
@@ -732,14 +744,15 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
      * - content로 읽은 uri은 copyContentUri()로 파일 복사.
      * - storage로 읽은 uri은 copyStorageUri()로 파일 복사.
      * - 결과적으로 모두 content uri로 저장되고, 이는 실제 경로가 아님.
-     * @param id 디렉토리 Id
+     * @param Id 디렉토리 Id
      * @author 권혁신
      * @version 1.0.0
      * @since 2020-08-23 오후 2:43
      **/
-    private fun save(Id: String) {
+    fun save(Id: String) {
+        val mediaItemList: ArrayList<MediaStoreItem>? = arrayListOf()
         for (target in boardAddVM.getAllSelectedItemList()) {
-            var item: MediaStoreItem? = when (target.type) {
+            val item: MediaStoreItem = when (target.type) {
                 MediaStoreFileType.IMAGE -> {
                     target.item as MediaStoreImage
                 }
@@ -753,27 +766,31 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
                     target.item as MediaStoreFile
                 }
             }
-            // content 파일을 저장할 경우.
-            val scheme = item?.contentUri?.scheme
-            if (scheme.equals("content", ignoreCase = true)) {
-                context?.createMediaFile(Id, item).apply {
-                    val uri = this?.let { context?.copyContentUri(item?.contentUri, it) }
-                    if (uri != null) {
-                        val item = context?.getDataFromContentUri(uri)
-                        Timber.d(item.toString())
-                    }
-                }
-                // 비디오,오디오,이미지 파일 을 저장 할 경우 (storage)
-            } else {
-                context?.createMediaFile(Id, item).apply {
-                    val uri = this?.let { context?.copyStorageUri(item?.contentUri, it) }
-                    if (uri != null) {
-                        val item = context?.getDataFromContentUri(uri)
-                        Timber.d(item.toString())
-                    }
-                }
+            val scheme = Uri.parse(item.contentUri)?.scheme
+            val tempFile = context?.createMediaFile(Id, item)
+            var savedUri: Uri? = null
+            tempFile?.let {
+                savedUri = if (scheme.equals("content", ignoreCase = true))
+                    context?.copyContentUri(Uri.parse(item.contentUri), it)
+                else
+                    context?.copyStorageUri(Uri.parse(item.contentUri), it)
             }
+            mediaItemList?.add(
+                MediaStoreItem(
+                    item.id,
+                    item.dateTaken,
+                    item.displayName,
+                    savedUri.toString(),
+                    item.type
+                )
+            )
         }
+        val content = mBinding?.edtContent?.text?.toString()?.trim()
+        if(content.isNullOrEmpty() && mediaItemList.isNullOrEmpty()){
+            return
+        }
+        val note = LovelyNote(Id.toLong(), content, mediaItemList, currentDate, currentDate)
+        boardAddVM.insertItem(note)
     }
 
     override fun onDestroyView() {
@@ -781,8 +798,9 @@ class AddBoardFragment : BaseFragment<FragmentAddBoardBinding>(),
     }
 
     override fun onDetach() {
-        requireContext().clearCacheData()
         super.onDetach()
+        requireContext().clearCacheData()
+        Timber.d("onDetach()")
     }
 
     override fun onBackPressed(): Boolean {

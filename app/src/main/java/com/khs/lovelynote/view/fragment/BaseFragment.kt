@@ -1,12 +1,14 @@
 package com.khs.lovelynote.view.fragment
 
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.ViewGroup
+import android.content.Intent
+import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.khs.lovelynote.R
 import timber.log.Timber
 
 abstract class BaseFragment<B : ViewDataBinding?> : Fragment() {

@@ -44,7 +44,7 @@ dependencies {
     def lifecycle_version = "2.2.0"
     def paging_version = "2.1.2"
     def exoplayer_version = "2.7.3"
-    def room_version = "2.2.3"
+    def room_version = "2.2.5"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -55,6 +55,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'commons-io:commons-io:2.4'
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.5'
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
     // RecyclerView
@@ -80,6 +82,10 @@ dependencies {
     implementation 'gun0912.ted:tedpermission:2.2.3'
     // Paging library
     implementation "androidx.paging:paging-runtime:$paging_version"
+    // Room DB
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    //android.arch.persistence.room:runtime
     // add exo player dependency here
     implementation "com.google.android.exoplayer:exoplayer:$exoplayer_version"
     implementation 'org.jsoup:jsoup:1.10.3'
@@ -89,5 +95,7 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     // Audio
     implementation 'com.github.melow2:AudioRecordButton:2.1.0'
+
+
 
 }

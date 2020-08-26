@@ -3,6 +3,7 @@ package com.khs.lovelynote.view.dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -77,7 +78,7 @@ class AudioPlayDialogFragment : DialogFragment() {
         arguments?.let {
             mAudio = it.getParcelable(ITEM_AUDIO)
         }
-        mPlayer = MediaPlayer.create(activity, mAudio?.contentUri)
+        mPlayer = MediaPlayer.create(activity, Uri.parse(mAudio?.contentUri))
         setStyle(STYLE_NORMAL, R.style.FullScreenDialogStyle);
     } // #1
 

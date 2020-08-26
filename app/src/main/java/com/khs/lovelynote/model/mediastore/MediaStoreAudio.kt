@@ -13,30 +13,29 @@ data class MediaStoreAudio(
     override var id: Long,
     override var dateTaken: Date?,
     override var displayName: String?,
-    override var contentUri: Uri?,
+    override var contentUri: String?,
     override var type: MediaStoreFileType,
     var album: String?,
     var title: String?,
     var _duration: String?
 ) : MediaStoreItem(id, dateTaken, displayName, contentUri, type), Parcelable {
-
     var duration: String?
         get() = _duration?.toLong()?.parseTime()
         set(value) {
             _duration = value
         }
 
-    var _dateTaken:String?
+    var _dateTaken: String?
         get() = dateTaken?.toSimpleString()
-        set(value){
+        set(value) {
             dateTaken = SimpleDateFormat().parse(value)
         }
 
     constructor(source: Parcel) : this(
         source.readLong(),
-        source.readSerializable() as Date,
+        source.readSerializable() as Date?,
         source.readString(),
-        source.readParcelable<Uri>(Uri::class.java.classLoader),
+        source.readString(),
         MediaStoreFileType.values()[source.readInt()],
         source.readString(),
         source.readString(),
@@ -49,7 +48,7 @@ data class MediaStoreAudio(
         writeLong(id)
         writeSerializable(dateTaken)
         writeString(displayName)
-        writeParcelable(contentUri, 0)
+        writeString(contentUri)
         writeInt(type.ordinal)
         writeString(album)
         writeString(title)

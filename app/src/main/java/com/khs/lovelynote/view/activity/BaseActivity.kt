@@ -1,8 +1,17 @@
 package com.khs.lovelynote.view.activity
 
+import android.R
 import android.content.Context
+import android.content.Intent
+import android.graphics.Rect
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.Window
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -10,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
 import com.khs.lovelynote.view.fragment.BaseFragment
 
@@ -17,9 +27,11 @@ import com.khs.lovelynote.view.fragment.BaseFragment
 abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
     var mBinding: B? = null
     lateinit var toolbar: Toolbar
+    var mLayout:Int = 0
 
     protected fun bindView(layout: Int) {
         mBinding = DataBindingUtil.setContentView<B>(this, layout)
+        this.mLayout = layout
     }
 
     protected fun setToolbar(
@@ -55,8 +67,23 @@ abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
         // overridePendingTransition(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
     }
 
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
     companion object {
-        private val TAG = BaseActivity::class.java.simpleName
         protected fun startActivityAnimation(context: Context) {
             if (context is AppCompatActivity) {
                 context.overridePendingTransition(

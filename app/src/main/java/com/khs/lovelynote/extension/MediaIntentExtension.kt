@@ -41,7 +41,7 @@ fun Context.openCameraIntent(): Intent? {
     ContentValues().apply {
         put(MediaStore.Images.ImageColumns._ID, currentTime)
         put(MediaStore.Images.ImageColumns.DATE_TAKEN, currentTime)
-        put(MediaStore.Images.ImageColumns.DISPLAY_NAME, currentTimeStamp() + "_IMAGE")
+        put(MediaStore.Images.ImageColumns.DISPLAY_NAME, fileNameTimeStamp() + "_IMAGE")
     }.run {
         outputMediaFileUri =
             contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, this)
