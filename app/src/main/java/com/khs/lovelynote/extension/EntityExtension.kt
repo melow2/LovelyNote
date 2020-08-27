@@ -4,18 +4,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.khs.lovelynote.model.LovelyNote
 import com.khs.lovelynote.room.entity.LovelyNoteEntity
-import java.util.*
 
 fun toListModel(testEntity: List<LovelyNoteEntity>): List<LovelyNote> {
     val itemList = mutableListOf<LovelyNote>()
+    var thumbnail: String? = null
     testEntity.map {
+        thumbnail = if (it.noteMediaItemList?.size != 0) {
+            it.noteMediaItemList?.get(0)?.contentUri
+        } else {
+            null
+        }
         itemList.add(
             LovelyNote(
-                it.testId ?: 0,
+                it.noteId ?: 0,
                 it.noteContent ?: "",
-                it.mediaItemList ?: arrayListOf(),
-                it.noteCreateTime?:null,
-                it.noteUpdateTime?:null
+                thumbnail,
+                it.noteMediaItemList ?: arrayListOf(),
+                it.noteCreateTime,
+                it.noteUpdateTime,
+                it.noteIsHold ?: false
             )
         )
     }
@@ -31,10 +38,11 @@ fun LiveData<List<LovelyNoteEntity>>.toLiveDataListModel(): LiveData<List<Lovely
 
 fun LovelyNote.toEntity(): LovelyNoteEntity {
     return LovelyNoteEntity(
-        id = Id?:0,
-        content = content?:"",
-        mediaItemList = mediaItems?: arrayListOf(),
-        createTime = createTimeStamp?:null,
-        updateTime = updateTimeStamp?:null
+        id = Id ?: 0,
+        content = content ?: "",
+        mediaItemList = mediaItems ?: arrayListOf(),
+        createTime = createTimeStamp,
+        updateTime = updateTimeStamp,
+        isHold = isHold ?: false
     )
 }

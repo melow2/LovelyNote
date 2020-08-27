@@ -1,51 +1,294 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/tools"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data class="BoardItemBinding">
+
         <variable
-            name="board"
-            type="com.khs.lovelynote.model.Board" />
+            name="note"
+            type="com.khs.lovelynote.model.LovelyNote" />
     </data>
 
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/root_cv_board"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            app:cardCornerRadius="4dp">
+    <androidx.cardview.widget.CardView
+        android:id="@+id/root_cv_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="8dp">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/view_background"
+            android:layout_width="match_parent"
+            android:background="@color/colorHotPink"
+            android:layout_height="wrap_content">
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:src="@drawable/ic_baseline_delete_forever_24"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:scaleType="centerCrop"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/view_foreground"
+            android:layout_width="match_parent"
+            android:background="@android:color/white"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/root_thumbnail_lyt"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/root_content_lyt"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/iv_photo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/iv_thumbnail_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:scaleType="centerCrop"
-                    android:contentDescription="@string/image_description"
-                    bind:thumbnail="@{board.boardImageUrl}"
-                    tools:src="@drawable/senegal"/>
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/ic_no_photos" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_lyt_thumbnail_audio"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorDarkGray"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/iv_thumbnail_audio"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_baseline_voice_hotpink_24"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorTranslucent"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageButton
+                            android:id="@+id/btn_play_audio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_baseline_play_circle_outline_green_64" />
+
+                        <TextView
+                            android:id="@+id/tv_audio_duration"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="3dp"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold"
+                            tools:text="04:30" />
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_lyt_thumbnail_video"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorDarkGray"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/iv_thumbnail_video"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorTranslucent"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageButton
+                            android:id="@+id/btn_play_video"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_baseline_play_circle_outline_hotpink_64" />
+
+                        <TextView
+                            android:id="@+id/tv_video_duration"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="3dp"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold"
+                            tools:text="04:30" />
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/root_lyt_thumbnail_file"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/colorLightPink"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/iv_thumbnail_file"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorTranslucent"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageButton
+                            android:id="@+id/btn_open_file"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_baseline_open_in_browser_yellow_64" />
+
+                        <TextView
+                            android:id="@+id/tv_file_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="3dp"
+                            android:gravity="center"
+                            android:textSize="11dp"
+                            android:lines="2"
+                            android:padding="5dp"
+                            android:ellipsize="end"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold"
+                            tools:text="안녕하세요 파일ㅇ 예제입니다.ㅁ.ㄻ...ㅁㅇㄻㅇㄻㄹ..ㅁㅇㄻㅇㄹ" />
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:id="@+id/tv_title"
-                    android:layout_width="match_parent"
+                    android:id="@+id/tv_item_count"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/background_item_count"
                     android:gravity="center"
-                    android:text="@{board.boardTitle}"
-                    tools:text="제목이다." />
+                    android:textSize="10dp"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="5" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <Button
-                    android:id="@+id/btn_delete"
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/root_content_lyt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/root_thumbnail_lyt"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_note_content"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:ellipsize="end"
+                    android:maxLines="4"
+                    android:padding="9dp"
+                    android:textSize="13dp"
+                    android:text="@{note._content}"
+                    app:layout_constraintBottom_toTopOf="@id/tv_modified_time"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="안녕하세요. 오늘 하루는 어떠셨나요?안녕하세요. 오늘 하루는 어떠셨나요?안녕하세요. 오늘 하루는 어떠셨나요?안녕하세요. 오늘 하루는 어떠셨나요?안녕하세요. 오늘 하루는 어떠셨나요?안녕하세요. 오늘 하루는 어떠셨나요?" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0.8dp"
+                    android:background="@color/colorDarkGray"
+                    app:layout_constraintBottom_toTopOf="@id/tv_modified_time"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_note_content" />
+
+                <TextView
+                    android:id="@+id/tv_modified_time"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="삭제" />
+                    android:gravity="right"
+                    android:padding="5dp"
+                    android:text="@{note._updateTimeStamp}"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_note_content"
+                    tools:text="Aug 12, 2020 1:34:34 AM" />
 
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 </layout>

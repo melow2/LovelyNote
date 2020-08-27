@@ -8,31 +8,31 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.khs.lovelynote.R
-import com.khs.lovelynote.databinding.BoardDetailBinding
+import com.khs.lovelynote.databinding.FragmentBoardDetailBinding
 import com.khs.lovelynote.extension.Constants.TAG_PARCELABLE_BOARD
-import com.khs.lovelynote.model.Board
+import com.khs.lovelynote.model.LovelyNote
 import com.khs.lovelynote.viewmodel.BoardDetailVM
 import com.khs.lovelynote.viewmodel.factory.BoardDetailVMFactory
 import timber.log.Timber
 
-class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
+class BoardDetailFragment : BaseFragment<FragmentBoardDetailBinding>() {
 
-    private var board: Board? = null
+    private var board: LovelyNote? = null
     private lateinit var boardDetailVM: BoardDetailVM
 
-    private val observer: Observer<Board?> =
-        Observer { board: Board? ->
+    private val observer: Observer<LovelyNote?> =
+        Observer { board: LovelyNote? ->
             board?.let {
-                mBinding?.board = board
+                // mBinding?.board = board
             }
         }
 
     companion object {
         @JvmStatic
-        fun newInstance(board: Board?) =
+        fun newInstance(board: LovelyNote?) =
             BoardDetailFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(TAG_PARCELABLE_BOARD, board)
+                    // putParcelable(TAG_PARCELABLE_BOARD, board)
                 }
             }
     }
@@ -44,7 +44,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            board = it.getParcelable(TAG_PARCELABLE_BOARD)
+           //  board = it.getParcelable(TAG_PARCELABLE_BOARD)
         }
     }
 
@@ -67,8 +67,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailBinding>() {
                 BoardDetailVM::class.java
             )
         board?.let {
-            boardDetailVM.setBoardItem(it)
-            boardDetailVM.getBoardItem().observe(viewLifecycleOwner, observer)
+
             this.lifecycle.addObserver(boardDetailVM)
         }
     }

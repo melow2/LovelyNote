@@ -43,37 +43,38 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     bottomAppBar.toggleFab()
                     when (mCurrentFabAlignmentMode) {
                         BottomAppBar.FAB_ALIGNMENT_MODE_CENTER -> {
-                                mBoardAddFragment = BoardAddFragment.newInstance("param1", "param1")
-                                ft.setCustomAnimations(
-                                    R.anim.enter_from_right,
-                                    R.anim.exit_to_left,
-                                    R.anim.enter_from_left,
-                                    R.anim.exit_to_right
-                                )
-                                ft.replace(
-                                    mBinding?.fragmentMainContainer?.id!!,
-                                    mBoardAddFragment,
-                                    TAG_ADD_FRAGMENT
-                                )
-                                ft.addToBackStack(TAG_ADD_FRAGMENT)
-                                ft.commitAllowingStateLoss()
-                            runOnUiThread {
-                                bottomAppBar.replaceMenu(bottom_app_bar_add)
-                                fab?.setImageDrawable(getDrawable(tag_plus))
-                                fab?.show()
-                            }
+                            mBoardAddFragment = BoardAddFragment.newInstance("param1", "param1")
+                            ft.setCustomAnimations(
+                                R.anim.enter_from_right,
+                                R.anim.exit_to_left,
+                                R.anim.enter_from_left,
+                                R.anim.exit_to_right
+                            )
+                            ft.replace(
+                                mBinding?.fragmentMainContainer?.id!!,
+                                mBoardAddFragment,
+                                TAG_ADD_FRAGMENT
+                            )
+                            ft.addToBackStack(TAG_ADD_FRAGMENT)
+                            ft.commitAllowingStateLoss()
+
+                            bottomAppBar.navigationIcon = null
+                            bottomAppBar.replaceMenu(bottom_app_bar_add)
+                            fab?.setImageDrawable(getDrawable(tag_plus))
+                            fab?.show()
+
                         }
                         BottomAppBar.FAB_ALIGNMENT_MODE_END -> {
                             mBoardAddFragment.save(System.currentTimeMillis().toString())
-                                fm.popBackStack(
-                                    TAG_ADD_FRAGMENT,
-                                    FragmentManager.POP_BACK_STACK_INCLUSIVE
-                                )
-                            runOnUiThread {
-                                bottomAppBar.replaceMenu(bottom_app_bar_main)
-                                fab?.setImageDrawable(getDrawable(ic_baseline_create_24))
-                                fab?.show()
-                            }
+                            fm.popBackStack(
+                                TAG_ADD_FRAGMENT,
+                                FragmentManager.POP_BACK_STACK_INCLUSIVE
+                            )
+
+                            bottomAppBar.navigationIcon = getDrawable(ic_baseline_menu)
+                            bottomAppBar.replaceMenu(bottom_app_bar_main)
+                            fab?.setImageDrawable(getDrawable(ic_baseline_create_24))
+                            fab?.show()
                         }
                     }
                 }
@@ -117,9 +118,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         mBinding?.apply {
             btnAdd.setOnClickListener {
                 mBinding?.btnAdd?.hide(addVisibilityChanged)
-                // invalidateOptionsMenu()
-                bottomAppBar.navigationIcon = if (bottomAppBar.navigationIcon != null) null
-                else getDrawable(ic_baseline_menu)
             }
         }
 

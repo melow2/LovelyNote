@@ -2,21 +2,14 @@ package com.khs.lovelynote.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.khs.lovelynote.model.Board
+import com.khs.lovelynote.model.LovelyNote
 import timber.log.Timber
 
 class BoardDetailVM(application: Application, private val param1: Int) :
     AndroidViewModel(application), LifecycleObserver {
     private val mContext = application.applicationContext
-    private var board: MutableLiveData<Board> = MutableLiveData()
+    private var board: MutableLiveData<LovelyNote> = MutableLiveData()
 
-    fun setBoardItem(item: Board) {
-        board.value = item
-    }
-
-    fun getBoardItem(): MutableLiveData<Board> {
-        return board
-    }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onCreate() {

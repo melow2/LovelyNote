@@ -33,7 +33,7 @@
         <activity
             android:name="com.khs.lovelynote.view.activity.ExoPlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
-        <activity android:name="com.khs.lovelynote.view.activity.BoardDetailActivity" />
+
         <activity
             android:name="com.khs.lovelynote.view.activity.MainActivity"
             android:isScrollContainer="true"

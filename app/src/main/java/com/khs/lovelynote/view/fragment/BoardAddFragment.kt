@@ -8,7 +8,9 @@ import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -175,7 +177,8 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     private fun initView() {
         mBinding?.tvTimestamp?.text = currentDate.normalTimeStamp()
-        mBinding?.edtContent?.onFocusChangeListener = KeyBoardActionBehavior(requireActivity()).focusChangeListener
+        mBinding?.edtContent?.onFocusChangeListener =
+            KeyBoardActionBehavior(requireActivity()).focusChangeListener
     }
 
     private fun setUpRecyclerView() {
@@ -786,10 +789,24 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
             )
         }
         val content = mBinding?.edtContent?.text?.toString()?.trim()
-        if(content.isNullOrEmpty() && mediaItemList.isNullOrEmpty()){
+        if (content.isNullOrEmpty() && mediaItemList.isNullOrEmpty()) {
             return
         }
-        val note = LovelyNote(Id.toLong(), content, mediaItemList, currentDate, currentDate)
+
+        var thumbnail = if (mediaItemList?.size != 0) {
+            mediaItemList?.get(0)?.contentUri
+        } else {
+            null
+        }
+        val note = LovelyNote(
+            Id.toLong(),
+            content,
+            thumbnail,
+            mediaItemList,
+            currentDate,
+            currentDate,
+            false
+        )
         boardAddVM.insertItem(note)
     }
 

@@ -262,7 +262,9 @@
 
             <View
                 android:id="@+id/div2"
-                style="@style/divider_horizontal"
+                android:layout_width="0dp"
+                android:layout_height="0.5dp"
+                android:background="@color/colorGray"
                 app:layout_constraintBottom_toTopOf="@id/tv_timestamp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -272,15 +274,26 @@
                 android:id="@+id/tv_timestamp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorLightYellow"
+                android:background="@android:color/white"
                 android:gravity="left"
                 android:padding="10dp"
-                android:textColor="@color/colorGray"
-                android:textSize="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="14dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@id/edt_content"
                 app:layout_constraintTop_toBottomOf="@id/div2"
                 tools:text="Aug 25, 2020 4:02:45 AM" />
+
+            <View
+                android:id="@+id/div3"
+                android:layout_width="0dp"
+                android:layout_height="0.5dp"
+                android:background="@color/colorGray"
+                app:layout_constraintBottom_toTopOf="@id/edt_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_timestamp" />
+
 
             <EditText
                 android:id="@+id/edt_content"
@@ -293,10 +306,12 @@
                 android:inputType="textMultiLine"
                 android:padding="10dp"
                 android:textIsSelectable="true"
-                android:textSize="16dp"
+                android:textSize="15dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_timestamp"
                 tools:text="Hello Stranger" />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

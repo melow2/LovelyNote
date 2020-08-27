@@ -13,4 +13,7 @@
     <color name="colorLightGreen">#13C31A</color>               <!-- 밝은 초록-->
     <color name="colorDarkGray">#353839</color>                 <!-- 어두운 회색-->
     <color name="colorDarkKhaki">#0e1111</color>                <!-- 카키 색 -->
+    <color name="bg_row_background">#fa315b</color>
+    <color name="item_name">#535353</color>
+    <color name="description">#a9a9a9</color>
 </resources>

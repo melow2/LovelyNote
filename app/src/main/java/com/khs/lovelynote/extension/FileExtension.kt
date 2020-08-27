@@ -74,43 +74,43 @@ fun Context.viewFile(filePath: Uri?, fileName: String?) {
     val fileLinkIntent = Intent(Intent.ACTION_VIEW).apply {
         addCategory(Intent.CATEGORY_DEFAULT)
     }
-    val file = File(filePath.toString(), fileName)
+    val file = File(filePath.toString(),fileName)
     val fileExtend = getExtension(file.absolutePath)
     if (fileExtend.equals(MP3, ignoreCase = true)) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), AUDIO_MIME_TYPE)
+        fileLinkIntent.setDataAndType(filePath, AUDIO_MIME_TYPE)
     } else if (fileExtend.equals(MP4, ignoreCase = true)) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), VIDEO_MIME_TYPE)
+        fileLinkIntent.setDataAndType(filePath, VIDEO_MIME_TYPE)
     } else if (fileExtend.equals(JPG, ignoreCase = true)
         || fileExtend.equals(JPEG, ignoreCase = true)
         || fileExtend.equals(GIF, ignoreCase = true)
         || fileExtend.equals(PNG, ignoreCase = true)
         || fileExtend.equals(BMP, ignoreCase = true)
     ) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), IMAGE_MIME_TYPE)
+        fileLinkIntent.setDataAndType(filePath, IMAGE_MIME_TYPE)
     } else if (fileExtend.equals(TXT, ignoreCase = true)) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), TXT_MIME_TYPE)
+        fileLinkIntent.setDataAndType(filePath, TXT_MIME_TYPE)
     } else if (fileExtend.equals(DOC, ignoreCase = true) || fileExtend.equals(
             DOCX,
             ignoreCase = true
         )
     ) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), APPLICATION_MSWORD)
+        fileLinkIntent.setDataAndType(filePath, APPLICATION_MSWORD)
     } else if (fileExtend.equals(XLS, ignoreCase = true) || fileExtend.equals(
             XLSX,
             ignoreCase = true
         )
     ) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), APPLICATION_XLSX)
+        fileLinkIntent.setDataAndType(filePath, APPLICATION_XLSX)
     } else if (fileExtend.equals(PPT, ignoreCase = true) || fileExtend.equals(
             PPTX,
             ignoreCase = true
         )
     ) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), APPLICATION_PPTX)
+        fileLinkIntent.setDataAndType(filePath, APPLICATION_PPTX)
     } else if (fileExtend.equals(PDF, ignoreCase = true)) {
         fileLinkIntent.setDataAndType(filePath, APPLICATION_PDF)
     } else if (fileExtend.equals(HWP, ignoreCase = true)) {
-        fileLinkIntent.setDataAndType(Uri.fromFile(file), APPLICATION_HWP)
+        fileLinkIntent.setDataAndType(filePath, APPLICATION_HWP)
     }
     val pm: PackageManager = this.packageManager
     val list = pm.queryIntentActivities(
@@ -120,7 +120,10 @@ fun Context.viewFile(filePath: Uri?, fileName: String?) {
     if (list.size == 0) {
         Toast.makeText(this, "$fileName need an app that can run.", Toast.LENGTH_SHORT).show()
     } else {
-        this.startActivity(fileLinkIntent)
+        this.startActivity(fileLinkIntent.apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        })
     }
 }
 

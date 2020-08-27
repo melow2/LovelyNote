@@ -15,6 +15,6 @@ interface NoteDao {
     @Query("DELETE FROM lovely_note")
     fun deleteAll()
 
-    @Query("SELECT * FROM lovely_note ")
+    @Query("SELECT * FROM lovely_note ORDER BY note_update_time DESC")
     fun getAll(): LiveData<List<LovelyNoteEntity>>?
 }

@@ -61,4 +61,4 @@ fun Long.parseTime(): String {
  * @since 2020-08-23 오후 1:10
  **/
 fun fileNameTimeStamp(): String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-fun Date.normalTimeStamp(): String = SimpleDateFormat("yyyy.MM.dd E HH:mm a").format(this)
+fun Date.normalTimeStamp(): String = SimpleDateFormat("yyyy.MM.dd E a HH:mm ").format(this)

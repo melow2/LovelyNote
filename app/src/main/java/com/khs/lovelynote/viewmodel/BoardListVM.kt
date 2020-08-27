@@ -2,38 +2,37 @@ package com.khs.lovelynote.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.khs.lovelynote.model.Board
+import androidx.paging.PagedList
+import com.khs.lovelynote.model.LovelyNote
+import com.khs.lovelynote.model.mediastore.MediaStoreItem
+import com.khs.lovelynote.model.mediastore.MediaStoreVideo
+import com.khs.lovelynote.repository.NoteRepository
 import timber.log.Timber
 
 class BoardListVM(application: Application, private val param1: Int) :
     AndroidViewModel(application),
     LifecycleObserver {
     private val mContext = application.applicationContext
-    private var boardList: MutableLiveData<List<Board>> = MutableLiveData()
+    private val noteRepository: NoteRepository = NoteRepository.getInstance(application)
+    private var mNoteList: MutableLiveData<List<LovelyNote>> = MutableLiveData()
 
-    fun getBoardList(): MutableLiveData<List<Board>> {
-        return boardList
+    init {
+        mNoteList = noteRepository.getAll() as MutableLiveData<List<LovelyNote>>
     }
 
-    fun addBoard(item: Board) {
-        var list = mutableListOf<Board>()
-        boardList.value?.let {
-            list = (boardList.value as MutableList).toMutableList() // for DiffUtil
-        }
-        list.add(item)
-        boardList.value = list
+    fun getNoteList(): LiveData<List<LovelyNote>>? {
+        return mNoteList
     }
 
-    fun getBoardItem(position: Int): Board? {
-        return boardList.value?.get(position)
+    fun removeItem(item: LovelyNote) {
+        noteRepository.delete(item)
     }
 
 
-    fun deleteBoardItem(position: Int) {
-        val list = (boardList.value as MutableList).toMutableList()
-        list.removeAt(position)
-        boardList.value = list
+    fun insert(item: LovelyNote) {
+        noteRepository.insert(item)
     }
+
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onCreate() {

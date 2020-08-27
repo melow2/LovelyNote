@@ -11,7 +11,7 @@ import androidx.core.view.ViewCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-class ScrollAwareFABBehavior : CoordinatorLayout.Behavior<FloatingActionButton> {
+class ScrollDownFABBehavior : CoordinatorLayout.Behavior<FloatingActionButton> {
     private var mHandler: Handler? = null
 
     constructor(context: Context?, attrs: AttributeSet?) : super() {}
@@ -27,7 +27,7 @@ class ScrollAwareFABBehavior : CoordinatorLayout.Behavior<FloatingActionButton> 
         if (mHandler == null) mHandler = Handler(Looper.getMainLooper())
         mHandler?.postDelayed(Runnable {
             child.animate().translationY(0f).setInterpolator(LinearInterpolator()).start()
-        }, 1000)
+        }, 200)
     }
 
     override fun onNestedScroll(

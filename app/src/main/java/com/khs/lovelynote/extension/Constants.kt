@@ -10,6 +10,7 @@ object Constants {
     const val TAG_AUDIO_DIALOG_FRAGMENT = "CURRENT_AUDIO_PLAYING"   // 오디오 파일 재생 fragment
 
     /** Media Type */
+    const val TAG_RECORD = "RECORD"
     const val TYPE_IMAGE = "image"
     const val TYPE_AUDIO = "audio"
     const val TYPE_VIDEO = "video"
