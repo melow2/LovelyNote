@@ -12,7 +12,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="fill_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
@@ -63,90 +63,98 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="5dp"
+                    android:orientation="horizontal"
                     android:paddingLeft="3dp">
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="File: "
                         android:textColor="@android:color/white"
-                        android:textSize="14dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textSize="14dp" />
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
                         android:text="@{audio.displayName}"
                         android:textColor="@android:color/white"
                         android:textSize="14dp"
-                        android:singleLine="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="Memory.mp3"/>
+                        tools:text="Memory.mp3" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginLeft="20dp"
+                    android:orientation="horizontal"
                     android:paddingLeft="3dp">
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Album: "
                         android:textColor="@android:color/white"
-                        android:textSize="14dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textSize="14dp" />
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
                         android:text="@{audio.album}"
                         android:textColor="@android:color/white"
                         android:textSize="14dp"
-                        android:singleLine="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="동행"/>
+                        tools:text="동행" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginLeft="20dp"
+                    android:orientation="horizontal"
                     android:paddingLeft="3dp">
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Duration: "
                         android:textColor="@android:color/white"
-                        android:textSize="14dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textSize="14dp" />
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
                         android:text="@{audio.duration}"
                         android:textColor="@android:color/white"
                         android:textSize="14dp"
-                        android:singleLine="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="00:00"/>
+                        tools:text="00:00" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginLeft="20dp"
+                    android:orientation="horizontal"
                     android:paddingLeft="3dp">
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Last Modified: "
                         android:textColor="@android:color/white"
-                        android:textSize="14dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textSize="14dp" />
+
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
                         android:text="@{audio._dateTaken}"
                         android:textColor="@android:color/white"
                         android:textSize="14dp"
-                        android:singleLine="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="2020/10/22 00:00:00"/>
+                        tools:text="2020/10/22 00:00:00" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -202,13 +210,14 @@
                     android:id="@+id/audio_seek_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="7dp"/>
+                    android:layout_margin="7dp" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal">
+
                     <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/btn_back_ward"
                         android:layout_width="wrap_content"
@@ -225,9 +234,9 @@
                         android:id="@+id/btn_pause"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_baseline_pause_circle_outline_64"
+                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toRightOf="@id/btn_back_ward"
                         app:layout_constraintRight_toLeftOf="@id/btn_front_ward"
@@ -237,10 +246,10 @@
                         android:id="@+id/btn_temp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:visibility="invisible"
                         android:layout_margin="10dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_baseline_play_circle_outline_green_64"
+                        android:visibility="invisible"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toRightOf="@id/btn_back_ward"
                         app:layout_constraintRight_toLeftOf="@id/btn_front_ward"

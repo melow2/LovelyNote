@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/navigation_item_version"
+            android:icon="@drawable/icon_version"
+            android:title="버전확인" />
+
+
+<!--        <item
+            android:id="@+id/navigation_item_location"
+            android:icon="@drawable/ic_place"
+            android:title="@string/nav_item_location" />-->
+    </group>
+
+<!--    <item android:title="@string/nav_sub_menu">
+        <icon_menu>
+            <item
+                android:icon="@drawable/ic_emoticon"
+                android:id="@+id/nav_sub_menu_item01"
+                android:title="@string/nav_sub_menu_item01" />
+            <item
+                android:icon="@drawable/ic_emoticon"
+                android:id="@+id/nav_sub_menu_item02"
+                android:title="@string/nav_sub_menu_item02" />
+        </icon_menu>
+    </item>-->
+</menu>

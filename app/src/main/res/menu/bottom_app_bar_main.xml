@@ -3,15 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/search"
-        android:icon="@drawable/ic_baseline_search_24"
-        android:title="Search"
-        android:contentDescription="Search"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/app_bar_fav"
+        android:icon="@drawable/ic_baseline_create_24"
+        android:title="adf"
+        app:showAsAction="never" />
 
     <item
-        android:id="@+id/more"
-        android:title="More"
-        android:contentDescription="More"
+        android:id="@+id/app_bar_search"
+        android:icon="@drawable/ic_baseline_search_24"
+        android:title="adfad"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/app_bar_settings"
+        android:title="adfadf"
         app:showAsAction="never" />
 </menu>

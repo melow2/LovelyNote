@@ -29,7 +29,7 @@ class BoardListVM(application: Application, private val param1: Int) :
     }
 
 
-    fun insert(item: LovelyNote) {
+    fun insertItem(item: LovelyNote) {
         noteRepository.insert(item)
     }
 

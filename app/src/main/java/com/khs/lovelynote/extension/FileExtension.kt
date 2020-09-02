@@ -74,7 +74,7 @@ fun Context.viewFile(filePath: Uri?, fileName: String?) {
     val fileLinkIntent = Intent(Intent.ACTION_VIEW).apply {
         addCategory(Intent.CATEGORY_DEFAULT)
     }
-    val file = File(filePath.toString(),fileName)
+    val file = File(filePath.toString(), fileName)
     val fileExtend = getExtension(file.absolutePath)
     if (fileExtend.equals(MP3, ignoreCase = true)) {
         fileLinkIntent.setDataAndType(filePath, AUDIO_MIME_TYPE)
@@ -141,7 +141,8 @@ fun Context.viewFile(filePath: Uri?, fileName: String?) {
  **/
 fun Context.copyContentUri(sourceUri: Uri?, destFile: File): Uri? {
     try {
-        val inputStream: InputStream = sourceUri?.let { contentResolver.openInputStream(it) } ?: return null
+        val inputStream: InputStream =
+            sourceUri?.let { contentResolver.openInputStream(it) } ?: return null
         val outputStream: OutputStream = FileOutputStream(destFile)
         IOUtils.copy(inputStream, outputStream)
         inputStream.close()
@@ -205,7 +206,7 @@ fun Context.createMediaFile(dirId: String, mediaItem: MediaStoreItem?): File {
     if (!dirPath.exists()) {
         dirPath.mkdirs()
     }
-    val file = File(Uri.parse(mediaItem?.contentUri).path, mediaItem?.displayName)
+    val file = File(Uri.parse(mediaItem?.contentUri).path)
     val fileName = file.name.substringBeforeLast('.')
     var fileExtend = getExtension(file.absolutePath)
     if (fileExtend.isEmpty()) {
@@ -230,6 +231,28 @@ fun Uri.delete(contentResolver: ContentResolver) {
     contentResolver.delete(this, null, null)
 }
 
+/**
+ * 디렉토리 삭제.
+ *
+ * @param mRootPath 디렉토리 경로
+ * @author 권혁신
+ * @version 1.0.0
+ * @since 2020-09-02 오전 10:42
+ **/
+fun Context.clearDirData(dirId: String) {
+    val dirPath = File(getExternalFilesDir(null), dirId)
+    val childList = dirPath.listFiles()
+    if(dirPath.exists()){
+        for(file in childList){
+            if(file.isDirectory){
+                clearDirData(file.absolutePath)
+            }else{
+                file.delete()
+            }
+        }
+        dirPath.delete()
+    }
+}
 
 /**
  * 모든 캐시 데이터를 삭제.
@@ -249,6 +272,19 @@ fun Context.clearCacheData() {
             }
         }
     }
+}
+
+
+fun Context.isFileExist(dirId:String,fName:String): Boolean {
+    val dirPath = File(getExternalFilesDir(null), dirId)
+    val childList = dirPath.listFiles()
+    if(dirPath.exists()){
+        for(file in childList){
+            if(file.name == fName)
+                return true
+        }
+    }
+    return false
 }
 
 /**

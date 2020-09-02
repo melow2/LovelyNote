@@ -8,13 +8,16 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.khs.lovelynote.R
 import com.khs.lovelynote.databinding.BoardItemBinding
+import com.khs.lovelynote.extension.Constants
 import com.khs.lovelynote.extension.Constants.TAG_RECORD
 import com.khs.lovelynote.extension.getMediaMetaData
 import com.khs.lovelynote.extension.parseTime
@@ -25,6 +28,8 @@ import com.khs.lovelynote.model.mediastore.MediaStoreFileType
 import com.khs.lovelynote.model.mediastore.MediaStoreVideo
 import com.khs.lovelynote.module.glide.GlideImageLoader
 import com.khs.lovelynote.module.glide.ProgressAppGlideModule
+import com.khs.lovelynote.view.dialog.AudioPlayDialogFragment
+import com.khs.lovelynote.view.dialog.ImageViewDialogFragment
 import timber.log.Timber
 
 class LovelyNoteListAdapter(
@@ -34,13 +39,13 @@ class LovelyNoteListAdapter(
     private lateinit var mBinding: BoardItemBinding
     private var listener: LovelyNoteEventListener? = null
     private val handler = Handler(Looper.getMainLooper())
+    private var unFilteredList = listOf<LovelyNote>()
 
     interface LovelyNoteEventListener {
-        fun onClick(position: Int)
-        fun onDelete(position: Int)
+        fun onClick(position: LovelyNote)
         fun onPlayAudio(item: MediaStoreAudio)
-        fun onPlayVideo(item:MediaStoreVideo)
-        fun onOpenFile(item:MediaStoreFile)
+        fun onPlayVideo(item: MediaStoreVideo)
+        fun onOpenFile(item: MediaStoreFile)
     }
 
     fun addEventListener(listener: LovelyNoteEventListener) {
@@ -48,7 +53,7 @@ class LovelyNoteListAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return currentList[position].Id!!
+        return unFilteredList[position].Id!!
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -58,6 +63,7 @@ class LovelyNoteListAdapter(
         )
         return NoteViewHolder(mBinding)
     }
+
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val board = getItem(position)
@@ -78,12 +84,21 @@ class LovelyNoteListAdapter(
                         MediaStoreAudio(
                             this?.id!!, // id never be null
                             this.dateTaken,
-                            this.displayName ?:TAG_RECORD,
+                            this.displayName ?: TAG_RECORD,
                             this.contentUri,
                             this.type,
-                            mContext.getMediaMetaData(contentUri, MediaMetadataRetriever.METADATA_KEY_ALBUM)?: TAG_RECORD,
-                            mContext.getMediaMetaData(contentUri, MediaMetadataRetriever.METADATA_KEY_TITLE)?: TAG_RECORD,
-                            mContext.getMediaMetaData(contentUri, MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            mContext.getMediaMetaData(
+                                contentUri,
+                                MediaMetadataRetriever.METADATA_KEY_ALBUM
+                            ) ?: TAG_RECORD,
+                            mContext.getMediaMetaData(
+                                contentUri,
+                                MediaMetadataRetriever.METADATA_KEY_TITLE
+                            ) ?: TAG_RECORD,
+                            mContext.getMediaMetaData(
+                                contentUri,
+                                MediaMetadataRetriever.METADATA_KEY_DURATION
+                            )
                         )
                     }
                     listener?.onPlayAudio(audioItem)
@@ -97,7 +112,10 @@ class LovelyNoteListAdapter(
                             this.displayName,
                             this.contentUri,
                             this.type,
-                            mContext.getMediaMetaData(contentUri, MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            mContext.getMediaMetaData(
+                                contentUri,
+                                MediaMetadataRetriever.METADATA_KEY_DURATION
+                            )
                         )
                     }
                     listener?.onPlayVideo(videoItem)
@@ -114,60 +132,85 @@ class LovelyNoteListAdapter(
                     }
                     listener?.onOpenFile(fileItem)
                 }
+                rootContentLyt.setOnClickListener {
+                    listener?.onClick(getItem(adapterPosition))
+                }
             }
         }
 
-        fun bind(note:LovelyNote) {
+        fun bind(note: LovelyNote) {
             Timber.d("bind, note: ${note.thumbnail}")
             mBinding.apply {
                 this.note = note
-                if(note.mediaItems?.size==0){
+                if (note.mediaItems?.size == 0) {
                     tvItemCount.visibility = View.INVISIBLE
                     ivThumbnailImage.visibility = View.VISIBLE
                     Glide.with(mContext).load(R.drawable.ic_no_photos).into(ivThumbnailImage)
-                }else{
-                    when(note.mediaItems?.get(0)?.type){
-                        MediaStoreFileType.IMAGE ->{
+                } else {
+                    when (note.mediaItems?.get(0)?.type) {
+                        MediaStoreFileType.IMAGE -> {
                             handler.post {
-                                ivThumbnailImage.visibility = View.VISIBLE
+                                ivThumbnailImage.apply {
+                                    visibility = View.VISIBLE
+                                    setOnClickListener {
+                                        val dialog=  ImageViewDialogFragment.newInstance(note._thumbnail,ViewCompat.getTransitionName(this))
+                                        val fragmentManager = (mContext as AppCompatActivity).supportFragmentManager
+                                        val ft = fragmentManager.beginTransaction()
+                                        val prev = fragmentManager.findFragmentByTag(Constants.TAG_IMAGE_DIALOG)
+                                        prev?.let {
+                                            ft.remove(prev)
+                                        }
+                                        ft.addToBackStack(null)
+                                        dialog.show(ft, Constants.TAG_IMAGE_DIALOG)
+                                    }
+                                }
                                 tvItemCount.text = note.mediaItems?.size.toString()
                                 GlideImageLoader(
                                     ivThumbnailImage,
                                     null
-                                ).load(note.thumbnail,
+                                ).load(
+                                    note._thumbnail,
                                     ProgressAppGlideModule.requestOptions(mContext)
                                 )
+
                             }
                         }
-                        MediaStoreFileType.AUDIO->{
-                            handler.post{
+                        MediaStoreFileType.AUDIO -> {
+                            handler.post {
                                 rootLytThumbnailAudio.visibility = View.VISIBLE
                                 val contentUri = Uri.parse(note.mediaItems?.get(0)?.contentUri)
-                                val duration = mContext.getMediaMetaData(contentUri, MediaMetadataRetriever.METADATA_KEY_DURATION)
+                                val duration = mContext.getMediaMetaData(
+                                    contentUri,
+                                    MediaMetadataRetriever.METADATA_KEY_DURATION
+                                )
                                 tvAudioDuration.text = duration?.toLong()?.parseTime()
                                 tvItemCount.text = note.mediaItems?.size.toString()
                                 //  Glide.with(mContext).load(R.drawable.ic_no_photos).into(ivThumbnail)
                             }
                         }
 
-                        MediaStoreFileType.VIDEO->{
-                            handler.post{
+                        MediaStoreFileType.VIDEO -> {
+                            handler.post {
                                 rootLytThumbnailVideo.visibility = View.VISIBLE
                                 GlideImageLoader(
                                     ivThumbnailVideo,
                                     null
-                                ).load(note.thumbnail,
+                                ).load(
+                                    note._thumbnail,
                                     ProgressAppGlideModule.requestOptions(mContext)
                                 )
                                 val contentUri = Uri.parse(note.mediaItems?.get(0)?.contentUri)
-                                val duration = mContext.getMediaMetaData(contentUri, MediaMetadataRetriever.METADATA_KEY_DURATION)
+                                val duration = mContext.getMediaMetaData(
+                                    contentUri,
+                                    MediaMetadataRetriever.METADATA_KEY_DURATION
+                                )
                                 tvVideoDuration.text = duration?.toLong()?.parseTime()
                                 tvItemCount.text = note.mediaItems?.size.toString()
                                 //  Glide.with(mContext).load(R.drawable.ic_no_photos).into(ivThumbnail)
                             }
                         }
-                        MediaStoreFileType.FILE->{
-                            handler.post{
+                        MediaStoreFileType.FILE -> {
+                            handler.post {
                                 rootLytThumbnailFile.visibility = View.VISIBLE
                                 tvFileName.text = note.mediaItems?.get(0)?.displayName
                                 tvItemCount.text = note.mediaItems?.size.toString()
@@ -178,6 +221,34 @@ class LovelyNoteListAdapter(
                 }
             }
         }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return getItem(position).Id?.toInt()!!
+    }
+
+    fun modifyList(list: List<LovelyNote>) {
+        unFilteredList = list
+        submitList(list)
+    }
+
+    fun filter(query: CharSequence?) {
+        val list = mutableListOf<LovelyNote>()
+
+        // perform the data filtering
+        if(!query.isNullOrEmpty()) {
+            for(note in unFilteredList){
+                val content = note.content?.toLowerCase()
+                content?.let{
+                    if(it.contains(query.toString().toLowerCase())){
+                        list.add(note)
+                    }
+                }
+            }
+        } else {
+            list.addAll(unFilteredList)
+        }
+        submitList(list)
     }
 
 }

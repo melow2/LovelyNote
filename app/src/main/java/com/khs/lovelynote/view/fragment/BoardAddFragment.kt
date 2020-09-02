@@ -8,12 +8,12 @@ import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
@@ -39,6 +39,7 @@ import com.khs.lovelynote.model.mediastore.*
 import com.khs.lovelynote.module.glide.GlideImageLoader
 import com.khs.lovelynote.module.glide.ProgressAppGlideModule
 import com.khs.lovelynote.view.activity.ExoPlayerActivity
+import com.khs.lovelynote.view.activity.MainActivity
 import com.khs.lovelynote.view.activity.MediaStoreViewPagerActivity
 import com.khs.lovelynote.view.adapter.MediaAudioPagedAdapter
 import com.khs.lovelynote.view.adapter.MediaImagePagedAdapter
@@ -65,6 +66,7 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
     private lateinit var mediaVideoPagedAdapter: MediaVideoPagedAdapter
     private lateinit var selectedListAdapter: SelectedMediaFileListAdapter
     private lateinit var audioRecording: AudioRecording
+    private lateinit var mActivity:MainActivity
     private val currentDate = Date()
 
     companion object {
@@ -147,7 +149,6 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,11 +160,18 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu.clear()
+        inflater.inflate(R.menu.toolbar_menu_add,menu)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         bindView(inflater, container!!, R.layout.fragment_add_board)
+        mActivity = activity as MainActivity
         return mBinding?.root
     }
 
@@ -177,8 +185,7 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     private fun initView() {
         mBinding?.tvTimestamp?.text = currentDate.normalTimeStamp()
-        mBinding?.edtContent?.onFocusChangeListener =
-            KeyBoardActionBehavior(requireActivity()).focusChangeListener
+        mBinding?.edtContent?.onFocusChangeListener = KeyBoardActionBehavior(requireActivity()).focusChangeListener
     }
 
     private fun setUpRecyclerView() {
@@ -805,7 +812,8 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
             mediaItemList,
             currentDate,
             currentDate,
-            false
+            isHold = false,
+            isLock = false
         )
         boardAddVM.insertItem(note)
     }
@@ -821,7 +829,16 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
     }
 
     override fun onBackPressed(): Boolean {
-        return false
+        mActivity.apply{
+            toggleFab()
+            changeFabImage(getDrawable(R.drawable.tag_plus))
+            changeToolBar(getString(applicationInfo.labelRes),R.drawable.ic_baseline_menu)
+        }
+        parentFragmentManager.popBackStack(
+            Constants.TAG_ADD_FRAGMENT,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
+        return true
     }
 
 }

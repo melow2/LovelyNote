@@ -1,17 +1,12 @@
 package com.khs.lovelynote.view.fragment
 
 import android.content.Context
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -20,14 +15,12 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.khs.lovelynote.R
 import com.khs.lovelynote.databinding.FragmentListBinding
-import com.khs.lovelynote.extension.Constants
-import com.khs.lovelynote.extension.viewFile
+import com.khs.lovelynote.extension.*
 import com.khs.lovelynote.model.LovelyNote
-import com.khs.lovelynote.model.mediastore.MediaStoreAudio
-import com.khs.lovelynote.model.mediastore.MediaStoreFile
-import com.khs.lovelynote.model.mediastore.MediaStoreVideo
+import com.khs.lovelynote.model.mediastore.*
 import com.khs.lovelynote.util.RecyclerItemTouchHelper
 import com.khs.lovelynote.view.activity.ExoPlayerActivity
+import com.khs.lovelynote.view.activity.MainActivity
 import com.khs.lovelynote.view.adapter.LovelyNoteListAdapter
 import com.khs.lovelynote.view.dialog.AudioPlayDialogFragment
 import com.khs.lovelynote.viewmodel.BoardListVM
@@ -42,7 +35,8 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
 
     private var param1: String? = null
     private var param2: String? = null
-    private var listAdapter: LovelyNoteListAdapter? = null
+    private var mActivity: MainActivity? = null
+    var listAdapter: LovelyNoteListAdapter? = null
     private lateinit var boardListVM: BoardListVM
     private val handler = Handler(Looper.getMainLooper())
 
@@ -50,13 +44,13 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
         Observer { notes: List<LovelyNote>? ->
             notes?.let {
                 listAdapter?.apply {
-                    submitList(it)
+                    modifyList(it)
                     val currentSize = this.currentList.size
                     val nextSize = it.size
-                    if(currentSize<nextSize){
+                    if (currentSize < nextSize) {
                         handler.postDelayed({
                             mBinding?.rcvBoardList?.smoothScrollToPosition(0)
-                        },100)
+                        }, 100)
                     }
                 }
             }
@@ -93,13 +87,19 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
         savedInstanceState: Bundle?
     ): View? {
         bindView(inflater, container!!, R.layout.fragment_list)
+        mActivity = activity as MainActivity
         return mBinding?.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val context = view.context
-        listAdapter = LovelyNoteListAdapter(context).apply { addEventListener(this@BoardListFragment) }
+        listAdapter =
+            LovelyNoteListAdapter(context).apply { addEventListener(this@BoardListFragment) }
         mBinding?.rcvBoardList?.run {
             layoutManager = StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL)
             adapter = listAdapter
@@ -126,14 +126,17 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
             val item = listAdapter?.currentList?.get(viewHolder.adapterPosition)
             item?.apply {
                 boardListVM.removeItem(this)
+                // requireContext().clearDirData(this.Id.toString())
                 val marginSide = 0
-                val marginBottom = 300
+                val marginBottom = 265
                 val snackbar = Snackbar.make(
                     requireView().rootView.findViewById(R.id.root_main_lyt),
                     "Item was removed from the list.",
                     Snackbar.LENGTH_LONG
                 )
                 val params = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+//                params.anchorGravity = Gravity.TOP
+//                params.gravity = Gravity.TOP
                 snackbar.view.layoutParams = params
                 params.setMargins(
                     params.leftMargin + marginSide,
@@ -141,15 +144,28 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
                     params.rightMargin + marginSide,
                     params.bottomMargin + marginBottom
                 )
-                snackbar.setAction("UNDO"){
-                    boardListVM.insert(item)
+                snackbar.setAction("UNDO") {
+                    boardListVM.insertItem(item)
+                    // item.mediaItems?.restoreFiles(item.Id)
                     handler.postDelayed({
                         mBinding?.rcvBoardList?.smoothScrollToPosition(position)
-                    }
-                    ,100)
+                    }, 100)
                 }.show()
             }
+        }
+    }
 
+    fun List<MediaStoreItem>.restoreFiles(dirId:Long?){
+        for (target in this) {
+            val scheme = Uri.parse(target.contentUri)?.scheme
+            val tempFile = context?.createMediaFile(dirId.toString(), target)
+            var savedUri: Uri? = null
+            tempFile?.let {
+                savedUri = if (scheme.equals("content", ignoreCase = true))
+                    context?.copyContentUri(Uri.parse(target.contentUri), it)
+                else
+                    context?.copyStorageUri(Uri.parse(target.contentUri), it)
+            }
         }
     }
 
@@ -167,12 +183,24 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
         return false
     }
 
-    override fun onClick(position: Int) {
-
-    }
-
-    override fun onDelete(position: Int) {
-
+    override fun onClick(note: LovelyNote) {
+        val ft = parentFragmentManager.beginTransaction()
+        val detailFragment = BoardDetailFragment.newInstance(note.Id!!,note.mediaItems?.size!!)
+        ft.apply {
+            replace(
+                R.id.fragment_main_container,
+                detailFragment,
+                Constants.TAG_DETAIL_FRAGMENT
+            )
+            addToBackStack(Constants.TAG_DETAIL_FRAGMENT)
+            setReorderingAllowed(true) // 트랜지션 최적화
+            commitAllowingStateLoss()
+        }
+        mActivity?.apply {
+            toggleFab()
+            changeFabImage(getDrawable(R.drawable.ic_baseline_create_24))
+            changeToolBar("Modify", R.drawable.ic_baseline_arrow_back_24)
+        }
     }
 
     override fun onPlayAudio(item: MediaStoreAudio) {
@@ -192,9 +220,8 @@ class BoardListFragment : BaseFragment<FragmentListBinding>(),
     }
 
     override fun onOpenFile(item: MediaStoreFile) {
-        val temp = URLDecoder.decode(item.contentUri,"UTF-8")
-        requireContext().viewFile(Uri.parse(temp),item.displayName)
+        val temp = URLDecoder.decode(item.contentUri, "UTF-8")
+        requireContext().viewFile(Uri.parse(temp), item.displayName)
     }
-
 
 }

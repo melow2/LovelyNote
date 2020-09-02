@@ -137,6 +137,7 @@ class ExoPlayerActivity : BaseActivity<ActivityExoPlayerBinding>(), Player.Event
         resumePlayer()
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
         releasePlayer()

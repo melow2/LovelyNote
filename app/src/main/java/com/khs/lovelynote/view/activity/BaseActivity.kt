@@ -1,15 +1,10 @@
 package com.khs.lovelynote.view.activity
 
-import android.R
 import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
@@ -19,35 +14,48 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
+import com.khs.lovelynote.R
 import com.khs.lovelynote.view.fragment.BaseFragment
 
 
 abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
     var mBinding: B? = null
-    lateinit var toolbar: Toolbar
-    var mLayout:Int = 0
+    lateinit var mToolbar: Toolbar
+    private lateinit var mTitle:TextView
 
     protected fun bindView(layout: Int) {
         mBinding = DataBindingUtil.setContentView<B>(this, layout)
-        this.mLayout = layout
     }
 
-    protected fun setToolbar(
+    protected fun setToolBar(
         toolbar: Toolbar,
         backBtnVisible: Boolean,
         toolbarTitle: String,
         tvToolbarTitle: TextView
     ) {
-        this.toolbar = toolbar
-        toolbar.title = "" // 기존의 툴바 타이틀 제거.
-        toolbar.setContentInsetsAbsolute(0, 0) // 좌우 여백 제거.
+        this.mToolbar = toolbar
+        toolbar.apply {
+            title = "" // 기존의 툴바 타이틀 제거.
+            setContentInsetsAbsolute(0, 0) // 좌우 여백 제거.
+        }
+        mTitle = tvToolbarTitle
         tvToolbarTitle.text = toolbarTitle
         if (backBtnVisible) { // 뒤로가기 버튼 보이기.
-            toolbar.setNavigationOnClickListener { v: View? -> onBackPressed() }
+            toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        } else{
+            toolbar.setNavigationIcon(R.drawable.ic_baseline_menu)
         }
         setSupportActionBar(toolbar)
+    }
+
+    fun changeToolBar(
+        toolbarTitle: String,
+        navigationIcon: Int
+    ) {
+        mToolbar.title = ""
+        mTitle.text = toolbarTitle
+        mToolbar.setNavigationIcon(navigationIcon)
     }
 
     override fun onBackPressed() {
@@ -75,7 +83,8 @@ abstract class BaseActivity<B : ViewDataBinding?> : AppCompatActivity() {
                 v.getGlobalVisibleRect(outRect)
                 if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
                     v.clearFocus()
-                    val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    val imm: InputMethodManager =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
                 }
             }

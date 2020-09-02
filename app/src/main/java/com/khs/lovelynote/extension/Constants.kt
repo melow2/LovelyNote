@@ -3,11 +3,13 @@ package com.khs.lovelynote.extension
 object Constants {
 
     /** Fragment Tag */
-    const val TAG_PARCELABLE_BOARD = "ITEM_BOARD"                   // parcelable board item
+    const val TAG_NOTE_ID = "ITEM_NOTE"                             // note id
+    const val TAG_MEDIA_ITEM_SIZE = "TAG_MEDIA_ITEM_SIZE"           // media item size
     const val TAG_LIST_FRAGMENT = "TAG_LIST_FRAGMENT"               // list fragment tag
     const val TAG_DETAIL_FRAGMENT = "TAG_DETAIL_FRAGMENT"           // detail fragment tag
     const val TAG_ADD_FRAGMENT = "TAG_DETAIL_FRAGMENT"              // add fragment tag
-    const val TAG_AUDIO_DIALOG_FRAGMENT = "CURRENT_AUDIO_PLAYING"   // 오디오 파일 재생 fragment
+    const val TAG_AUDIO_DIALOG_FRAGMENT = "CURRENT_AUDIO_PLAYING_DIALOG"   // 오디오 파일 재생 fragment
+    const val TAG_IMAGE_DIALOG = "TAG_IMAGE_DIALOG"
 
     /** Media Type */
     const val TAG_RECORD = "RECORD"
@@ -47,9 +49,9 @@ object Constants {
         최초 500개를 불러 들이고, 500개부터 다음페이지를 미리 불러오니, 바로 다음페이지 100개 불러들임.
         페이지가 넘어갈 때 마다 100개씩 자동으로 읽음.
      */
-    const val PAGE_SIZE = 100                   // 페이징당 개수.
-    const val INITIAL_LOAD_SIZE_HINT = 500      // 최초 개수.
-    const val PREFETCH_DISTANCE = 500           // 500개부터 다음 페이지를 미리 불러오기.
+    const val PAGE_SIZE = 50                   // 페이징당 개수.
+    const val INITIAL_LOAD_SIZE_HINT = 100      // 최초 개수.
+    const val PREFETCH_DISTANCE = 1000           // 500개부터 다음 페이지를 미리 불러오기.
 
     /** RecyclerView */
     const val MEDIA_RCV_HEIGHT = 720            // expand height

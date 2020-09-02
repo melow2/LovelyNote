@@ -1,21 +1,25 @@
 package com.khs.lovelynote.view.activity
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.khs.lovelynote.R
-import com.khs.lovelynote.R.drawable.*
-import com.khs.lovelynote.R.menu.bottom_app_bar_add
-import com.khs.lovelynote.R.menu.bottom_app_bar_main
 import com.khs.lovelynote.databinding.ActivityMainBinding
 import com.khs.lovelynote.extension.Constants.TAG_ADD_FRAGMENT
+import com.khs.lovelynote.extension.Constants.TAG_DETAIL_FRAGMENT
 import com.khs.lovelynote.extension.Constants.TAG_LIST_FRAGMENT
 import com.khs.lovelynote.view.fragment.BoardAddFragment
+import com.khs.lovelynote.view.fragment.BoardDetailFragment
 import com.khs.lovelynote.view.fragment.BoardListFragment
 
 
@@ -29,66 +33,39 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private var mCurrentFabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
     private var mHandler: Handler = Handler(Looper.getMainLooper())
 
-    private val addVisibilityChanged: FloatingActionButton.OnVisibilityChangedListener =
-        object : FloatingActionButton.OnVisibilityChangedListener() {
-            override fun onShown(fab: FloatingActionButton?) {
-                super.onShown(fab)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu_main, menu)
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
             }
 
-            override fun onHidden(fab: FloatingActionButton?) {
-                super.onHidden(fab)
-                val fm = supportFragmentManager
-                val ft = fm.beginTransaction()
-                mBinding?.apply {
-                    bottomAppBar.toggleFab()
-                    when (mCurrentFabAlignmentMode) {
-                        BottomAppBar.FAB_ALIGNMENT_MODE_CENTER -> {
-                            mBoardAddFragment = BoardAddFragment.newInstance("param1", "param1")
-                            ft.setCustomAnimations(
-                                R.anim.enter_from_right,
-                                R.anim.exit_to_left,
-                                R.anim.enter_from_left,
-                                R.anim.exit_to_right
-                            )
-                            ft.replace(
-                                mBinding?.fragmentMainContainer?.id!!,
-                                mBoardAddFragment,
-                                TAG_ADD_FRAGMENT
-                            )
-                            ft.addToBackStack(TAG_ADD_FRAGMENT)
-                            ft.commitAllowingStateLoss()
-
-                            bottomAppBar.navigationIcon = null
-                            bottomAppBar.replaceMenu(bottom_app_bar_add)
-                            fab?.setImageDrawable(getDrawable(tag_plus))
-                            fab?.show()
-
-                        }
-                        BottomAppBar.FAB_ALIGNMENT_MODE_END -> {
-                            mBoardAddFragment.save(System.currentTimeMillis().toString())
-                            fm.popBackStack(
-                                TAG_ADD_FRAGMENT,
-                                FragmentManager.POP_BACK_STACK_INCLUSIVE
-                            )
-
-                            bottomAppBar.navigationIcon = getDrawable(ic_baseline_menu)
-                            bottomAppBar.replaceMenu(bottom_app_bar_main)
-                            fab?.setImageDrawable(getDrawable(ic_baseline_create_24))
-                            fab?.show()
-                        }
-                    }
-                }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                mBoardListFragment.listAdapter?.filter(newText)
+                return false
             }
-        }
-
+        })
+        return super.onCreateOptionsMenu(menu)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bindView(R.layout.activity_main)
+
+        setToolBar(
+            mBinding?.toolbar as Toolbar,
+            false,
+            getString(applicationInfo.labelRes),
+            findViewById(R.id.tv_title)
+        )
+
         TedPermission.with(this)
             .setPermissionListener(object : PermissionListener {
                 override fun onPermissionGranted() {
                     init(savedInstanceState)
+                    setNavigation()
                 }
 
                 override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
@@ -109,28 +86,118 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         if (savedInstanceState == null) {
             val ft = fm.beginTransaction()
             mBoardListFragment = BoardListFragment.newInstance("param1", "param2")
-            ft.add(mBinding?.fragmentMainContainer?.id!!, mBoardListFragment, TAG_LIST_FRAGMENT)
-                .commit()
+            ft.apply {
+                add(mBinding?.fragmentMainContainer?.id!!, mBoardListFragment, TAG_LIST_FRAGMENT)
+                commit()
+            }
         } else {
             mBoardListFragment = fm.findFragmentByTag(TAG_LIST_FRAGMENT) as BoardListFragment
         }
 
-        mBinding?.apply {
-            btnAdd.setOnClickListener {
-                mBinding?.btnAdd?.hide(addVisibilityChanged)
+        mBinding?.btnAdd?.apply {
+            setOnClickListener {
+                val fm = supportFragmentManager
+                val ft = fm.beginTransaction()
+                val currentFragment = fm.findFragmentById(R.id.fragment_main_container)
+                mBinding?.apply {
+                    toggleFab()
+                    when (mCurrentFabAlignmentMode) {
+                        BottomAppBar.FAB_ALIGNMENT_MODE_CENTER -> {
+                            mBoardAddFragment = BoardAddFragment.newInstance("param1", "param1")
+                            ft.apply {
+                                replace(
+                                    mBinding?.fragmentMainContainer?.id!!,
+                                    mBoardAddFragment,
+                                    TAG_ADD_FRAGMENT
+                                )
+                                addToBackStack(TAG_ADD_FRAGMENT)
+                                setReorderingAllowed(true) // 트랜지션 최적화
+                                commitAllowingStateLoss()
+                            }
+                            // bottomAppBar.navigationIcon = null
+                            // bottomAppBar.replaceMenu(bottom_app_bar_add)
+                            mHandler.post {
+                                changeToolBar("Write", R.drawable.ic_baseline_arrow_back_24)
+                                changeFabImage(getDrawable(R.drawable.ic_baseline_create_24))
+                            }
+                        }
+                        BottomAppBar.FAB_ALIGNMENT_MODE_END -> {
+                            when (currentFragment) {
+                                is BoardAddFragment ->{
+                                    mBoardAddFragment.save(System.currentTimeMillis().toString())
+                                    fm.popBackStack(
+                                        TAG_ADD_FRAGMENT,
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE
+                                    )
+                                    // bottomAppBar.navigationIcon = getDrawable(ic_baseline_menu)
+                                    // bottomAppBar.replaceMenu(bottom_app_bar_main)
+                                    mHandler.post {
+                                        changeToolBar(
+                                            getString(applicationInfo.labelRes), R.drawable.ic_baseline_menu
+                                        )
+                                        changeFabImage(getDrawable(R.drawable.tag_plus))
+                                    }
+                                }
+                                is BoardDetailFragment ->{
+                                    currentFragment.update()
+                                    fm.popBackStack(
+                                        TAG_DETAIL_FRAGMENT,
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE
+                                    )
+                                    // bottomAppBar.navigationIcon = getDrawable(ic_baseline_menu)
+                                    // bottomAppBar.replaceMenu(bottom_app_bar_main)
+                                    mHandler.post {
+                                        changeToolBar(getString(applicationInfo.labelRes), R.drawable.ic_baseline_menu)
+                                        changeFabImage(getDrawable(R.drawable.tag_plus))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setNavigation() {
+        mToolbar.setNavigationOnClickListener {
+            val fragment: Fragment? =
+                supportFragmentManager.findFragmentById(R.id.fragment_main_container)
+            if (fragment is BoardListFragment) {
+                mBinding?.drawerLayout?.openDrawer(GravityCompat.START)
+            } else {
+                onBackPressed()
             }
         }
 
+        mBinding?.navigationView?.setNavigationItemSelectedListener { menuItem ->
+            // menuItem.isChecked = true
+            when (menuItem.itemId) {
+                R.id.navigation_item_version -> {
+                    showToast(
+                        context = MainActivity@ this,
+                        msg = "Version: " + packageManager.getPackageInfo(
+                            packageName,
+                            0
+                        ).versionName + "v"
+                    )
+                }
+
+            }
+            mBinding?.drawerLayout?.closeDrawers()
+            true
+        }
     }
 
-    private fun BottomAppBar.toggleFab() {
-        mCurrentFabAlignmentMode = fabAlignmentMode
-        fabAlignmentMode = mCurrentFabAlignmentMode.xor(1)
+    fun toggleFab() {
+        mBinding?.bottomAppBar?.apply {
+            mCurrentFabAlignmentMode = fabAlignmentMode
+            fabAlignmentMode = mCurrentFabAlignmentMode.xor(1)
+        }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        mBinding?.btnAdd?.hide(addVisibilityChanged)
+    fun changeFabImage(image: Drawable?) {
+        mBinding?.btnAdd?.setImageDrawable(image)
     }
 }
 

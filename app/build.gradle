@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     // Audio
     implementation 'com.github.melow2:AudioRecordButton:2.1.0'
-
-
+    // Progress Bar
+    implementation 'com.github.HotBitmapGG:RingProgressBar:V1.2.3'
 
 }

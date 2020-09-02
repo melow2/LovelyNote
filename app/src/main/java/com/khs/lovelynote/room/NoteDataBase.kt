@@ -8,7 +8,7 @@ import com.khs.lovelynote.util.Converters
 
 @Database(
     entities = [LovelyNoteEntity::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(Converters::class)
 abstract class NoteDataBase:RoomDatabase(){

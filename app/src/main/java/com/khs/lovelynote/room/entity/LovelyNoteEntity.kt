@@ -17,7 +17,9 @@ data class LovelyNoteEntity(
     @ColumnInfo(name = "note_update_time")
     var noteUpdateTime: Date?=null,
     @ColumnInfo(name = "note_is_hold")
-    var noteIsHold: Boolean?=null
+    var noteIsHold: Boolean?=null,
+    @ColumnInfo(name = "note_is_lock")
+    var noteIsLock: Boolean?=null
 
 ){
     @PrimaryKey
@@ -31,7 +33,8 @@ data class LovelyNoteEntity(
         createTime:Date?,
         updateTime:Date?,
         mediaItemList: List<MediaStoreItem>?,
-        isHold:Boolean?
+        isHold:Boolean?,
+        isLock:Boolean?
     ):this(){
         this.noteId = id
         this.noteContent = content
@@ -39,5 +42,6 @@ data class LovelyNoteEntity(
         this.noteUpdateTime = updateTime
         this.noteMediaItemList = mediaItemList
         this.noteIsHold = isHold
+        this.noteIsLock = isLock
     }
 }

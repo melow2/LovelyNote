@@ -47,6 +47,7 @@ class MediaStoreViewPagerActivity : BaseActivity<ActivityAddedViewPagerBinding>(
         }
     }
 
+
     inner class ViewPagerChangeCallback:ViewPager2.OnPageChangeCallback(){
         override fun onPageScrollStateChanged(state: Int) {
             super.onPageScrollStateChanged(state)
