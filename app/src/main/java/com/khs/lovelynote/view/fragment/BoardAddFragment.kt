@@ -843,10 +843,6 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
         boardAddVM.insertItem(note)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
     override fun onDetach() {
         super.onDetach()
         save()
