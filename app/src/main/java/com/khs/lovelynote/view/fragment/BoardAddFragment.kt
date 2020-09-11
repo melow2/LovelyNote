@@ -533,7 +533,6 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     /**
      * 리사이클러뷰에서 보여줄 수 있는 이미지의 갯수를 결정하는 메소드.
-     *
      * @param range: 이미지 갯수.
      * */
     private fun changedReyclerItemRange(range: Int) {
