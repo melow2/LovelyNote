@@ -20,7 +20,6 @@ data class LovelyNoteEntity(
     var noteIsHold: Boolean?=null,
     @ColumnInfo(name = "note_is_lock")
     var noteIsLock: Boolean?=null
-
 ){
     @PrimaryKey
     @ColumnInfo(name="note_id")

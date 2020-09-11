@@ -24,8 +24,8 @@
             android:background="@color/colorHotPink"
             android:layout_height="wrap_content">
             <LinearLayout
-                android:layout_width="125dp"
-                android:layout_height="125dp"
+                android:layout_width="155dp"
+                android:layout_height="155dp"
                 android:gravity="center"
                 android:orientation="vertical"
                 app:layout_constraintRight_toRightOf="parent"
@@ -40,6 +40,14 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:textSize="18dp"
+                    android:text="Delete"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -52,8 +60,8 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/root_thumbnail_lyt"
-                android:layout_width="125dp"
-                android:layout_height="125dp"
+                android:layout_width="155dp"
+                android:layout_height="155dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toLeftOf="@id/root_content_lyt"
@@ -65,7 +73,6 @@
                     android:layout_height="0dp"
                     android:scaleType="centerCrop"
                     android:visibility="gone"
-                    android:transitionName="zoom"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
@@ -231,10 +238,10 @@
                     android:id="@+id/tv_item_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
+                    android:layout_margin="6dp"
                     android:background="@drawable/background_item_count"
                     android:gravity="center"
-                    android:textSize="10dp"
+                    android:textSize="13dp"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"
                     app:layout_constraintRight_toRightOf="parent"
@@ -257,10 +264,9 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:ellipsize="end"
-                    android:maxLines="4"
-                    android:padding="9dp"
-                    android:textSize="13dp"
-                    android:textColor="@color/colorDarkGray"
+                    android:maxLines="5"
+                    android:padding="10dp"
+                    android:textSize="15dp"
                     android:text="@{note._content}"
                     app:layout_constraintBottom_toTopOf="@id/tv_modified_time"
                     app:layout_constraintLeft_toLeftOf="parent"

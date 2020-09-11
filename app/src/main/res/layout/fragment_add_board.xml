@@ -20,8 +20,10 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/root_add_board_lyt"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true">
+            android:layout_height="0dp"
+            android:fitsSystemWindows="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/root_created_time_lyt">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -119,15 +121,6 @@
                             android:visibility="gone"
                             tools:listitem="@layout/board_item_media_video" />
 
-                        <androidx.appcompat.widget.AppCompatImageButton
-                            android:id="@+id/btn_table_plus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="10dp"
-                            android:background="?android:selectableItemBackgroundBorderless"
-                            android:src="@drawable/table_plus"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -278,35 +271,10 @@
                     android:layout_width="0dp"
                     android:layout_height="0.5dp"
                     android:background="@color/colorGray"
-                    app:layout_constraintBottom_toTopOf="@id/tv_timestamp"
+                    app:layout_constraintBottom_toTopOf="@id/edt_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/root_all_btn_layout" />
-
-                <TextView
-                    android:id="@+id/tv_timestamp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:gravity="left"
-                    android:padding="10dp"
-                    android:textColor="@android:color/black"
-                    android:textSize="14dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@id/edt_content"
-                    app:layout_constraintTop_toBottomOf="@id/div2"
-                    tools:text="Aug 25, 2020 4:02:45 AM" />
-
-                <View
-                    android:id="@+id/div3"
-                    android:layout_width="0dp"
-                    android:layout_height="0.5dp"
-                    android:background="@color/colorGray"
-                    app:layout_constraintBottom_toTopOf="@id/edt_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_timestamp" />
-
 
                 <EditText
                     android:id="@+id/edt_content"
@@ -319,12 +287,39 @@
                     android:inputType="textMultiLine"
                     android:padding="10dp"
                     android:textIsSelectable="true"
-                    android:textSize="15dp"
+                    android:textSize="16dp"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_timestamp"
+                    app:layout_constraintTop_toBottomOf="@id/div2"
                     tools:text="Hello Stranger" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <LinearLayout
+            android:layout_marginLeft="5dp"
+            android:id="@+id/root_created_time_lyt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent">
+            <TextView
+                android:text="Created. "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                android:padding="5dp"/>
+            <TextView
+                android:id="@+id/tv_timestamp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:gravity="left"
+                android:padding="5dp"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="Aug 25, 2020 4:02:45 AM"/>
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

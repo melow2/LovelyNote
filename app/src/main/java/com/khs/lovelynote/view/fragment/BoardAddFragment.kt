@@ -10,12 +10,12 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.view.*
 import android.widget.LinearLayout
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
 import com.khs.audiorecorder.AudioListener
@@ -49,6 +49,10 @@ import com.khs.lovelynote.view.behavior.KeyBoardActionBehavior
 import com.khs.lovelynote.view.dialog.AudioPlayDialogFragment
 import com.khs.lovelynote.viewmodel.BoardAddVM
 import com.khs.lovelynote.viewmodel.factory.BoardAddVMFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 
@@ -66,12 +70,19 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
     private lateinit var mediaVideoPagedAdapter: MediaVideoPagedAdapter
     private lateinit var selectedListAdapter: SelectedMediaFileListAdapter
     private lateinit var audioRecording: AudioRecording
-    private lateinit var mActivity:MainActivity
+    private lateinit var mActivity: MainActivity
     private val currentDate = Date()
+    private var imageTableCounter: Int = GALLERY_ITEM_RANGE
+    private var audioTableCounter: Int = AUDIO_ITEM_RANGE
+    private var videoTableCounter: Int = VIDEO_ITEM_RANGE
+    private val mScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
+        private var CURRENT_MENU_STATE: String = "MENU_STATE_MAIN"
+        private var MENU_STATE_MEDIA: String = "MENU_STATE_MEDIA"
+        private var MENU_STATE_MAIN: String = "MENU_STATE_MAIN"
 
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
@@ -163,8 +174,51 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.clear()
-        inflater.inflate(R.menu.toolbar_menu_add,menu)
+        when (CURRENT_MENU_STATE) {
+            MENU_STATE_MAIN -> {
+                inflater.inflate(R.menu.toolbar_menu_add, menu)
+            }
+            MENU_STATE_MEDIA -> {
+                inflater.inflate(R.menu.toolbar_menu_add_media, menu)
+            }
+        }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.change_table -> {
+                var targetRangeCounter: Int = GALLERY_ITEM_RANGE
+                mBinding?.apply {
+                    when {
+                        rcvMediaImageList.visibility == View.VISIBLE -> {
+                            if (imageTableCounter < 5) ++imageTableCounter
+                            else {
+                                imageTableCounter = Constants.GALLERY_ITEM_RANGE
+                            }
+                            targetRangeCounter = imageTableCounter
+                        }
+                        rcvMediaAudioList.visibility == View.VISIBLE -> {
+                            if (audioTableCounter < 5) ++audioTableCounter
+                            else {
+                                audioTableCounter = Constants.AUDIO_ITEM_RANGE
+                            }
+                            targetRangeCounter = audioTableCounter
+                        }
+                        rcvMediaVideoList.visibility == View.VISIBLE -> {
+                            if (videoTableCounter < 5) ++videoTableCounter
+                            else {
+                                videoTableCounter = Constants.VIDEO_ITEM_RANGE
+                            }
+                            targetRangeCounter = videoTableCounter
+                        }
+                    }
+                    changedReyclerItemRange(targetRangeCounter)
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -184,8 +238,21 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
     }
 
     private fun initView() {
-        mBinding?.tvTimestamp?.text = currentDate.normalTimeStamp()
-        mBinding?.edtContent?.onFocusChangeListener = KeyBoardActionBehavior(requireActivity()).focusChangeListener
+        mBinding?.apply {
+            tvTimestamp?.text = currentDate.normalTimeStamp()
+            edtContent?.onFocusChangeListener = KeyBoardActionBehavior().apply {
+                addFocusChangeListenerEvent(object :
+                    KeyBoardActionBehavior.FocusChangeListenerEvent {
+                    override fun focusOn() {
+                        mBinding?.rootCreatedTimeLyt?.fadeOutAnimation()
+                    }
+
+                    override fun focusOff() {
+                        mBinding?.rootCreatedTimeLyt?.fadeInAnimation()
+                    }
+                })
+            }
+        }
     }
 
     private fun setUpRecyclerView() {
@@ -246,12 +313,7 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
      * 1) TABLE_RANGE_COUNT를 전역변수처럼 쓸 수 있음.
      * */
     private fun setUpListener() {
-
-        var imageTableCounter: Int = GALLERY_ITEM_RANGE
-        var audioTableCounter: Int = AUDIO_ITEM_RANGE
-        var videoTableCounter: Int = VIDEO_ITEM_RANGE
         audioRecording = AudioRecording(context)
-
         mBinding?.apply {
             /***************************************************************************
              * 메인 버튼 ( 파일, 비디오, 오디오, 카메라, 미디어스토어)
@@ -321,11 +383,13 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             // 미디어 스토어 버튼.
             btnMediaStore.setOnClickListener {
+                CURRENT_MENU_STATE = MENU_STATE_MEDIA
                 rootMediaLayout.expandAnimation(DURATION_FADE_OUT, MEDIA_RCV_HEIGHT)
                 rootMediaBtnLayout.fadeInAnimation()
                 rootMainBtn.fadeOutAnimation()
                 rootMediaAddedList.fadeOutAnimation()
                 rootMediaFileList.fadeInAnimation()
+                mActivity.invalidateOptionsMenu()
             }
 
             /***************************************************************************
@@ -372,6 +436,7 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
             // 아이템 추가 버튼.
             btnItemAdd.setOnClickListener {
+                CURRENT_MENU_STATE = MENU_STATE_MAIN
                 rootMediaBtnLayout.fadeOutAnimation()
                 rootMainBtn.fadeInAnimation()
                 rootMediaFileList.fadeOutAnimation()
@@ -387,47 +452,8 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
                         else rootMediaAddedList.fadeInAnimation()
                     }
                 }
+                mActivity.invalidateOptionsMenu()
             }
-
-            // 리싸이클러뷰 뷰 범위 변경.
-            btnTablePlus.setOnClickListener {
-                var targetRangeCounter: Int = GALLERY_ITEM_RANGE
-                when {
-                    rcvMediaImageList.visibility == View.VISIBLE -> {
-                        if (imageTableCounter < 5) ++imageTableCounter
-                        else {
-                            imageTableCounter = GALLERY_ITEM_RANGE
-                        }
-                        targetRangeCounter = imageTableCounter
-                    }
-                    rcvMediaAudioList.visibility == View.VISIBLE -> {
-                        if (audioTableCounter < 5) ++audioTableCounter
-                        else {
-                            audioTableCounter = AUDIO_ITEM_RANGE
-                        }
-                        targetRangeCounter = audioTableCounter
-                    }
-                    rcvMediaVideoList.visibility == View.VISIBLE -> {
-                        if (videoTableCounter < 5) ++videoTableCounter
-                        else {
-                            videoTableCounter = VIDEO_ITEM_RANGE
-                        }
-                        targetRangeCounter = videoTableCounter
-                    }
-                }
-                changedReyclerItemRange(targetRangeCounter)
-            }
-
-/*
-            btnSave.setOnClickListener {
-                testSave(System.currentTimeMillis().toString())
-            }
-
-            btnRead.setOnClickListener {
-                testRead()
-            }
-*/
-
         }
     }
 
@@ -754,12 +780,12 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
      * - content로 읽은 uri은 copyContentUri()로 파일 복사.
      * - storage로 읽은 uri은 copyStorageUri()로 파일 복사.
      * - 결과적으로 모두 content uri로 저장되고, 이는 실제 경로가 아님.
-     * @param Id 디렉토리 Id
      * @author 권혁신
      * @version 1.0.0
      * @since 2020-08-23 오후 2:43
      **/
-    fun save(Id: String) {
+    fun save() {
+        val Id = System.currentTimeMillis().toString()
         val mediaItemList: ArrayList<MediaStoreItem>? = arrayListOf()
         for (target in boardAddVM.getAllSelectedItemList()) {
             val item: MediaStoreItem = when (target.type) {
@@ -799,7 +825,6 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
         if (content.isNullOrEmpty() && mediaItemList.isNullOrEmpty()) {
             return
         }
-
         var thumbnail = if (mediaItemList?.size != 0) {
             mediaItemList?.get(0)?.contentUri
         } else {
@@ -824,15 +849,24 @@ class BoardAddFragment : BaseFragment<FragmentAddBoardBinding>(),
 
     override fun onDetach() {
         super.onDetach()
-        requireContext().clearCacheData()
-        Timber.d("onDetach()")
+        save()
+        clearCacheData()
+    }
+
+    private fun clearCacheData() {
+        // 녹음 파일이 캐시데이터로 저장 되기 때문에 삭제해야 함.
+        mScope.launch {
+            withContext(Dispatchers.IO){
+                context?.clearCacheData()
+            }
+        }
     }
 
     override fun onBackPressed(): Boolean {
-        mActivity.apply{
+        mActivity.apply {
             toggleFab()
             changeFabImage(getDrawable(R.drawable.tag_plus))
-            changeToolBar(getString(applicationInfo.labelRes),R.drawable.ic_baseline_menu)
+            changeToolBar(getString(applicationInfo.labelRes), R.drawable.ic_baseline_menu)
         }
         parentFragmentManager.popBackStack(
             Constants.TAG_ADD_FRAGMENT,

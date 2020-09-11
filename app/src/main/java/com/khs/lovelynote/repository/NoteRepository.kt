@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.ContentValues
 import android.content.Intent
 import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.khs.lovelynote.extension.toEntity
@@ -31,31 +33,23 @@ class NoteRepository(application: Application): NoteBaseRepository {
         noteDao=db?.noteDao()
     }
 
-    override fun update(item: LovelyNote) {
-        AsyncTask.execute {
-            noteDao?.update(item.toEntity())
-        }
+    override suspend fun update(item: LovelyNote) {
+        noteDao?.update(item.toEntity())
     }
 
-    override fun insert(item: LovelyNote) {
-        AsyncTask.execute {
-            noteDao?.insert(item.toEntity())
-        }
+    override suspend fun insert(item: LovelyNote) {
+        noteDao?.insert(item.toEntity())
     }
 
-    override fun delete(item: LovelyNote) {
-        AsyncTask.execute {
-            noteDao?.delete(item.toEntity())
-        }
+    override suspend fun delete(item: LovelyNote) {
+        noteDao?.delete(item.toEntity())
     }
 
-    override fun delete(noteId: Long) {
-        AsyncTask.execute {
-            noteDao?.delete(noteId)
-        }
+    override suspend fun delete(noteId: Long) {
+        noteDao?.delete(noteId)
     }
 
-    override fun deleteAll() {
+    override suspend fun deleteAll() {
 
     }
 

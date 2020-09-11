@@ -24,12 +24,12 @@ class BoardListVM(application: Application, private val param1: Int) :
         return mNoteList
     }
 
-    fun removeItem(item: LovelyNote) {
+    suspend fun removeItem(item: LovelyNote) {
         noteRepository.delete(item)
     }
 
 
-    fun insertItem(item: LovelyNote) {
+    suspend fun insertItem(item: LovelyNote) {
         noteRepository.insert(item)
     }
 

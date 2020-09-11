@@ -1,11 +1,10 @@
-package com.khs.lovelynote.util
+package com.khs.lovelynote.view.adapter
 
 
 import android.graphics.Canvas
 import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.khs.lovelynote.view.adapter.LovelyNoteListAdapter
 
 
 class RecyclerItemTouchHelper(

@@ -4,24 +4,25 @@ import android.app.Activity
 import android.view.View
 import android.view.WindowManager
 import com.khs.lovelynote.databinding.FragmentAddBoardBinding
+import com.khs.lovelynote.view.activity.MainActivity
 
-class KeyBoardActionBehavior(
-    val mActivity: Activity
-){
-    val focusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
-        if(!hasFocus){
-            hideKeyboard();
-        }else{
-            showKeyboard()
-        }
+class KeyBoardActionBehavior():View.OnFocusChangeListener{
+
+    lateinit var listener:FocusChangeListenerEvent
+
+    interface FocusChangeListenerEvent{
+        fun focusOn()
+        fun focusOff()
     }
 
-    private fun showKeyboard() {
-       // mActivity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-
+    fun addFocusChangeListenerEvent(listener:FocusChangeListenerEvent){
+        this.listener = listener
     }
 
-    private fun hideKeyboard() {
-       // mActivity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+    override fun onFocusChange(view: View?, focus: Boolean){
+        if(focus){
+            listener.focusOn()
+        }else
+            listener.focusOff()
     }
 }

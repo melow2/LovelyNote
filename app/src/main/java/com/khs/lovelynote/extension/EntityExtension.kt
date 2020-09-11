@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import com.khs.lovelynote.model.LovelyNote
 import com.khs.lovelynote.room.entity.LovelyNoteEntity
 
+
 fun toListModel(entities: List<LovelyNoteEntity>): List<LovelyNote> {
     val itemList = mutableListOf<LovelyNote>()
     var thumbnail: String? = null

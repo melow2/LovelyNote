@@ -207,14 +207,17 @@ fun Context.createMediaFile(dirId: String, mediaItem: MediaStoreItem?): File {
         dirPath.mkdirs()
     }
     val file = File(Uri.parse(mediaItem?.contentUri).path)
-    val fileName = file.name.substringBeforeLast('.')
+    var fileName = file.name.substringBeforeLast('.')
     var fileExtend = getExtension(file.absolutePath)
     if (fileExtend.isEmpty()) {
-        when (mediaItem?.type) {
-            MediaStoreFileType.IMAGE -> fileExtend = PNG
-            MediaStoreFileType.AUDIO -> fileExtend = MP3
-            MediaStoreFileType.VIDEO -> fileExtend = MP4
-            else -> "unknown"
+        fileName = mediaItem?.displayName?.substringBeforeLast('.').toString()
+        fileExtend = when (mediaItem?.type) {
+            MediaStoreFileType.IMAGE -> PNG
+            MediaStoreFileType.AUDIO -> MP3
+            MediaStoreFileType.VIDEO -> MP4
+            else -> {
+                mediaItem?.displayName?.substringAfterLast('.').toString()
+            }
         }
     }
     return File(dirPath, "${fileName}.${fileExtend}")
@@ -227,8 +230,8 @@ fun Context.createMediaFile(dirId: String, mediaItem: MediaStoreItem?): File {
  * @version 1.0.0
  * @since 2020-08-23 오후 1:59
  **/
-fun Uri.delete(contentResolver: ContentResolver) {
-    contentResolver.delete(this, null, null)
+fun Uri.delete(contentResolver: ContentResolver?) {
+    contentResolver?.delete(this, null, null)
 }
 
 /**
@@ -242,11 +245,11 @@ fun Uri.delete(contentResolver: ContentResolver) {
 fun Context.clearDirData(dirId: String) {
     val dirPath = File(getExternalFilesDir(null), dirId)
     val childList = dirPath.listFiles()
-    if(dirPath.exists()){
-        for(file in childList){
-            if(file.isDirectory){
+    if (dirPath.exists()) {
+        for (file in childList) {
+            if (file.isDirectory) {
                 clearDirData(file.absolutePath)
-            }else{
+            } else {
                 file.delete()
             }
         }
@@ -274,15 +277,44 @@ fun Context.clearCacheData() {
     }
 }
 
-
-fun Context.isFileExist(dirId:String,fName:String): Boolean {
+/**
+ * 파일이 존재하는지 확인.
+ * @param dirId 디렉토리 id
+ * @param fName 파일 이름.
+ * @author 권혁신
+ * @version 1.0.0
+ * @since 2020-09-02 오후 4:51
+ **/
+fun Context.isFileExist(dirId: String, fName: String): Boolean {
     val dirPath = File(getExternalFilesDir(null), dirId)
     val childList = dirPath.listFiles()
-    if(dirPath.exists()){
-        for(file in childList){
-            if(file.name == fName)
+    if (dirPath.exists()) {
+        for (file in childList) {
+            if (file.name == fName)
                 return true
         }
+    }
+    return false
+}
+
+/**
+ * 사용할 수 있는 contentUri인지(uri에 파일이 존재하는지 확인)
+ * @author 권혁신
+ * @version 1.0.0
+ * @since 2020-09-02 오후 4:56
+ **/
+fun Context.isContentUriAvailable(uri: Uri?): Boolean {
+    var cursor: Cursor? = null
+    try {
+        cursor = contentResolver.query(
+            uri!!, null, null, null,
+            null
+        )
+        if (cursor != null && cursor.moveToFirst()) {
+            return true
+        }
+    } finally {
+        cursor?.close()
     }
     return false
 }

@@ -17,6 +17,7 @@ import com.khs.lovelynote.extension.Constants.TYPE_AUDIO
 import com.khs.lovelynote.extension.Constants.TYPE_IMAGE
 import com.khs.lovelynote.extension.Constants.TYPE_VIDEO
 import com.khs.lovelynote.model.mediastore.*
+import java.lang.Exception
 import java.util.*
 
 
@@ -232,8 +233,9 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
                     val id = System.currentTimeMillis()
                     val dateModified = Date()
                     val displayName = cursor.getString(displayNameColumn)
-                    var album:String?= getMediaMetaData(uri, METADATA_KEY_ALBUM) ?: "LovelyNote"
-                    var title:String?= getMediaMetaData(uri, METADATA_KEY_TITLE) ?: displayName.substringBeforeLast(".")
+                    var album: String? = getMediaMetaData(uri, METADATA_KEY_ALBUM) ?: "LovelyNote"
+                    var title: String? = getMediaMetaData(uri, METADATA_KEY_TITLE)
+                        ?: displayName.substringBeforeLast(".")
                     val duration = getMediaMetaData(uri, METADATA_KEY_DURATION)
                     return MediaStoreAudio(
                         id = id,
@@ -250,7 +252,7 @@ fun Context.getDataFromContentUri(uri: Uri): MediaStoreItem? {
         }
         MediaStoreFileType.VIDEO -> {
             // 외부 비디오 앱을 사용했을 경우.
-            if(query==null){
+            if (query == null) {
                 return MediaStoreVideo(
                     System.currentTimeMillis(),
                     Date(),
@@ -305,19 +307,19 @@ fun ContentResolver.getMediaItemType(uri: Uri): MediaStoreFileType {
         val idx = this.indexOf("/")
         this.substring(0, idx)
     }.apply {
-        if(this==null){
+        if (this == null) {
             // content 가 아닐 경우.
-            return when(uri.toString().substringAfterLast(".")){
-                MP3->{
+            return when (uri.toString().substringAfterLast(".")) {
+                MP3 -> {
                     MediaStoreFileType.AUDIO
                 }
-                MP4 ->{
+                MP4 -> {
                     MediaStoreFileType.VIDEO
                 }
-                JPG, JPEG, PNG, BMP,GIF->{
+                JPG, JPEG, PNG, BMP, GIF -> {
                     MediaStoreFileType.IMAGE
                 }
-                else->{
+                else -> {
                     MediaStoreFileType.FILE
                 }
             }
@@ -333,9 +335,14 @@ fun ContentResolver.getMediaItemType(uri: Uri): MediaStoreFileType {
 
 fun Context.getMediaMetaData(uri: Uri, metaData: Int): String? {
     val retriever = MediaMetadataRetriever();
-    retriever.setDataSource(this, uri);
-    val data = retriever.extractMetadata(metaData);
-    retriever.release()
+    var data:String?=null
+    try {
+        retriever.setDataSource(this, uri);
+        data = retriever.extractMetadata(metaData);
+        retriever.release()
+    }catch (e:Exception){
+        return null
+    }
     return when (metaData) {
         METADATA_KEY_DURATION -> data?.toLong().toString()
         METADATA_KEY_ALBUM, METADATA_KEY_TITLE -> data

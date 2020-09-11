@@ -16,6 +16,7 @@ import com.khs.lovelynote.repository.NoteRepository
 import com.khs.lovelynote.viewmodel.factory.MediaAudioSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaImageSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaVideoSourceFactory
+import kotlinx.coroutines.*
 import timber.log.Timber
 
 class BoardDetailVM(application: Application, private val noteId: Long) :
@@ -31,6 +32,8 @@ class BoardDetailVM(application: Application, private val noteId: Long) :
     private val mContext = application.applicationContext
     private var mLovelyNote: MutableLiveData<LovelyNote> = MutableLiveData()
     private val noteRepository: NoteRepository = NoteRepository.getInstance(application)
+    private val mJob = Job()
+    private val mScope = CoroutineScope(Dispatchers.Main+mJob)
 
     init {
         mLovelyNote = noteRepository.getItem(noteId) as MutableLiveData<LovelyNote>
@@ -52,12 +55,20 @@ class BoardDetailVM(application: Application, private val noteId: Long) :
         return mLovelyNote
     }
 
-    fun deleteNote(noteId:Long){
-        noteRepository.delete(noteId)
+    fun deleteNote(noteId:Long) {
+        mScope.launch {
+            withContext(Dispatchers.IO) {
+                noteRepository.delete(noteId)
+            }
+        }
     }
 
-    fun updateNote(item: LovelyNote){
-        noteRepository.update(item)
+    fun updateNote(item: LovelyNote) {
+        mScope.launch {
+            withContext(Dispatchers.IO) {
+                noteRepository.update(item)
+            }
+        }
     }
 
 
@@ -69,7 +80,7 @@ class BoardDetailVM(application: Application, private val noteId: Long) :
         return mAudioList
     }
 
-    fun getVedios(): LiveData<PagedList<MediaStoreVideo>> {
+    fun getVideos(): LiveData<PagedList<MediaStoreVideo>> {
         return mVideoList
     }
 

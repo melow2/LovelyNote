@@ -18,6 +18,10 @@ import com.khs.lovelynote.repository.NoteRepository
 import com.khs.lovelynote.viewmodel.factory.MediaAudioSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaImageSourceFactory
 import com.khs.lovelynote.viewmodel.factory.MediaVideoSourceFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -60,6 +64,10 @@ class BoardAddVM(application: Application, private val param1: Int) :
     private val mPagedListConfig: PagedList.Config
     private val mSelectedMediaStoreItemList: MutableLiveData<List<SelectedMediaStoreItem>> = MutableLiveData()
     private val noteRepository: NoteRepository = NoteRepository.getInstance(application)
+
+    // viewModelScope를 사용할 수 있지만, viewModel이 사라지면 코루틴이 취소되기에 사용하지 못했음.
+    private val mJob = Job()
+    private val mScope:CoroutineScope = CoroutineScope(Dispatchers.IO+mJob)
 
     init {
         mImageSourceFactory = MediaImageSourceFactory(mContext)
@@ -198,8 +206,15 @@ class BoardAddVM(application: Application, private val param1: Int) :
         }
     }
 
-    fun insertItem(item: LovelyNote){
-        noteRepository.insert(item)
+    override fun onCleared() {
+        super.onCleared()
+        // mJob.cancel()
+    }
+
+    fun insertItem(item:LovelyNote) {
+        mScope.launch {
+            noteRepository.insert(item)
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)

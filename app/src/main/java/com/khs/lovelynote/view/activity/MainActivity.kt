@@ -1,6 +1,7 @@
 package com.khs.lovelynote.view.activity
 
 import android.graphics.drawable.Drawable
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -124,7 +125,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                         BottomAppBar.FAB_ALIGNMENT_MODE_END -> {
                             when (currentFragment) {
                                 is BoardAddFragment ->{
-                                    mBoardAddFragment.save(System.currentTimeMillis().toString())
                                     fm.popBackStack(
                                         TAG_ADD_FRAGMENT,
                                         FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -139,7 +139,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                                     }
                                 }
                                 is BoardDetailFragment ->{
-                                    currentFragment.update()
                                     fm.popBackStack(
                                         TAG_DETAIL_FRAGMENT,
                                         FragmentManager.POP_BACK_STACK_INCLUSIVE

@@ -60,7 +60,7 @@ object Constants {
     const val VIDEO_ITEM_RANGE = 2              // 비디오 아이템 시작 범위
     const val SELECTED_ITEM_RANGE = 2           // 선택한 아이템 시작 범위
 
-    /** Animation Duration*/
+    /** Animation */
     const val DURATION_FADE_IN: Long = 900
     const val DURATION_FADE_OUT: Long = 300
 

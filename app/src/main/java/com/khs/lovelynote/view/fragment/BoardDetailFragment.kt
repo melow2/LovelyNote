@@ -41,7 +41,10 @@ import com.khs.lovelynote.view.behavior.KeyBoardActionBehavior
 import com.khs.lovelynote.view.dialog.AudioPlayDialogFragment
 import com.khs.lovelynote.viewmodel.BoardDetailVM
 import com.khs.lovelynote.viewmodel.factory.BoardDetailVMFactory
-import timber.log.Timber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
 
@@ -60,15 +63,24 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
     private val handler = Handler(Looper.getMainLooper())
     private var mNoteId: Long = 0L
     private var mMediaItemSize: Int = 0
-    private val currentDate = Date()
+    private var mDeletedList = mutableListOf<Uri>()
+    private var imageTableCounter: Int = Constants.GALLERY_ITEM_RANGE
+    private var audioTableCounter: Int = Constants.AUDIO_ITEM_RANGE
+    private var videoTableCounter: Int = Constants.VIDEO_ITEM_RANGE
+
+    private val mScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
+        private var CURRENT_MENU_STATE: String = "MENU_STATE_MAIN"
+        private var MENU_STATE_MEDIA: String = "MENU_STATE_MEDIA"
+        private var MENU_STATE_MAIN: String = "MENU_STATE_MAIN"
+
         @JvmStatic
         fun newInstance(noteId: Long, mediaItemSize: Int) =
             BoardDetailFragment().apply {
                 arguments = Bundle().apply {
                     putLong(TAG_NOTE_ID, noteId)
-                    putInt(TAG_MEDIA_ITEM_SIZE,mediaItemSize)
+                    putInt(TAG_MEDIA_ITEM_SIZE, mediaItemSize)
                 }
             }
     }
@@ -208,7 +220,14 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         menu.clear()
-        inflater.inflate(R.menu.toolbar_menu_detail, menu)
+        when (CURRENT_MENU_STATE) {
+            MENU_STATE_MAIN -> {
+                inflater.inflate(R.menu.toolbar_menu_detail, menu)
+            }
+            MENU_STATE_MEDIA -> {
+                inflater.inflate(R.menu.toolbar_menu_detail_media, menu)
+            }
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -231,6 +250,41 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
         bindView(inflater, container!!, R.layout.fragment_board_detail)
         mActivity = activity as MainActivity
         return mBinding?.root
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.change_table -> {
+                var targetRangeCounter: Int = Constants.GALLERY_ITEM_RANGE
+                mBinding?.apply {
+                    when {
+                        rcvMediaImageList.visibility == View.VISIBLE -> {
+                            if (imageTableCounter < 5) ++imageTableCounter
+                            else {
+                                imageTableCounter = Constants.GALLERY_ITEM_RANGE
+                            }
+                            targetRangeCounter = imageTableCounter
+                        }
+                        rcvMediaAudioList.visibility == View.VISIBLE -> {
+                            if (audioTableCounter < 5) ++audioTableCounter
+                            else {
+                                audioTableCounter = Constants.AUDIO_ITEM_RANGE
+                            }
+                            targetRangeCounter = audioTableCounter
+                        }
+                        rcvMediaVideoList.visibility == View.VISIBLE -> {
+                            if (videoTableCounter < 5) ++videoTableCounter
+                            else {
+                                videoTableCounter = Constants.VIDEO_ITEM_RANGE
+                            }
+                            targetRangeCounter = videoTableCounter
+                        }
+                    }
+                    changedReyclerItemRange(targetRangeCounter)
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -257,14 +311,25 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
 
     private fun initView() {
         mBinding?.apply {
-            if(mMediaItemSize>0){
+            if (mMediaItemSize > 0) {
                 rootMediaLayout.expandAnimation(
                     Constants.DURATION_FADE_OUT,
                     Constants.MEDIA_RCV_HEIGHT
                 )
                 rootMediaAddedList.fadeInAnimation()
             }
-            edtContent?.onFocusChangeListener = KeyBoardActionBehavior(requireActivity()).focusChangeListener
+            edtContent?.onFocusChangeListener = KeyBoardActionBehavior().apply {
+                addFocusChangeListenerEvent(object :
+                    KeyBoardActionBehavior.FocusChangeListenerEvent {
+                    override fun focusOn() {
+                        mBinding?.rootCreatedTimeLyt?.fadeOutAnimation()
+                    }
+
+                    override fun focusOff() {
+                        mBinding?.rootCreatedTimeLyt?.fadeInAnimation()
+                    }
+                })
+            }
         }
     }
 
@@ -272,10 +337,6 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
      * 1) TABLE_RANGE_COUNT를 전역변수처럼 쓸 수 있음.
      * */
     private fun setUpListener() {
-
-        var imageTableCounter: Int = Constants.GALLERY_ITEM_RANGE
-        var audioTableCounter: Int = Constants.AUDIO_ITEM_RANGE
-        var videoTableCounter: Int = Constants.VIDEO_ITEM_RANGE
         audioRecording = AudioRecording(context)
 
         mBinding?.apply {
@@ -362,6 +423,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
 
             // 미디어 스토어 버튼.
             btnMediaStore.setOnClickListener {
+                CURRENT_MENU_STATE = MENU_STATE_MEDIA
                 rootMediaLayout.expandAnimation(
                     Constants.DURATION_FADE_OUT,
                     Constants.MEDIA_RCV_HEIGHT
@@ -370,6 +432,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
                 rootMainBtn.fadeOutAnimation()
                 rootMediaAddedList.fadeOutAnimation()
                 rootMediaFileList.fadeInAnimation()
+                mActivity.invalidateOptionsMenu()
             }
 
             /***************************************************************************
@@ -383,7 +446,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
                     View.GONE
                 if (rcvMediaImageList.visibility == View.VISIBLE) rcvMediaImageList.visibility =
                     View.GONE
-                boardDetailVM.getVedios().observeOnce(viewLifecycleOwner, observerMediaStoreVideo)
+                boardDetailVM.getVideos().observeOnce(viewLifecycleOwner, observerMediaStoreVideo)
             }
 
             btnMediaImage.setOnClickListener {
@@ -416,6 +479,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
 
             // 아이템 추가 버튼.
             btnItemAdd.setOnClickListener {
+                CURRENT_MENU_STATE = MENU_STATE_MAIN
                 rootMediaBtnLayout.fadeOutAnimation()
                 rootMainBtn.fadeInAnimation()
                 rootMediaFileList.fadeOutAnimation()
@@ -431,46 +495,8 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
                         else rootMediaAddedList.fadeInAnimation()
                     }
                 }
+                mActivity.invalidateOptionsMenu()
             }
-
-            // 리싸이클러뷰 뷰 범위 변경.
-            btnTablePlus.setOnClickListener {
-                var targetRangeCounter: Int = Constants.GALLERY_ITEM_RANGE
-                when {
-                    rcvMediaImageList.visibility == View.VISIBLE -> {
-                        if (imageTableCounter < 5) ++imageTableCounter
-                        else {
-                            imageTableCounter = Constants.GALLERY_ITEM_RANGE
-                        }
-                        targetRangeCounter = imageTableCounter
-                    }
-                    rcvMediaAudioList.visibility == View.VISIBLE -> {
-                        if (audioTableCounter < 5) ++audioTableCounter
-                        else {
-                            audioTableCounter = Constants.AUDIO_ITEM_RANGE
-                        }
-                        targetRangeCounter = audioTableCounter
-                    }
-                    rcvMediaVideoList.visibility == View.VISIBLE -> {
-                        if (videoTableCounter < 5) ++videoTableCounter
-                        else {
-                            videoTableCounter = Constants.VIDEO_ITEM_RANGE
-                        }
-                        targetRangeCounter = videoTableCounter
-                    }
-                }
-                changedReyclerItemRange(targetRangeCounter)
-            }
-
-/*
-            btnSave.setOnClickListener {
-                testSave(System.currentTimeMillis().toString())
-            }
-
-            btnRead.setOnClickListener {
-                testRead()
-            }
-*/
         }
     }
 
@@ -691,16 +717,23 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
     // 클릭했을 때 뭘 하나 덜지우면, 깜빡거린다.
     override fun onDeleteSelectedItem(target: SelectedMediaStoreItem) {
         boardDetailVM.run {
-            target.selectedItem.position?.let { pos ->
-                when (target.selectedItem.type) {
-                    MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(pos)
-                    MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(pos)
-                    MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(pos)
-                    else -> return
+            handler.post {
+                target.selectedItem.position?.let { pos ->
+                    when (target.selectedItem.type) {
+                        MediaStoreFileType.IMAGE -> mediaImagePagedAdapter.removeSelectedItem(pos)
+                        MediaStoreFileType.AUDIO -> mediaAudioPagedAdapter.removeSelectedItem(pos)
+                        MediaStoreFileType.VIDEO -> mediaVideoPagedAdapter.removeSelectedItem(pos)
+                        else -> return@let
+                    }
                 }
+                val deleteItem = Uri.parse(target.selectedItem.item?.contentUri)
+                val dirName = File(deleteItem.path).parentFile.name
+                if (dirName == mNoteId.toString()) {
+                    mDeletedList.add(deleteItem)
+                }
+                removelSelectedItemAnimation(target.selectedItem)
+                removeSelectedItem(target)
             }
-            removelSelectedItemAnimation(target.selectedItem)
-            removeSelectedItem(target)
         }
     }
 
@@ -882,6 +915,7 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
         val content = mBinding?.edtContent?.text?.toString()?.trim()
         if (content.isNullOrEmpty() && mediaItemList.isNullOrEmpty()) {
             boardDetailVM.deleteNote(mNoteId)
+            clearDirData()
             return
         }
         var thumbnail = if (mediaItemList?.size != 0) {
@@ -895,21 +929,49 @@ class BoardDetailFragment : BaseFragment<BoardDetailDataBinding>(),
             thumbnail,
             mediaItemList,
             mBinding?.note?.createTimeStamp,
-            currentDate,
+            Date(),
             isHold = false,
             isLock = false
         )
         boardDetailVM.updateNote(note)
     }
 
+    private fun clearDirData(){
+        mScope.launch {
+            withContext(Dispatchers.IO){
+                context?.clearDirData(mNoteId.toString())
+            }
+        }
+    }
+
+    private fun clearCacheData() {
+        mScope.launch {
+            withContext(Dispatchers.IO){
+                context?.clearCacheData()
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+
     }
 
     override fun onDetach() {
         super.onDetach()
-        requireContext().clearCacheData()
-        Timber.d("onDetach()")
+        update()
+        clearCacheData()
+        onDeletedItemList()
+    }
+
+    private fun onDeletedItemList() {
+        mScope.launch {
+            withContext(Dispatchers.IO){
+                for (temp in mDeletedList) {
+                    temp.delete(context?.contentResolver)
+                }
+            }
+        }
     }
 
     override fun onBackPressed(): Boolean {

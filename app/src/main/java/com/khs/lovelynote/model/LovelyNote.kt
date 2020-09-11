@@ -54,7 +54,7 @@ data class LovelyNote(
         @Bindable get() = thumbnail
         set(value) {
             thumbnail = value
-            notifyPropertyChanged(BR._thumbnail)
+            // notifyPropertyChanged(BR._thumbnail)
         }
 
     constructor(source: Parcel) : this(
@@ -89,7 +89,9 @@ data class LovelyNote(
                 }
 
                 override fun areContentsTheSame(oldItem: LovelyNote, newItem: LovelyNote): Boolean {
-                    return oldItem.content.equals(newItem.content) && oldItem._mediaItems == newItem._mediaItems
+                    return oldItem.updateTimeStamp == newItem.updateTimeStamp
+                            && oldItem._mediaItems == newItem._mediaItems
+                            && oldItem._content == newItem._content
                 }
             }
 
